@@ -3,7 +3,8 @@ import NewPost from "../Componets/NewPost";
 import Post from "../Componets/Post";
 import { useAuth } from "../context/AuthContext.jsx";
 import { usePost } from "../context/PostContext.jsx";
-import './DashBoard.css'
+import { useEffect } from 'react';
+import './DashBoard.css';
 
 const DashBoard = () => {
     const imagenes = [
@@ -11,16 +12,20 @@ const DashBoard = () => {
         'src/assets/not2.png'
     ];
 
-    const { publicaciones } = usePost(); // Aquí obtienes las publicaciones desde el contexto de Post
+    const { publicaciones, getPost } = usePost();
     const { isAuthenticated } = useAuth();
+
+    
+    useEffect(() => {
+        getPost(); 
+    },[]);
 
     return (
         <>
             {isAuthenticated && <NewPost />}
             <section className="main">
                 <div className="dashboard">
-                    <div className="mainContent">
-                        {/* Mapea las publicaciones y pasa la información de cada una al componente Post */}
+                    <div className="mainContent">                        
                         {publicaciones.map((post) => (
                             <Post key={post._id} post={post} />
                         ))}                        

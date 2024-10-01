@@ -7,7 +7,7 @@ export const authRequired = (req, res, next) => {
 
     if (!token) {
         return res.status(401).json({
-            message: "No token, authorization denied"
+            message: "Usted debe Iniciar Sesión para realizar esta acción"
         });
     }
 

@@ -11,7 +11,7 @@ const RecuperarContraseña = () => {
     const navigate = useNavigate();
 
     const handleSubmit = (e) => {
-        e.preventDefault(); // Prevents form from reloading the page
+        e.preventDefault(); 
         if (!sendMail) {
             MySwal.fire({
                 title: "Código de Recuperación",
@@ -21,7 +21,6 @@ const RecuperarContraseña = () => {
             setSendMail(true);
             setButtonContent('Verificar Código');
         } else {
-            // Aquí iría la lógica de verificación del código
             MySwal.fire({
                 title: "Verificando Código",
                 text: "El código ha sido verificado con éxito.",

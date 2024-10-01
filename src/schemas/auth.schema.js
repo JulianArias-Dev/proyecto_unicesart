@@ -6,20 +6,6 @@ export const registerSchema = z.object({
     })
         .min(3, "El nombre completo debe tener al menos 3 caracteres")
         .max(50, "El nombre completo no debe exceder los 50 caracteres"),
-
-    birthDate: z.string({
-        required_error: "Fecha de nacimiento es requerida",
-    })
-        .regex(/^\d{4}-\d{2}-\d{2}$/, "La fecha de nacimiento debe estar en formato YYYY-MM-DD")
-        .refine((value) => {
-            const date = new Date(value);
-            const today = new Date();
-            const age = today.getFullYear() - date.getFullYear();
-            return age >= 15;
-        }, {
-            message: "Debes tener al menos 15 años",
-        }),
-
     username: z.string({
         required_error: "Nombre de usuario es requerido",
     })

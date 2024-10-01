@@ -4,19 +4,19 @@ import { getCategorias, getUbicaciones } from "../controllers/recursos.controlle
 import { createPost, getPost, reactions } from "../controllers/post.controller.js";
 import { authRequired } from "../middlewares/validateToken.js";
 import { validateSchema } from "../middlewares/validator.middleware.js";
-import { registerSchema } from "../schemas/auth.schema.js";
+import { registerSchema, loginSchema } from "../schemas/auth.schema.js";
 
 const router = Router();
 
 router.post('/register', validateSchema(registerSchema), register);
-router.post('/login', login);
-router.post('/logout', logout);
-router.post('/updateuser', updateUser)
+router.post('/login', validateSchema(loginSchema), login);
+router.post('/logout', authRequired, logout);
+router.post('/updateuser', authRequired, updateUser)
 router.get('/profile', profile);
 
-router.post('/createPost', createPost);
+router.post('/createPost', authRequired, createPost);
 router.get('/getPost', getPost);
-router.put('/reaction', reactions);
+router.put('/reaction', authRequired, reactions);
 
 router.get('/ubicaciones', getUbicaciones);
 router.get('/categorias', getCategorias);

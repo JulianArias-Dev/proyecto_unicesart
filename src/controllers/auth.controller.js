@@ -8,7 +8,6 @@ const calcularEdad = (birthDate) => {
     let age = today.getFullYear() - birthDateObj.getFullYear();
     const monthDiff = today.getMonth() - birthDateObj.getMonth();
 
-    // Si el mes actual es anterior al mes de nacimiento, o si estamos en el mes de nacimiento pero el día aún no ha llegado, restamos 1 a la edad
     if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDateObj.getDate())) {
         age--;
     }
@@ -18,76 +17,81 @@ const calcularEdad = (birthDate) => {
 
 const formatFecha = (fechaISO) => {
     const dateObj = new Date(fechaISO);
-    const day = String(dateObj.getDate()).padStart(2, '0'); // Asegura que tenga 2 dígitos
-    const month = String(dateObj.getMonth() + 1).padStart(2, '0'); // Los meses en JavaScript son de 0 a 11, por eso sumamos 1
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
     const year = dateObj.getFullYear();
 
     return `${day}/${month}/${year}`;
 };
 
 export const register = async (req, res) => {
-    const { email, password, fullName, description, skills, profession, birthDate, city, phone, gender } = req.body;
+    const { email, password, fullName, username, gender } = req.body;
 
     try {
+        const userFoundByEmail = await User.findOne({ email });
+        const userFoundByUsername = await User.findOne({ username });
 
-        const userFound = await User.findOne({ email });
-        if (userFound) {
-            return res.status(400).json(['La dirección de correo electronico ya esta siendo usada']);
+        if (userFoundByEmail && userFoundByUsername) {
+            return res.status(400).json({
+                errors: [
+                    'La dirección de correo electrónico ya está en uso',
+                    'El nombre de usuario ya está en uso',
+                ],
+            });
+        }
+
+        if (userFoundByEmail) {
+            return res.status(400).json({
+                errors: ['La dirección de correo electrónico ya está en uso'],
+            });
+        }
+
+        if (userFoundByUsername) {
+            return res.status(400).json({
+                errors: ['El nombre de usuario ya está en uso'],
+            });
         }
 
         const passwordHash = await bcrypt.hash(password, 10);
 
-
         const newUser = new User({
             email,
             password: passwordHash,
-            username: req.body.username,
-            fullName: fullName,
-            description: description,
-            skills: skills,
-            profession: profession,
-            lugarOrigen: {
-                nombreDepartamento: city.departamento,
-                nombreMunicipio: city.municipio
-            },
-            birthDate: birthDate,
-            phone: phone,
-            gender: gender,
-            status: 'active',
+            username,
+            fullName,
+            gender,
         });
 
         const savedUser = await newUser.save();
 
         if (savedUser) {
             const token = await createAccesToken({ id: savedUser._id });
-            res.cookie('token', token);
+            console.log(token)
+            res.cookie('token', token, {
+                httpOnly: true, 
+                secure: process.env.NODE_ENV === 'production', 
+                sameSite: 'lax', 
+                maxAge: 24 * 60 * 60 * 1000 
+            });
             return res.json({
                 id: savedUser._id,
                 email: savedUser.email,
                 username: savedUser.username,
                 fullName: savedUser.fullName,
-                description: savedUser.description,
-                skills: savedUser.skills,
-                profession: savedUser.profession,
-                lugarOrigen: {
-                    nombreDepartamento: savedUser.lugarOrigen.nombreDepartamento,
-                    nombreMunicipio: savedUser.lugarOrigen.nombreMunicipio
-                },
-                birthDate: formatFecha(savedUser.birthDate),
-                phone: savedUser.phone,
                 gender: savedUser.gender,
                 status: savedUser.status,
                 createdAt: savedUser.createdAt,
                 updatedAt: savedUser.updatedAt,
-                edad: calcularEdad(savedUser.birthDate)
             });
         }
+
     } catch (error) {
         res.status(500).json({
             message: error.message,
         });
     }
 };
+
 
 export const login = async (req, res) => {
     const { email, password } = req.body;
@@ -107,8 +111,14 @@ export const login = async (req, res) => {
 
         const token = await createAccesToken({ id: userFound._id });
 
-        res.cookie('token', token);
-        console.log(userFound);
+        res.cookie('token', token, {
+            httpOnly: true, 
+            secure: process.env.NODE_ENV === 'production', 
+            sameSite: 'lax', 
+            maxAge: 24 * 60 * 60 * 1000 
+        });
+        console.log(token);
+        console.log(res);
         res.json({
             id: userFound._id,
             email: userFound.email,
@@ -127,6 +137,7 @@ export const login = async (req, res) => {
             status: userFound.status,
             createdAt: userFound.createdAt,
             updatedAt: userFound.updatedAt,
+            imageUrl: userFound.imageUrl,
             edad: calcularEdad(userFound.birthDate)
         });
 
@@ -166,6 +177,7 @@ export const updateUser = async (req, res) => {
         userFound.birthDate = birthDate || userFound.birthDate;
         userFound.phone = phone || userFound.phone;
         userFound.gender = gender || userFound.gender;
+        userFound.imageUrl = imageUrl || userFound.imageUrl;
 
         const updatedUser = await userFound.save();
 
@@ -187,6 +199,7 @@ export const updateUser = async (req, res) => {
             status: updatedUser.status,
             createdAt: updatedUser.createdAt,
             updatedAt: updatedUser.updatedAt,
+            imageUrl: updatedUser.imageUrl,
             edad: calcularEdad(updatedUser.birthDate),
         });
     } catch (error) {
@@ -224,6 +237,7 @@ export const profile = async (req, res) => {
             status: userFound.status,
             createdAt: userFound.createdAt,
             updatedAt: userFound.updatedAt,
+            imageUrl: userFound.imageUrl,
             edad: calcularEdad(userFound.birthDate)
         });
     } catch (error) {

@@ -47,7 +47,6 @@ export const PostProvider = ({ children }) => {
                 });
 
             } else {
-                // Mostrar mensaje de advertencia si la respuesta no es exitosa
                 withReactContent(Swal).fire({
                     title: "Advertencia",
                     text: "Hubo un problema al crear la publicacion. Por favor, intente de nuevo.",
@@ -65,37 +64,42 @@ export const PostProvider = ({ children }) => {
         }
     }
 
-    const getPost = async () => {
+    const getPost = async (userId = null, userName = null) => {
         try {
-            const res = await getPostRequest();
+            const res = userId && userName
+                ? await getPostRequest(userId, userName)
+                : await getPostRequest();
+
             if (res.status === 200) {
                 setPublicaciones(res.data);
             } else {
-                // Mostrar mensaje de advertencia si la respuesta no es exitosa
                 withReactContent(Swal).fire({
                     title: "Advertencia",
-                    text: "No se han encontrado Publicaciones, itente recargar la página",
+                    text: "No se han encontrado Publicaciones, intente recargar la página",
                     icon: "warning"
                 });
             }
         } catch (error) {
             console.error(error);
-            // Mostrar mensaje de error en caso de excepción
             withReactContent(Swal).fire({
                 title: "Error",
                 text: error.response?.data?.message || "Error al consultar publicaciones",
                 icon: "error"
             });
-            setErrors(error.response.data);
+
+            if (error.response) {
+                setErrors(error.response.data);
+            }
         }
-    }
+    };
+
+
 
     const putReaction = async (reaction) => {
         try {
             const res = await reactionRequest(reaction);
 
             if (res.status === 200) {
-                // Mostrar mensaje de advertencia si la respuesta no es exitosa
                 console.log(res.status);
             }
 
