@@ -8,7 +8,6 @@ const NavBar = () => {
     const [userLink, setUserLink] = useState('');
     const navigate = useNavigate();
 
-    // Redirigir cuando se autentique el usuario
     useEffect(() => {
         setUserLink(user?.username);
     }, [isAuthenticated, user, setUserLink]);
@@ -17,17 +16,21 @@ const NavBar = () => {
         e.preventDefault();
         try {
             await logOut();
-            navigate('/'); // Navegar a página principal tras cerrar sesión
+            navigate('/');
         } catch (error) {
             console.error('Error al cerrar sesión', error);
         }
     };
+    const navegar = (e) => {
+        e.preventDefault();
+        navigate(`/profile/${userLink}`);
+    }
 
     return (
         <header>
             <div className="container">
                 <div className="navBar">
-                    {/* No autenticado */}
+                    
                     {!isAuthenticated ? (
                         <>
                             <div className="logo">
@@ -46,12 +49,11 @@ const NavBar = () => {
 
                             </div>
                         </>
-                    ) : (
-                        // Autenticado
+                    ) : (                    
                         <>
                             <div className="usuario">
                                 <i className="fa-solid fa-user"></i>
-                                <p><Link to={`/profile/${userLink}`}>{user?.fullName}</Link></p>
+                                <p style={{cursor:'pointer'}} onClick={navegar}>{user?.fullName}</p>
                             </div>
                             <div className="search">
                                 <input type="text" placeholder="Buscar..." />
@@ -84,7 +86,7 @@ const NavBar = () => {
                                 </ul>
                             </div>
                             <div className="hamburguesa">
-                                
+
                             </div>
                         </>
                     )}

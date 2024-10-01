@@ -6,11 +6,12 @@ import { useAuth } from '../context/AuthContext';
 import { usePost } from '../context/PostContext';
 
 const Post = ({ post }) => {
+
     const [isOpen, setIsOpen] = useState(false);
     const dialogReportRef = useRef(null);
-    const { user } = useAuth();
+    const { user, isAuthenticated } = useAuth();
     const { putReaction } = usePost();
-    const [liked, setLiked] = useState(false);  // Corregido el uso de useState
+    const [liked, setLiked] = useState(false);
 
     useEffect(() => {
         const userIndex = post.likes.findIndex(
@@ -19,15 +20,15 @@ const Post = ({ post }) => {
         if (userIndex > -1) {
             setLiked(true);
         }
-    }, [post.likes, user?.id]);  // Aseguramos que el efecto se ejecute solo cuando cambian los likes o el user.id
+    }, [post.likes, user?.id]);
 
     const toggleMenu = () => {
         setIsOpen(!isOpen);
     };
 
     const autoResize = (e) => {
-        e.target.style.height = 'auto'; // Resetea la altura
-        e.target.style.height = e.target.scrollHeight + 'px'; // Establece la altura basada en el scrollHeight
+        e.target.style.height = 'auto';
+        e.target.style.height = e.target.scrollHeight + 'px';
     };
 
     const openDialog = () => {
@@ -47,7 +48,7 @@ const Post = ({ post }) => {
         setIsOpen(false);
     };
 
-    // Close dropdown when clicking outside
+
     useEffect(() => {
         const handleOutsideClick = (event) => {
             if (isOpen && !event.target.closest('.report-dropdown')) {
@@ -67,12 +68,12 @@ const Post = ({ post }) => {
         putReaction({
             _id: post._id,
             user: {
-                userId: user.id, // Asegúrate de que user.id está disponible y correcto
-                userName: user.username
+                id: user.id,
+                username: user.username
             }
         });
 
-        setLiked(!liked);  // Cambiamos el estado de liked tras la reacción
+        setLiked(!liked);
     };
 
     return (
@@ -82,11 +83,14 @@ const Post = ({ post }) => {
                     <i className="fa-solid fa-user"></i>
                     <p><Link to={`/profile/${post.user.userName}`}>{post.user.userName}</Link></p>
                 </div>
-                <div className="report-dropdown">
-                    <button className="report-button" onClick={toggleMenu}>
-                        <i className="fa-solid fa-ellipsis-vertical"></i>
-                    </button>
-                </div>
+                {
+                    isAuthenticated &&
+                    <div className="report-dropdown">
+                        <button className="report-button" onClick={toggleMenu}>
+                            <i className="fa-solid fa-ellipsis-vertical"></i>
+                        </button>
+                    </div>
+                }
                 {isOpen && (
                     <ul className="report-menu">
                         <li className="report-item" onClick={openDialog}>
@@ -182,9 +186,9 @@ Post.propTypes = {
         title: PropTypes.string.isRequired,
         description: PropTypes.string,
         category: PropTypes.string,
-        imageUrl: PropTypes.string.isRequired, // Cambia esto a 'imageUrl' en lugar de 'imagen'
+        imageUrl: PropTypes.string.isRequired,
         user: PropTypes.shape({
-            userName: PropTypes.string.isRequired // Cambia 'username' a 'userName'
+            userName: PropTypes.string.isRequired
         }).isRequired,
         likesCount: PropTypes.number.isRequired,
         likes: PropTypes.arrayOf(

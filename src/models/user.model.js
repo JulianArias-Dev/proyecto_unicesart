@@ -15,9 +15,6 @@ const userSchema = new mongoose.Schema({
         type: String,
         unique: true,
     },
-    status: {
-        type: String
-    },
     fullName: {
         type: String,
         required: true,
@@ -26,24 +23,24 @@ const userSchema = new mongoose.Schema({
     description: {
         type: String,
         maxlength: 500,
-        default: 'Por completar',
+        default: '',
     },
     skills: {
         type: String,
         maxlength: 200,
-        default: 'Por completar',
+        default: '',
     },
     profession: {
         type: String,
         maxlength: 100,
-        default: 'Por completar',
+        default: '',
     },
     birthDate: {
         type: Date
     },
     lugarOrigen: {
-        nombreDepartamento: { type: String},
-        nombreMunicipio: { type: String,}
+        nombreDepartamento: { type: String },
+        nombreMunicipio: { type: String, }
     },
     phone: {
         type: String,
@@ -58,6 +55,13 @@ const userSchema = new mongoose.Schema({
     },
     lastConnection: {
         type: Date
+    }, status: {
+        type: String,
+        enum: ['Activo', 'Suspendido'],
+        default: 'Activo'
+    },
+    imageUrl: {
+        type: String,
     },
     role: {
         type: String,
@@ -66,7 +70,7 @@ const userSchema = new mongoose.Schema({
         default: 'usuario' // Usuario común 
     },
     recoverCode: {
-        type : String,
+        type: String,
     }
 }, { timestamps: true });
 

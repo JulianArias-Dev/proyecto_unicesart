@@ -3,29 +3,41 @@ import { useParams } from 'react-router-dom';
 import Post from '../Componets/Post.jsx';
 import './Profile.css';
 import { useAuth } from '../context/AuthContext.jsx';
+import { usePost } from '../context/PostContext.jsx';
 
 const Profile = () => {
     const [isOpen, setIsOpen] = useState(false);
     const dialogReportRef = useRef(null);
-    const { user: loggedInUser, getUserProfile } = useAuth(); // Usuario autenticado
-    const { username } = useParams(); // Obtener el username de la URL
-    const [profileUser, setProfileUser] = useState(null); // Usuario del perfil
+    const { user: loggedInUser, getUserProfile } = useAuth();
+    const { username } = useParams();
+    const [profileUser, setProfileUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const { getPost, publicaciones } = usePost()
 
-    useEffect(() => { 
+    useEffect(() => {
         const fetchUserProfile = async () => {
+            setLoading(true);
+            setProfileUser(null);
+
             try {
-                const response = await getUserProfile(username); // No necesitas response.json() con axios
-                setProfileUser(response);
-                console.log(profileUser); // Accede a los datos con response.data
+
+                const userProfile = await getUserProfile(username);
+                setProfileUser(userProfile);
+
+                if (userProfile) {
+                    getPost(userProfile.id, userProfile.username);
+                }
             } catch (error) {
                 console.error('Error fetching user profile:', error);
             } finally {
                 setLoading(false);
             }
         };
+
         fetchUserProfile();
-    },[]);
+    }, [username]);
+
+
 
     const toggleMenu = () => {
         setIsOpen(!isOpen);
@@ -52,11 +64,11 @@ const Profile = () => {
     };
 
     if (loading) {
-        return <div>Cargando perfil...</div>; // Mostrar cargando mientras se obtienen los datos
+        return <div style={{ height: '120px' }}>Cargando perfil...</div>;
     }
 
     if (!profileUser) {
-        return <div>No se encontró el perfil del usuario.</div>; // Mostrar mensaje si no se encuentra el usuario
+        return <div>No se encontró el perfil del usuario.</div>;
     }
 
     return (
@@ -65,13 +77,13 @@ const Profile = () => {
                 <div className="profile">
                     <section className="aboutme">
                         <div>
-                            <img src="src/assets/user.png" alt="fotoPerfil" />
+                            <img src="..\src\assets\profileUser.png" alt="fotoPerfil" />
                             <p>{profileUser.fullName ?? 'N/A'}</p>
                         </div>
-                        {loggedInUser?.userName !== profileUser.userName && ( // Solo mostrar opciones si el usuario autenticado no es el dueño del perfil
-                            <div style={{ width: '10%', marginLeft: '90%' }} className="report-dropdown">
+                        {loggedInUser?.username !== profileUser.username && (
+                            <div style={{ marginLeft: '85%' }} className="report-dropdown">
                                 <button className="report-button" onClick={toggleMenu}>
-                                    <i style={{ fontSize: '35px', overflowY: 'hidden' }} className="fa-solid fa-ellipsis-vertical"></i>
+                                    <i style={{ color: 'white', fontSize: '25px' }} className="fa-solid fa-ellipsis-vertical"></i>
                                 </button>
                             </div>
                         )}
@@ -145,18 +157,18 @@ const Profile = () => {
                                     <p>Carrera: {profileUser.profession ?? 'N/A'}</p>
                                 </div>
                             </div>
-                            <div className="cloud" style={{ border: '3px solid #27ae60' }}>
+                            {profileUser.skills && <div className="cloud" style={{ border: '3px solid #27ae60' }}>
                                 <p>Habilidades</p>
                                 <div>
                                     <p>{profileUser.skills ?? 'No se han agregado habilidades'}</p>
                                 </div>
-                            </div>
-                            <div className="cloud" style={{ border: '3px solid #27ae60' }}>
+                            </div>}
+                            {profileUser.description && <div className="cloud" style={{ border: '3px solid #27ae60' }}>
                                 <p>Descripción</p>
                                 <div>
                                     <p>{profileUser.description ?? 'El usuario no ha agregado una descripción'}</p>
                                 </div>
-                            </div>
+                            </div>}
                             <div className="cloud" style={{ border: '3px solid #2ecc71' }}>
                                 <p>Contacto</p>
                                 <div>
@@ -168,7 +180,9 @@ const Profile = () => {
                         <div className="myPost">
                             <h2>Trabajos destacados</h2>
                             <div>
-                                {/** Aquí irían los posts del usuario, puedes hacer otra solicitud para obtenerlos */}
+                                {publicaciones.map((post) => (
+                                    <Post key={post._id} post={post} />
+                                ))}
                             </div>
                         </div>
                     </section>

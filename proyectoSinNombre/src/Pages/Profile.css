@@ -27,7 +27,7 @@
 }
 
 .aboutme>div img {
-    background-color: #000000;
+    background-color: #e6e6e6;
     height: 200px;
     width: 200px;
     border: 2px solid #525151ca;
@@ -42,21 +42,21 @@
     color: #fff;
 }
 
-.mycontent{
+.mycontent {
     display: flex;
     flex-direction: column;
 }
 
-.skills{
+.skills {
     width: 95%;
     margin: auto;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    justify-content: space-evenly;  
+    justify-content: space-evenly;
 }
 
-.cloud{
+.cloud {
     width: 46%;
     margin: 1%;
     height: 250px;
@@ -65,12 +65,12 @@
     border-style: dashed;
 }
 
-.cloud>p{
+.cloud>p {
     color: #2ecc71;
     font-size: 25px;
 }
 
-.cloud>div{
+.cloud>div {
     width: 98%;
     margin: auto;
     height: 80%;
@@ -79,18 +79,18 @@
     justify-content: center;
 }
 
-.cloud>div p{
+.cloud>div p {
     color: #585858;
-    font-size: 20px;    
+    font-size: 20px;
 }
 
-.myPost{
+.myPost {
     width: 95%;
     margin: auto;
     margin-bottom: 20px;
 }
 
-.myPost>div{   
+.myPost>div {
     width: 100%;
     padding: 1% 0%;
     border-radius: 5px;
@@ -104,7 +104,7 @@
     flex-wrap: wrap;
 }
 
-.myPost>h2{
+.myPost>h2 {
     display: block;
     width: 100%;
     margin: 2% 1%;
@@ -123,4 +123,30 @@
     padding: 0;
     list-style: none;
     width: 300px;
+}
+
+
+@media screen and (max-width:500px) {
+    .cloud {
+        width: 98%;
+    }
+
+    .aboutme {
+        height: 200px;
+    }
+
+    .aboutme>div {
+        width: 90%;
+    }
+
+    .aboutme>div img {
+        width: 120px;
+        height: 150px;
+    }
+
+    .aboutme>div p {
+        font-size: 25px;
+    }
+
+
 }

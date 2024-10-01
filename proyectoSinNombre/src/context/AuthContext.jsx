@@ -37,10 +37,8 @@ export const AuthProvider = ({ children }) => {
 
             console.log(user);
 
-            // Realizar la solicitud de registro
             const res = await registerRequest(user);
 
-            // Verificar si la respuesta es exitosa
             if (res.status === 200) {
                 withReactContent(Swal).fire({
                     title: "Usuario Registrado",
@@ -50,7 +48,6 @@ export const AuthProvider = ({ children }) => {
                 setUser(res.data);
                 setIsAuthenticated(true);
             } else {
-                // Mostrar mensaje de advertencia si la respuesta no es exitosa
                 withReactContent(Swal).fire({
                     title: "Advertencia",
                     text: "Hubo un problema al registrar el usuario. Por favor, intente de nuevo.",
@@ -60,7 +57,6 @@ export const AuthProvider = ({ children }) => {
 
         } catch (error) {
             console.error(error);
-            // Mostrar mensaje de error en caso de excepción
             withReactContent(Swal).fire({
                 title: "Error",
                 text: error.response?.data?.message || "Error al registrar el usuario.",
@@ -76,10 +72,8 @@ export const AuthProvider = ({ children }) => {
         try {
             console.log(user);
 
-            // Realizar la solicitud de registro
             const res = await loginRequest(user);
 
-            // Verificar si la respuesta es exitosa
             if (res.status === 200) {
                 withReactContent(Swal).fire({
                     title: "Credenciales Correctas",
@@ -89,7 +83,6 @@ export const AuthProvider = ({ children }) => {
                 setUser(res.data);
                 setIsAuthenticated(true);
             } else {
-                // Mostrar mensaje de advertencia si la respuesta no es exitosa
                 withReactContent(Swal).fire({
                     title: "Advertencia",
                     text: "No se han encontrado los datos: Usuario o contraseña incorrectos",
@@ -99,7 +92,6 @@ export const AuthProvider = ({ children }) => {
 
         } catch (error) {
             console.error(error);
-            // Mostrar mensaje de error en caso de excepción
             withReactContent(Swal).fire({
                 title: "Error",
                 text: error.response?.data?.message || "Error al registrar el usuario.",
@@ -114,20 +106,17 @@ export const AuthProvider = ({ children }) => {
     const logOut = async (user) => {
         try {
 
-            // Realizar la solicitud de registro
             const res = await logoutRequest(user);
 
-            // Verificar si la respuesta es exitosa
             if (res.status === 200) {
                 setIsAuthenticated(false);
             }
 
         } catch (error) {
             console.error(error);
-            // Mostrar mensaje de error en caso de excepción
             withReactContent(Swal).fire({
                 title: "Error",
-                text: error.response?.data?.message || "Error al registrar el usuario.",
+                text: error.response?.data?.message || "Error al Iniciar sesión.",
                 icon: "error"
             });
             setUser(null);
@@ -139,10 +128,8 @@ export const AuthProvider = ({ children }) => {
     const updateUser = async (user) => {
         try {
 
-            // Realizar la solicitud de registro
             const res = await updateRequest(user);
 
-            // Verificar si la respuesta es exitosa
             if (res.status === 200) {
                 withReactContent(Swal).fire({
                     title: "Actualizacion",
@@ -154,7 +141,6 @@ export const AuthProvider = ({ children }) => {
 
         } catch (error) {
             console.error(error);
-            // Mostrar mensaje de error en caso de excepción
             withReactContent(Swal).fire({
                 title: "Error",
                 text: error.response?.data?.message || "Error al actualizar los datos de usuario.",
@@ -166,14 +152,11 @@ export const AuthProvider = ({ children }) => {
 
     const getUserProfile = async (username) => {
         try {
-            // Realizar la solicitud de registro
             const res = await profileRequest(username);
 
-            // Verificar si la respuesta es exitosa
             if (res.status === 200) {
                 return res.data;
             } else {
-                // Mostrar mensaje de advertencia si la respuesta no es exitosa
                 withReactContent(Swal).fire({
                     title: "Advertencia",
                     text: "Error al consultar el perfil del usuario",
@@ -183,7 +166,6 @@ export const AuthProvider = ({ children }) => {
 
         } catch (error) {
             console.error(error);
-            // Mostrar mensaje de error en caso de excepción
             withReactContent(Swal).fire({
                 title: "Error",
                 text: error.response?.data?.message || "Error al buscar el usuario.",
@@ -198,17 +180,14 @@ export const AuthProvider = ({ children }) => {
     const getUbicaciones = async () => {
         try {
 
-            // Realizar la solicitud de registro
             const res = await getUbicacionesRequest();
 
-            // Verificar si la respuesta es exitosa
             if (res.status === 200) {
                 setUbicaciones(res.data);
             }
 
         } catch (error) {
             console.error(error);
-            // Mostrar mensaje de error en caso de excepción
             withReactContent(Swal).fire({
                 title: "Error",
                 text: error.response?.data?.message || "Error al Consultar base de datos.",

@@ -1,33 +1,22 @@
 import './Login.css';
 import { useForm } from 'react-hook-form';
 import { useAuth } from '../context/AuthContext';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const Register = () => {
     const { register, handleSubmit, formState: { errors } } = useForm();
-    const [selectedDepartamento, setSelectedDepartamento] = useState('');
-    const { singUp, ubicaciones, isAuthenticated, errors: registerErrors } = useAuth();
+    const { singUp, isAuthenticated, errors: registerErrors } = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
         if (isAuthenticated) navigate('/home');
     }, [isAuthenticated, navigate]);
 
-    const autoResize = (e) => {
-        e.target.style.height = 'auto'; // Resetea la altura
-        e.target.style.height = e.target.scrollHeight + 'px'; // Establece la altura basada en el scrollHeight
-    };
-
     const handleRegister = async (data) => {
         singUp(data);
     };
 
-    // Verifica si ubicaciones está definido y es un array
-    const departamentos = Array.isArray(ubicaciones) ? ubicaciones : [];
-    const municipios = selectedDepartamento
-        ? departamentos.find((ubicacion) => ubicacion.nombre === selectedDepartamento)?.municipios || []
-        : [];
 
     return (
         <div className="Father">
@@ -65,26 +54,6 @@ const Register = () => {
                                 </div>
 
                                 <div className="field campo">
-                                    <i className="fa-solid fa-calendar-days"></i>
-                                    <input
-                                        type="date"
-                                        {...register("birthDate", {
-                                            required: "Fecha de nacimiento es requerida",
-                                            validate: {
-                                                isAdult: value => {
-                                                    const birthDate = new Date(value);
-                                                    const today = new Date();
-                                                    const age = today.getFullYear() - birthDate.getFullYear();
-                                                    return age >= 15 || "Debes ser mayor de 15 años";
-                                                }
-                                            }
-                                        })}
-                                        placeholder='Fecha Nacimiento'
-                                    />
-                                    {errors.birthDate && <span className="error-message">{errors.birthDate.message}</span>}
-                                </div>
-
-                                <div className="field campo">
                                     <i className="fa-solid fa-at"></i>
                                     <input
                                         type="text"
@@ -104,6 +73,45 @@ const Register = () => {
                                     {errors.username && <span className="error-message">{errors.username.message}</span>}
                                 </div>
 
+
+                                <div className="field campo">
+                                    <>
+                                        <div>
+                                            <i className="fa-solid fa-user"></i>
+                                            <input
+                                                type="email"
+                                                {...register("email", {
+                                                    required: "Correo electrónico es requerido",
+                                                    pattern: {
+                                                        value: /^[a-zA-Z0-9._%+-]+@unicesar\.edu\.co$/,
+                                                        message: "El correo debe ser del dominio @unicesar.edu.co"
+                                                    }
+                                                })}
+                                                placeholder="Correo Electrónico"
+                                            />
+                                        </div>
+                                        <div>
+                                            <i className="fa-solid fa-lock"></i>
+                                            <input
+                                                type="password"
+                                                {...register("password", {
+                                                    required: "Contraseña es requerida",
+                                                    minLength: {
+                                                        value: 8,
+                                                        message: "La contraseña debe tener al menos 8 caracteres"
+                                                    },
+                                                    pattern: {
+                                                        value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+                                                        message: "La contraseña debe contener al menos una mayúscula, una minúscula, un número y un carácter especial"
+                                                    }
+                                                })}
+                                                placeholder="Contraseña"
+                                            />
+                                        </div>
+                                    </>
+                                    {errors.email && <span className="error-message">{errors.email.message}</span>}
+                                    {errors.password && <span className="error-message">{errors.password.message}</span>}
+                                </div>
                                 <div className="field campo">
                                     <i className="fa-solid fa-venus-mars"></i>
                                     <select {...register("gender", { required: "Género es requerido" })} defaultValue="">
@@ -113,100 +121,6 @@ const Register = () => {
                                         <option value="Otro">Prefiero no decirlo</option>
                                     </select>
                                     {errors.gender && <span className="error-message">{errors.gender.message}</span>}
-                                </div>
-
-                                <div className="field campo">
-                                    <i className="fa-solid fa-user"></i>
-                                    <input
-                                        type="email"
-                                        {...register("email", {
-                                            required: "Correo electrónico es requerido",
-                                            pattern: {
-                                                value: /^[a-zA-Z0-9._%+-]+@unicesar\.edu\.co$/,
-                                                message: "El correo debe ser del dominio @unicesar.edu.co"
-                                            }
-                                        })}
-                                        placeholder="Correo Electrónico"
-                                    />
-                                    {errors.email && <span className="error-message">{errors.email.message}</span>}
-                                </div>
-
-                                <div className="field campo">
-                                    <i className="fa-solid fa-lock"></i>
-                                    <input
-                                        type="password"
-                                        {...register("password", {
-                                            required: "Contraseña es requerida",
-                                            minLength: {
-                                                value: 8,
-                                                message: "La contraseña debe tener al menos 8 caracteres"
-                                            },
-                                            pattern: {
-                                                value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-                                                message: "La contraseña debe contener al menos una mayúscula, una minúscula, un número y un carácter especial"
-                                            }
-                                        })}
-                                        placeholder="Contraseña"
-                                    />
-                                    {errors.password && <span className="error-message">{errors.password.message}</span>}
-                                </div>
-
-                                <div className="field campo">
-                                    <i className="fa-solid fa-briefcase"></i>
-                                    <input
-                                        type="text"
-                                        {...register("profession")}
-                                        placeholder="Profesión (Opcional)"
-                                    />
-                                </div>
-
-                                <div className="field campo">
-                                    {departamentos.length > 0 && (
-                                        <>
-                                            <div>
-                                                <i className="fa-solid fa-location-dot"></i>
-                                                <select {...register("city.departamento", { required: "El departamento es requerido" })} value={selectedDepartamento} onChange={(e) => setSelectedDepartamento(e.target.value)}>
-                                                    <option value="" disabled>Departamento</option>
-                                                    {departamentos.map((ubicacion) => (
-                                                        <option key={ubicacion.departamentoId} value={ubicacion.nombre}>
-                                                            {ubicacion.nombre}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                                            <div>
-                                                <i className="fa-solid fa-city"></i>
-                                                <select {...register("city.municipio", { required: "El municipio es requerido" })}>
-                                                    <option value="" disabled>Municipio</option>
-                                                    {municipios.map((municipio) => (
-                                                        <option key={municipio.id} value={municipio.nombreMunicipio}>
-                                                            {municipio.nombreMunicipio}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                                        </>
-                                    )}
-                                    {errors.city?.departamento && <span className="error-message">{errors.city.departamento.message}</span>}
-
-                                    {errors.city?.municipio && <span className="error-message">{errors.city.municipio.message}</span>}
-                                </div>
-                                <div className="field campo">
-                                    <i className="fa-solid fa-info-circle"></i>
-                                    <textarea
-                                        {...register("description")}
-                                        placeholder="Descripción (Opcional)"
-                                        onChange={autoResize}
-                                    />
-                                </div>
-
-                                <div className="field campo">
-                                    <i className="fa-solid fa-list"></i>
-                                    <textarea
-                                        {...register("skills")}
-                                        placeholder="Habilidades (Opcional)"
-                                        onChange={autoResize}
-                                    />
                                 </div>
                             </div>
                             <div className="field campo">
