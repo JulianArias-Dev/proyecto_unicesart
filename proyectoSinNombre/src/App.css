@@ -189,13 +189,14 @@ header {
   color: #1d8348;
 }
 
-.usuario>p {
+.usuario>a {
   font-size: 30px;
   font-weight: 550;
   margin-left: 5px;
+  cursor: pointer;
 }
 
-.usuario>p:hover {
+.usuario>a:hover {
   scale: 1.05;
   text-decoration: underline;
 }
@@ -350,7 +351,7 @@ header {
     color: #1d8348;
   }
 
-  .usuario>p {
+  .usuario>a {
     font-size: 25px;
   }
 

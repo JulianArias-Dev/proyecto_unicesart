@@ -30,7 +30,7 @@ const NavBar = () => {
         <header>
             <div className="container">
                 <div className="navBar">
-                    
+
                     {!isAuthenticated ? (
                         <>
                             <div className="logo">
@@ -49,11 +49,13 @@ const NavBar = () => {
 
                             </div>
                         </>
-                    ) : (                    
+                    ) : (
                         <>
                             <div className="usuario">
                                 <i className="fa-solid fa-user"></i>
-                                <p style={{cursor:'pointer'}} onClick={navegar}>{user?.fullName}</p>
+                                <a onClick={navegar}>
+                                    {user?.fullName}
+                                </a>
                             </div>
                             <div className="search">
                                 <input type="text" placeholder="Buscar..." />
