@@ -34,6 +34,12 @@ const PersonalInfo = () => {
         updateUser(data); // Lógica para actualizar la información en el backend
         setIsEditable(false);
     };
+    
+    const convertDateToISO = (dateString) => {
+        const [day, month, year] = dateString.split('/');
+        return `${year}-${month}-${day}`;
+    };
+
 
     const departamentos = Array.isArray(ubicaciones) ? ubicaciones : [];
     const municipios = selectedDepartamento
@@ -55,9 +61,10 @@ const PersonalInfo = () => {
                 <input
                     type="date"
                     disabled={!isEditable}
-                    defaultValue={user?.birthDate ? user.birthDate.split('T')[0] : ''}
+                    defaultValue={user?.birthDate ? convertDateToISO(user.birthDate) : ''}
                     {...register("birthDate", { required: "Fecha de nacimiento es requerida" })}
                 />
+
                 {errors.birthDate && <span>{errors.birthDate.message}</span>}
 
 

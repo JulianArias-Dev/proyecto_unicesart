@@ -83,7 +83,12 @@
     border: 1px solid #1d8348;
 }
 
-.cambioContrasena>button {
+.cambioContrasena form{
+    display: flex;
+    flex-direction: column;
+}
+
+.cambioContrasena button {
     font-size: 18px;
     font-weight: 600;
     padding: 4px 5px 3px 4px;

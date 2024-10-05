@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { registerRequest, loginRequest, logoutRequest, updateRequest, profileRequest } from "../API/auth";
+import { registerRequest, loginRequest, logoutRequest, updateRequest, profileRequest, updatePasswordRequest } from "../API/auth";
 import { getUbicacionesRequest } from "../API/recursos";
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
@@ -21,22 +21,16 @@ export const AuthProvider = ({ children }) => {
     const [errors, setErrors] = useState([]);
 
     useEffect(() => {
-        const fetchUbicaciones = async () => {
-            try {
-                const response = await getUbicacionesRequest();
-                setUbicaciones(response.data);
-            } catch (error) {
-                console.error('Error al obtener las ubicaciones', error);
-            }
-        };
-        fetchUbicaciones();
+        // Verificar si hay un token almacenado al cargar la página
+        const savedUser = sessionStorage.getItem('user');
+        if (savedUser) {
+            setUser(JSON.parse(savedUser));
+            setIsAuthenticated(true);
+        }
     }, []);
 
     const singUp = async (user) => {
         try {
-
-            console.log(user);
-
             const res = await registerRequest(user);
 
             if (res.status === 200) {
@@ -47,6 +41,8 @@ export const AuthProvider = ({ children }) => {
                 });
                 setUser(res.data);
                 setIsAuthenticated(true);
+                // Guardar el usuario en sesionStorage
+                sessionStorage.setItem('user', JSON.stringify(res.data));
             } else {
                 withReactContent(Swal).fire({
                     title: "Advertencia",
@@ -54,7 +50,6 @@ export const AuthProvider = ({ children }) => {
                     icon: "warning"
                 });
             }
-
         } catch (error) {
             console.error(error);
             withReactContent(Swal).fire({
@@ -70,8 +65,6 @@ export const AuthProvider = ({ children }) => {
 
     const singIn = async (user) => {
         try {
-            console.log(user);
-
             const res = await loginRequest(user);
 
             if (res.status === 200) {
@@ -82,6 +75,8 @@ export const AuthProvider = ({ children }) => {
                 });
                 setUser(res.data);
                 setIsAuthenticated(true);
+                // Guardar el usuario en sesionStorage
+                sessionStorage.setItem('user', JSON.stringify(res.data));
             } else {
                 withReactContent(Swal).fire({
                     title: "Advertencia",
@@ -89,41 +84,38 @@ export const AuthProvider = ({ children }) => {
                     icon: "warning"
                 });
             }
-
         } catch (error) {
             console.error(error);
             withReactContent(Swal).fire({
                 title: "Error",
-                text: error.response?.data?.message || "Error al registrar el usuario.",
+                text: error.response?.data?.message || "Error al iniciar sesión.",
                 icon: "error"
             });
             setUser(null);
             setIsAuthenticated(false);
             setErrors(error.response.data);
         }
-    }
+    };
 
-    const logOut = async (user) => {
+    const logOut = async () => {
         try {
-
-            const res = await logoutRequest(user);
+            const res = await logoutRequest();
 
             if (res.status === 200) {
                 setIsAuthenticated(false);
+                setUser(null);
+                // Eliminar el usuario de sesionStorage
+                sessionStorage.removeItem('user');
             }
-
         } catch (error) {
             console.error(error);
             withReactContent(Swal).fire({
                 title: "Error",
-                text: error.response?.data?.message || "Error al Iniciar sesión.",
+                text: error.response?.data?.message || "Error al cerrar sesión.",
                 icon: "error"
             });
-            setUser(null);
-            setIsAuthenticated(false);
-            setErrors(error.response.data);
         }
-    }
+    };
 
     const updateUser = async (user) => {
         try {
@@ -148,6 +140,30 @@ export const AuthProvider = ({ children }) => {
             });
             setErrors(error.response.data);
         }
+    }
+
+    const updatePassword = async (userId, password, newPassword) => {
+        try {
+            const res = await updatePasswordRequest(userId, password, newPassword);
+
+            if (res.status === 200) {
+                withReactContent(Swal).fire({
+                    title: "Actualizacion",
+                    text: "¡Se ha actualizado su contraseña Correctamente!",
+                    icon: "success"
+                });
+                setUser(res.data);
+            }
+
+        } catch (error) {
+            console.error(error);
+            withReactContent(Swal).fire({
+                title: "Error",
+                text: error.response?.data?.message || "Error al actualizar su contraseña.",
+                icon: "error"
+            });
+            setErrors(error.response.data);
+        } 
     }
 
     const getUserProfile = async (username) => {
@@ -207,6 +223,7 @@ export const AuthProvider = ({ children }) => {
             logOut,
             getUbicaciones,
             updateUser,
+            updatePassword,
             getUserProfile,
             ubicaciones,
             user,

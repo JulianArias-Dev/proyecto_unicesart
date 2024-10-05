@@ -346,18 +346,13 @@ header {
   }
 
   .usuario>i {
-    font-size: 50px;
-    line-height: 95px;
+    font-size: 30px;
+    line-height: 50px;
     color: #1d8348;
   }
 
   .usuario>a {
     font-size: 25px;
-  }
-
-  .usuario>i {
-    font-size: 30px;
-    line-height: 50px;
   }
 
   .enlaces-dash {

@@ -43,8 +43,7 @@ const Profile = () => {
         setIsOpen(!isOpen);
     };
 
-    const handleReport = (option) => {
-        console.log(`Reportado por: ${option}`);
+    const handleReport = () => {
         setIsOpen(false);
     };
 

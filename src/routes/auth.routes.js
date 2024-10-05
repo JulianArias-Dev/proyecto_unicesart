@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { login, register, logout, profile, updateUser } from "../controllers/auth.controller.js";
+import { login, register, logout, profile, updateUser, updatePassword } from "../controllers/auth.controller.js";
 import { getCategorias, getUbicaciones } from "../controllers/recursos.controller.js";
 import { createPost, getPost, reactions } from "../controllers/post.controller.js";
 import { authRequired } from "../middlewares/validateToken.js";
@@ -12,6 +12,7 @@ router.post('/register', validateSchema(registerSchema), register);
 router.post('/login', validateSchema(loginSchema), login);
 router.post('/logout', authRequired, logout);
 router.post('/updateuser', authRequired, updateUser)
+router.post('/updatepassword', authRequired, updatePassword)
 router.get('/profile', profile);
 
 router.post('/createPost', authRequired, createPost);

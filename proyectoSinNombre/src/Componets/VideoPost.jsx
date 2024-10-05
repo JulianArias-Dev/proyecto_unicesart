@@ -9,9 +9,7 @@ const VideoPost = () => {
     };
 
     const handleReport = (option) => {
-        // Aquí manejarías la lógica para reportar la publicación
         console.log(`Reportado por: ${option}`);
-        // Cierra el menú después de seleccionar una opción
         setIsOpen(false);
     };
 

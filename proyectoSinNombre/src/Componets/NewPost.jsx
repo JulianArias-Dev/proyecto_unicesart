@@ -12,7 +12,7 @@ const NewPost = () => {
     const { categorias, createPost } = usePost();
     const [preview, setPreview] = useState(null);
     const [textButton, setTextButton] = useState('+');
-    const [imageUrl, setImageUrl] = useState(null);
+    const [imageUrl, setImageUrl] = useState();
     const { register, handleSubmit, formState: { errors } } = useForm();
     const [selectedCategory, setSelectedCategory] = useState('');
 
@@ -38,17 +38,17 @@ const NewPost = () => {
         }
 
         try {
-            let imageUploadUrl = imageUrl;
+            let imageUploadUrl = imageUrl; // Cambiar a imageUploadUrl
 
-            if (imageUploadUrl) {
+            if (!imageUploadUrl) {
                 const formData = new FormData();
                 formData.append("file", selectedFile);
                 formData.append("upload_preset", "unicesart_preset");
 
                 // Subir imagen a Cloudinary
                 const response = await axios.post('https://api.cloudinary.com/v1_1/dlx1sufu4/image/upload', formData);
-                imageUploadUrl = response.data.secure_url;
-                setImageUrl(imageUploadUrl);
+                imageUploadUrl = response.data.secure_url; // Guardar la URL de la imagen
+                setImageUrl(imageUploadUrl); // Actualizar el estado con la URL de la imagen subida
             }
 
             // Datos para enviar en la publicación
@@ -56,13 +56,13 @@ const NewPost = () => {
                 title: data.title,
                 description: data.description,
                 category: selectedCategory,
-                imageUrl: imageUploadUrl,
+                imageUrl: imageUploadUrl, // Usar imageUploadUrl que ya está actualizado
                 userId: user.id,
                 username: user.username,
             };
 
-            // Enviar publicación a backend
-            createPost(postData);
+            // Enviar publicación al backend
+            await createPost(postData);
         } catch (error) {
             console.error("Error al crear la publicación:", error);
             alert("Hubo un error al crear la publicación.");
@@ -70,6 +70,7 @@ const NewPost = () => {
 
         closeDialog();
     };
+
 
     const showDialog = () => dialogRef.current?.showModal();
     const closeDialog = () => dialogRef.current?.close();
@@ -90,6 +91,10 @@ const NewPost = () => {
             <dialog className='dialogPost' ref={dialogRef}>
                 <h3>Nueva Publicación</h3>
                 <div className='containerpost'>
+                    <div className='botones botones2'>
+                        <button type="submit" onClick={handleSubmit(onSubmit)} style={{ background: '#1d8348' }}>Publicar</button>
+                        <button type="button" onClick={closeDialog} style={{ background: '#DE2D18' }}>Cancelar</button>
+                    </div>
                     <div className='sub'>
                         <div className='imageDiv'>
                             <label htmlFor="fileInput" className="file-link">
@@ -108,7 +113,7 @@ const NewPost = () => {
 
                     <form className='formPost' onSubmit={handleSubmit(onSubmit)}>
                         <p>
-                            <label>Título: </label>
+                            Título:
                             <input
                                 type="text"
                                 {...register('title', {
@@ -119,7 +124,7 @@ const NewPost = () => {
                             {errors.title && <span>{errors.title.message}</span>}
                         </p>
                         <p>
-                            <label>Descripción: </label>
+                            Descripción:
                             <textarea
                                 {...register('description', {
                                     maxLength: { value: 500, message: "Máximo 500 caracteres" }
@@ -128,7 +133,7 @@ const NewPost = () => {
                             {errors.description && <span>{errors.description.message}</span>}
                         </p>
                         <p>
-                            <label>Categoría:</label>
+                            Categoría:
                             <select
                                 className="postCategoria"
                                 value={selectedCategory}
@@ -137,7 +142,7 @@ const NewPost = () => {
                                 <option value="" disabled>Selecciona una categoría</option>
                                 {categorias?.map((categoria) => (
                                     <option key={categoria.nombre} value={categoria.nombre}>
-                                        {categoria.nombre} - <label style={{ fontSize: '10px', color: '#7f7f7f ' }}>{categoria.description}</label>
+                                        {categoria.nombre} - {categoria.description}
                                     </option>
                                 ))}
                             </select>
@@ -148,6 +153,7 @@ const NewPost = () => {
                         </div>
                     </form>
                 </div>
+
             </dialog>
         </div>
     );

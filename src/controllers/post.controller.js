@@ -2,7 +2,7 @@ import Post from '../models/post.models.js';
 
 export const createPost = async (req, res) => {
     try {
-        console.log(req.body);
+        
         const { title, description, category, imageUrl, userId, username } = req.body;
 
         const newPost = new Post(
@@ -38,7 +38,6 @@ export const getPost = async (req, res) => {
         let publicaciones = [];
 
         if (id && username) {
-            console.log('Filtrando por userId y userName:', id, username);
             publicaciones = await Post.find({
                 'user.id': id,
                 'user.username': username
@@ -58,7 +57,6 @@ export const getPost = async (req, res) => {
 
         return res.status(200).json(publicacionesConLikes);
     } catch (error) {
-        console.error('Error al obtener publicaciones:', error);
         return res.status(500).json({ message: 'Error del servidor. Intenta nuevamente más tarde.' });
     }
 };
@@ -66,7 +64,6 @@ export const getPost = async (req, res) => {
 
 export const reactions = async (req, res) => {
     try {
-        console.log(req.body);
         const { _id, user } = req.body;
 
         const post = await Post.findOne({ _id });

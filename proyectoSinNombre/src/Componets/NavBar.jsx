@@ -53,9 +53,18 @@ const NavBar = () => {
                         <>
                             <div className="usuario">
                                 <i className="fa-solid fa-user"></i>
-                                <a onClick={navegar}>
+                                <a
+                                    onClick={navegar}
+                                    tabIndex={0}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            navegar();
+                                        }
+                                    }}
+                                >
                                     {user?.fullName}
                                 </a>
+
                             </div>
                             <div className="search">
                                 <input type="text" placeholder="Buscar..." />

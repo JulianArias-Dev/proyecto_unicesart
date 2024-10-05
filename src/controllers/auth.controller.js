@@ -1,5 +1,6 @@
 import User from '../models/user.model.js';
 import bcrypt from 'bcryptjs';
+import mongoose from 'mongoose';
 import { createAccesToken } from '../libs/jwt.js';
 
 const calcularEdad = (birthDate) => {
@@ -66,12 +67,11 @@ export const register = async (req, res) => {
 
         if (savedUser) {
             const token = await createAccesToken({ id: savedUser._id });
-            console.log(token)
             res.cookie('token', token, {
-                httpOnly: true, 
-                secure: process.env.NODE_ENV === 'production', 
-                sameSite: 'lax', 
-                maxAge: 24 * 60 * 60 * 1000 
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'lax',
+                maxAge: 24 * 60 * 60 * 1000
             });
             return res.json({
                 id: savedUser._id,
@@ -92,7 +92,6 @@ export const register = async (req, res) => {
     }
 };
 
-
 export const login = async (req, res) => {
     const { email, password } = req.body;
 
@@ -112,13 +111,11 @@ export const login = async (req, res) => {
         const token = await createAccesToken({ id: userFound._id });
 
         res.cookie('token', token, {
-            httpOnly: true, 
-            secure: process.env.NODE_ENV === 'production', 
-            sameSite: 'lax', 
-            maxAge: 24 * 60 * 60 * 1000 
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 24 * 60 * 60 * 1000
         });
-        console.log(token);
-        console.log(res);
         res.json({
             id: userFound._id,
             email: userFound.email,
@@ -158,7 +155,8 @@ export const logout = (req, res) => {
 
 export const updateUser = async (req, res) => {
     const { email, fullName, description, skills, profession, birthDate, city, phone, gender } = req.body;
-    console.log(email);
+    //Falta la funcionalidad para la foto de perfil
+    const imageUrl = ''
     try {
         const userFound = await User.findOne({ email });
 
@@ -210,7 +208,6 @@ export const updateUser = async (req, res) => {
 
 export const profile = async (req, res) => {
     try {
-        console.log(req.query);
         const { username } = req.query;
         console.log(username);
         const userFound = await User.findOne({ username });
@@ -245,4 +242,35 @@ export const profile = async (req, res) => {
             message: error.message
         })
     }
+};
+
+export const updatePassword = async (req, res) => {
+    const { userId, password, newPassword } = req.body;
+
+    try {
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({ message: 'ID de usuario no válido.' });
+        }
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(401).json({ message: 'La contraseña actual es incorrecta' });
+        }
+
+        const passwordHash = await bcrypt.hash(newPassword, 10);
+
+        user.password = passwordHash;
+        await user.save();
+
+        return res.status(200).json({ message: 'La contraseña ha sido actualizada exitosamente.' });
+    } catch (error) {
+        return res.status(500).json({
+            message: error.message,
+        });
+    } 
 };

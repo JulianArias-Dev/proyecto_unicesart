@@ -14,8 +14,8 @@ button {
     position: fixed;
     bottom: 20px;
     right: 20px;
-    width: 110cv;
-    height: 100cv;
+    padding: 10px 20px;
+    /* Espaciado interno para mejorar el aspecto del botón */
     background-color: #1d8348;
     color: white;
     border: none;
@@ -27,7 +27,10 @@ button {
     justify-content: center;
     align-items: center;
     transition: background-color 0.3s, transform 0.3s;
+    white-space: nowrap;
+    /* Evita que el texto del botón se divida en varias líneas */
 }
+
 
 .containerpost {
     display: flex;
@@ -53,11 +56,11 @@ button {
     margin: auto;
 }
 
-.dialogReport{
+.dialogReport {
     width: 400px;
 }
 
-.dialogPost input{
+.dialogPost input {
     margin: 10px 0px;
 }
 
@@ -79,7 +82,6 @@ button {
 }
 
 .formPost p {
-    width: 100cv;
     margin-bottom: 1%;
 }
 
@@ -99,7 +101,7 @@ button {
 }
 
 
-.newpost form p label {
+.newpost form p {
     font-weight: bold;
     margin-left: 1%;
 }
@@ -116,8 +118,7 @@ button {
     border-style: dashed;
     justify-content: left;
     flex-direction: column;
-    margin: 1% 1%;
-    height: 100cv;
+    margin: auto;
     width: 100%;
 }
 
@@ -137,7 +138,7 @@ button {
 
 .newpost textarea {
     width: 95%;
-    height: 100cv;
+    height: 100px;
     padding: 2%;
     border-radius: 5px;
     border: 2px solid #1d8348;
@@ -161,8 +162,8 @@ button {
     border: 2px solid #1d8348;
 }
 
-.postCategoria option:hover{
-    background-color:#1d8348;
+.postCategoria option:hover {
+    background-color: #1d8348;
 }
 
 
@@ -193,4 +194,34 @@ button {
 .file-link span {
     visibility: hidden;
     /* Ocultar el texto */
+}
+
+.botones2{
+    display: none;
+}
+
+@media screen and (max-width:500px) {
+    .containerpost {
+        flex-direction: column-reverse;
+    }
+
+    .imageDiv{
+        width: 95%;
+        margin: auto;
+        align-items: center ;
+        padding-bottom: 15px;
+    }
+
+    .dialogPost>h3{
+        font-size: 30px;
+    }
+
+    .botones{
+        display: none;
+    }
+
+    .botones2{
+        display: block;
+    }
+
 }

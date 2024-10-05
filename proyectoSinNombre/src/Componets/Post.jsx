@@ -15,7 +15,7 @@ const Post = ({ post }) => {
 
     useEffect(() => {
         const userIndex = post.likes.findIndex(
-            like => like.user.userId.toString() === user?.id
+            like => like.user.id.toString() === user?.id
         );
         if (userIndex > -1) {
             setLiked(true);
@@ -32,19 +32,19 @@ const Post = ({ post }) => {
     };
 
     const openDialog = () => {
-        if (dialogReportRef.current && !dialogReportRef.current.open) {
+        if (!dialogReportRef.current?.open) {
             dialogReportRef.current.showModal();
         }
     };
 
     const closeDialog = () => {
-        if (dialogReportRef.current && dialogReportRef.current.open) {
+        if (dialogReportRef.current?.open) {
             dialogReportRef.current.close();
         }
     };
 
-    const handleReport = (option) => {
-        console.log(`Reportado por: ${option}`);
+
+    const handleReport = () => {
         setIsOpen(false);
     };
 
@@ -81,7 +81,7 @@ const Post = ({ post }) => {
             <div className="post-top">
                 <div className="userInfo">
                     <i className="fa-solid fa-user"></i>
-                    <p><Link to={`/profile/${post.user.userName}`}>{post.user.userName}</Link></p>
+                    <p><Link to={`/profile/${post.user.username}`}>{post.user.username}</Link></p>
                 </div>
                 {
                     isAuthenticated &&
@@ -93,21 +93,34 @@ const Post = ({ post }) => {
                 }
                 {isOpen && (
                     <ul className="report-menu">
-                        <li className="report-item" onClick={openDialog}>
-                            <i className="fa-solid fa-flag"></i> Contenido inapropiado
+                        <li className="report-item">
+                            <button onClick={openDialog} className="report-button">
+                                <i className="fa-solid fa-flag"></i> Contenido inapropiado
+                            </button>
                         </li>
-                        <li className="report-item" onClick={() => handleReport('Spam')}>
-                            <i className="fa-solid fa-trash"></i> Eliminar Publicación
+                        <li className="report-item">
+                            <button onClick={() => handleReport('Spam')} className="report-button">
+                                <i className="fa-solid fa-trash"></i> Eliminar Publicación
+                            </button>
                         </li>
-                        <li className="report-item" onClick={() => handleReport('Acoso')}>
-                            <i className="fa-solid fa-pen"></i> Editar Publicación
+                        <li className="report-item">
+                            <button onClick={() => handleReport('Acoso')} className="report-button">
+                                <i className="fa-solid fa-pen"></i> Editar Publicación
+                            </button>
                         </li>
-                        <li className="report-item" onClick={() => handleReport('Otro')}>Otro</li>
-                        <li className="report-item" onClick={toggleMenu}>
-                            <i className="fa-solid fa-x"></i> Cerrar
+                        <li className="report-item">
+                            <button onClick={() => handleReport('Otro')} className="report-button">
+                                Otro
+                            </button>
+                        </li>
+                        <li className="report-item">
+                            <button onClick={toggleMenu} className="report-button">
+                                <i className="fa-solid fa-x"></i> Cerrar
+                            </button>
                         </li>
                     </ul>
                 )}
+
             </div>
 
             <dialog ref={dialogReportRef} className="dialogPost dialogReport">
@@ -188,14 +201,14 @@ Post.propTypes = {
         category: PropTypes.string,
         imageUrl: PropTypes.string.isRequired,
         user: PropTypes.shape({
-            userName: PropTypes.string.isRequired
+            username: PropTypes.string.isRequired
         }).isRequired,
         likesCount: PropTypes.number.isRequired,
         likes: PropTypes.arrayOf(
             PropTypes.shape({
                 user: PropTypes.shape({
-                    userId: PropTypes.string.isRequired,
-                    userName: PropTypes.string,
+                    id: PropTypes.string.isRequired,
+                    username: PropTypes.string,
                 }).isRequired,
                 _id: PropTypes.string
             })

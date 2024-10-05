@@ -14,7 +14,6 @@ import { PostProvider } from './context/PostContext.jsx';
 
 function App() {
   return (
-    <>
       <AuthProvider>
         <PostProvider>
           <Router>
@@ -34,7 +33,6 @@ function App() {
           </Router>
         </PostProvider>
       </AuthProvider>
-    </>
   );
 }
 
