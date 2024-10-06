@@ -4,25 +4,26 @@ import { getCategorias, getUbicaciones } from "../controllers/recursos.controlle
 import { createPost, getPost, reactions } from "../controllers/post.controller.js";
 import { authRequired } from "../middlewares/validateToken.js";
 import { validateSchema } from "../middlewares/validator.middleware.js";
-import { registerSchema, loginSchema } from "../schemas/auth.schema.js";
+import { registerSchema, loginSchema, updateUserSchema, profileSchema, updatePasswordSchema, setCodeSchema, dropAccountSchema } from "../schemas/auth.schema.js";
+import { createPostSchema, getPostSchema, reactionsSchema } from "../schemas/post.schema.js";
 
 const router = Router();
 
 router.post('/register', validateSchema(registerSchema), register);
 router.post('/login', validateSchema(loginSchema), login);
 router.post('/logout', authRequired, logout);
-router.post('/updateuser', authRequired, updateUser)
-router.put('/updatepassword', authRequired, updatePassword)
-router.put('/recover-password', updatePassword)
-router.put('/set-recover-code', setCode);
-router.get('/profile', profile);
+router.post('/updateuser', authRequired, validateSchema(updateUserSchema), updateUser)
+router.put('/updatepassword', authRequired, validateSchema(updatePasswordSchema), updatePassword)
+router.put('/recover-password', validateSchema(updatePasswordSchema), updatePassword)
+router.put('/set-recover-code', validateSchema(setCodeSchema),setCode);
+router.get('/profile', validateSchema(profileSchema), profile);
 
 /** */
-router.delete('/removeAccount', authRequired,dropAccount);
+router.delete('/removeAccount', authRequired, validateSchema(dropAccountSchema), dropAccount);
 
-router.post('/createPost', authRequired, createPost);
-router.get('/getPost', getPost);
-router.put('/reaction', authRequired, reactions);
+router.post('/createPost', authRequired, validateSchema(createPostSchema), createPost);
+router.get('/getPost', validateSchema(getPostSchema),getPost);
+router.put('/reaction', authRequired,validateSchema(reactionsSchema), reactions);
 
 router.get('/ubicaciones', getUbicaciones);
 router.get('/categorias', getCategorias);
