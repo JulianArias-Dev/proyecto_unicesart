@@ -1,5 +1,6 @@
 import User from '../models/user.model.js';
 import Post from '../models/post.models.js';
+import { z } from 'zod'
 import bcrypt from 'bcryptjs';
 import mongoose from 'mongoose';
 import { createAccesToken } from '../libs/jwt.js';
@@ -27,30 +28,18 @@ const formatFecha = (fechaISO) => {
 };
 
 export const register = async (req, res) => {
-    const { email, password, fullName, username, gender } = req.body;
-
     try {
-        const userFoundByEmail = await User.findOne({ email });
-        const userFoundByUsername = await User.findOne({ username });
+        const { email, username, fullName, gender, password } = req.body;
 
-        if (userFoundByEmail && userFoundByUsername) {
+        const userFoundByEmail = await User.findOne({ email }).lean().exec();
+        const userFoundByUsername = await User.findOne({ username }).lean().exec();
+
+        if (userFoundByEmail || userFoundByUsername) {
             return res.status(400).json({
                 errors: [
-                    'La dirección de correo electrónico ya está en uso',
-                    'El nombre de usuario ya está en uso',
-                ],
-            });
-        }
-
-        if (userFoundByEmail) {
-            return res.status(400).json({
-                errors: ['La dirección de correo electrónico ya está en uso'],
-            });
-        }
-
-        if (userFoundByUsername) {
-            return res.status(400).json({
-                errors: ['El nombre de usuario ya está en uso'],
+                    userFoundByEmail ? 'La dirección de correo electrónico ya está en uso' : null,
+                    userFoundByUsername ? 'El nombre de usuario ya está en uso' : null
+                ].filter(Boolean),
             });
         }
 
@@ -72,8 +61,9 @@ export const register = async (req, res) => {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
                 sameSite: 'lax',
-                maxAge: 24 * 60 * 60 * 1000
+                maxAge: 24 * 60 * 60 * 1000, // 1 día
             });
+
             return res.json({
                 id: savedUser._id,
                 email: savedUser.email,
@@ -85,29 +75,38 @@ export const register = async (req, res) => {
                 updatedAt: savedUser.updatedAt,
             });
         }
-
     } catch (error) {
+        if (error instanceof z.ZodError) {
+            return res.status(400).json({
+                errors: error.errors.map((err) => err.message),
+            });
+        }
+
         res.status(500).json({
-            message: error.message,
+            message: 'Error del servidor',
+            error: error.message,
         });
     }
 };
 
 export const login = async (req, res) => {
-    const { email, password } = req.body;
-
     try {
+        const { email, password } = req.body;
 
-        const userFound = await User.findOne({ email });
+        const userFound = await User.findOne({ email }).lean().exec();
 
-        if (!userFound) return res.status(400).json({
-            message: "Usuario no Encontrado"
-        })
+        if (!userFound) {
+            return res.status(400).json({
+                message: "Usuario no encontrado",
+            });
+        }
 
         const isMatch = await bcrypt.compare(password, userFound.password);
-        if (!isMatch) return res.status(400).json({
-            message: "Contraseña incorrecta"
-        });
+        if (!isMatch) {
+            return res.status(400).json({
+                message: "Contraseña incorrecta",
+            });
+        }
 
         const token = await createAccesToken({ id: userFound._id });
 
@@ -115,8 +114,9 @@ export const login = async (req, res) => {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
-            maxAge: 24 * 60 * 60 * 1000
+            maxAge: 24 * 60 * 60 * 1000, // 1 día
         });
+
         res.json({
             id: userFound._id,
             email: userFound.email,
@@ -127,7 +127,7 @@ export const login = async (req, res) => {
             profession: userFound.profession,
             lugarOrigen: {
                 nombreDepartamento: userFound.lugarOrigen.nombreDepartamento,
-                nombreMunicipio: userFound.lugarOrigen.nombreMunicipio
+                nombreMunicipio: userFound.lugarOrigen.nombreMunicipio,
             },
             birthDate: userFound.birthDate,
             phone: userFound.phone,
@@ -136,28 +136,36 @@ export const login = async (req, res) => {
             createdAt: userFound.createdAt,
             updatedAt: userFound.updatedAt,
             imageUrl: userFound.imageUrl,
-            edad: calcularEdad(userFound.birthDate)
+            edad: calcularEdad(userFound.birthDate),
         });
-
     } catch (error) {
-        res.status(500).json({
-            message: error.message
-        })
-    }
+        if (error instanceof z.ZodError) {
+            return res.status(400).json({
+                errors: error.errors.map((err) => err.message),
+            });
+        }
 
+        res.status(500).json({
+            message: 'Error del servidor',
+            error: error.message,
+        });
+    }
 };
 
 export const logout = (req, res) => {
-    res.cookie('token', "", {
-        expires: new Date(0)
+    res.clearCookie('token', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
     });
-    return res.sendStatus(200);
+
+    return res.status(200).json({ message: "Sesión cerrada con éxito." });
 };
 
 export const updateUser = async (req, res) => {
-    const { email, fullName, description, skills, profession, birthDate, city, phone, gender } = req.body;
-    //Falta la funcionalidad para la foto de perfil
-    const imageUrl = ''
+    const { email, fullName, description, skills, profession, birthDate, city, phone, gender, } = req.body;
+    const imageUrl = '';
+
     try {
         const userFound = await User.findOne({ email });
 
@@ -165,18 +173,18 @@ export const updateUser = async (req, res) => {
             return res.status(404).json({ message: 'Usuario no encontrado' });
         }
 
-        userFound.fullName = fullName || userFound.fullName;
-        userFound.description = description || userFound.description;
-        userFound.skills = skills || userFound.skills;
-        userFound.profession = profession || userFound.profession;
+        userFound.fullName = fullName ?? userFound.fullName;
+        userFound.description = description ?? userFound.description;
+        userFound.skills = skills ?? userFound.skills;
+        userFound.profession = profession ?? userFound.profession;
         userFound.lugarOrigen = {
-            nombreDepartamento: city?.departamento || userFound.lugarOrigen.nombreDepartamento,
-            nombreMunicipio: city?.municipio || userFound.lugarOrigen.nombreMunicipio,
+            nombreDepartamento: city?.departamento ?? userFound.lugarOrigen.nombreDepartamento,
+            nombreMunicipio: city?.municipio ?? userFound.lugarOrigen.nombreMunicipio,
         };
-        userFound.birthDate = birthDate || userFound.birthDate;
-        userFound.phone = phone || userFound.phone;
-        userFound.gender = gender || userFound.gender;
-        userFound.imageUrl = imageUrl || userFound.imageUrl;
+        userFound.birthDate = birthDate ?? userFound.birthDate;
+        userFound.phone = phone ?? userFound.phone;
+        userFound.gender = gender ?? userFound.gender;
+        userFound.imageUrl = imageUrl ?? userFound.imageUrl;
 
         const updatedUser = await userFound.save();
 
@@ -208,12 +216,13 @@ export const updateUser = async (req, res) => {
 
 export const profile = async (req, res) => {
     try {
-        const { username } = req.query;
+        const { username } = req.query; 
+
         const userFound = await User.findOne({ username });
 
-        if (!userFound) return res.status(400).json({
-            message: "Usuario no Encontrado"
-        })
+        if (!userFound) {
+            return res.status(404).json({ message: "Usuario no encontrado" });
+        }
 
         res.json({
             id: userFound._id,
@@ -237,15 +246,14 @@ export const profile = async (req, res) => {
             edad: calcularEdad(userFound.birthDate)
         });
     } catch (error) {
-        res.status(500).json({
-            message: error.message
-        })
+        res.status(500).json({ message: error.message });
     }
 };
 
 export const updatePassword = async (req, res) => {
-    const { userId, password, newPassword, email } = req.body;
+    const { userId, password, newPassword, email } = req.body; 
     let user;
+
     try {
         if (email) {
             user = await User.findOne({ email });
@@ -269,15 +277,13 @@ export const updatePassword = async (req, res) => {
         }
 
         const passwordHash = await bcrypt.hash(newPassword, 10);
-
         user.password = passwordHash;
         await user.save();
 
-        return res.status(200).json(
-            {
-                message: 'La contraseña ha sido actualizada exitosamente.',
-                cambio: true,
-            },);
+        return res.status(200).json({
+            message: 'La contraseña ha sido actualizada exitosamente.',
+            cambio: true,
+        });
     } catch (error) {
         return res.status(500).json({
             message: error.message,
@@ -329,14 +335,14 @@ export const setCode = async (req, res) => {
 
 export const dropAccount = async (req, res) => {
     const { userId } = req.query;
-    
+
     if (!mongoose.Types.ObjectId.isValid(userId)) {
         return res.status(400).json({ message: 'ID de usuario no válido.' });
     }
 
     try {
         const user = await User.findById(userId);
-        
+
         // 1. Buscar el usuario
         if (!user) {
             return res.status(404).json({ message: 'Usuario no encontrado' });
@@ -344,7 +350,7 @@ export const dropAccount = async (req, res) => {
 
         // 2. Eliminar todas las publicaciones del usuario
         await Post.deleteMany({ "user.id": userId });
-        
+
         // 3. Eliminar los likes del usuario en publicaciones ajenas
         const posts = await Post.updateMany(
             { "likes.user.id": userId }, // Condición para encontrar publicaciones con sus likes
