@@ -1,10 +1,11 @@
 import { useForm } from 'react-hook-form';
 import { useAuth } from '../context/AuthContext';
+import Swal from 'sweetalert2';
 
 const CambioContrasena = () => {
     const { register, handleSubmit, formState: { errors }, watch } = useForm();
     const { user, updatePassword } = useAuth();
-    
+
     const newPassword = watch('newPassword', '');
 
     const handleButtonClick = async (data) => {
@@ -12,15 +13,44 @@ const CambioContrasena = () => {
             const { password, newPassword } = data;
             const userId = user.id;
 
-            await updatePassword(
-                userId,
-                password,
-                newPassword
-            );
+            Swal.fire({
+                title: "¿Estás seguro?",
+                text: "¿Deseas cambiar tu contraseña?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Sí, cambiar contraseña"
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        await updatePassword(userId, password, newPassword);
+
+                        Swal.fire({
+                            title: "Contraseña cambiada",
+                            text: "Tu contraseña ha sido actualizada correctamente.",
+                            icon: "success"
+                        });
+                    } catch (error) {
+                        console.error('Error al cambiar la contraseña:', error);
+                        Swal.fire({
+                            title: "Error",
+                            text: "Hubo un error al cambiar la contraseña. Inténtalo más tarde.",
+                            icon: "error"
+                        });
+                    }
+                }
+            });
         } catch (error) {
             console.error('Error al cambiar la contraseña:', error);
+            Swal.fire({
+                title: "Error",
+                text: "Hubo un problema con la solicitud. Inténtalo más tarde.",
+                icon: "error"
+            });
         }
     };
+
 
     return (
         <div className="cambioContrasena">

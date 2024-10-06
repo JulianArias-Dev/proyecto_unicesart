@@ -1,4 +1,5 @@
 import User from '../models/user.model.js';
+import Post from '../models/post.models.js';
 import bcrypt from 'bcryptjs';
 import mongoose from 'mongoose';
 import { createAccesToken } from '../libs/jwt.js';
@@ -128,7 +129,7 @@ export const login = async (req, res) => {
                 nombreDepartamento: userFound.lugarOrigen.nombreDepartamento,
                 nombreMunicipio: userFound.lugarOrigen.nombreMunicipio
             },
-            birthDate: formatFecha(userFound.birthDate),
+            birthDate: userFound.birthDate,
             phone: userFound.phone,
             gender: userFound.gender,
             status: userFound.status,
@@ -191,7 +192,7 @@ export const updateUser = async (req, res) => {
                 nombreDepartamento: updatedUser.lugarOrigen.nombreDepartamento,
                 nombreMunicipio: updatedUser.lugarOrigen.nombreMunicipio,
             },
-            birthDate: formatFecha(updatedUser.birthDate),
+            birthDate: updatedUser.birthDate,
             phone: updatedUser.phone,
             gender: updatedUser.gender,
             status: updatedUser.status,
@@ -205,11 +206,9 @@ export const updateUser = async (req, res) => {
     }
 };
 
-
 export const profile = async (req, res) => {
     try {
         const { username } = req.query;
-        console.log(username);
         const userFound = await User.findOne({ username });
 
         if (!userFound) return res.status(400).json({
@@ -245,21 +244,28 @@ export const profile = async (req, res) => {
 };
 
 export const updatePassword = async (req, res) => {
-    const { userId, password, newPassword } = req.body;
-
+    const { userId, password, newPassword, email } = req.body;
+    let user;
     try {
-        if (!mongoose.Types.ObjectId.isValid(userId)) {
-            return res.status(400).json({ message: 'ID de usuario no válido.' });
-        }
+        if (email) {
+            user = await User.findOne({ email });
+            if (!user) {
+                return res.status(404).json({ message: 'El email parece no estar registrado' });
+            }
+        } else {
+            if (!mongoose.Types.ObjectId.isValid(userId)) {
+                return res.status(400).json({ message: 'ID de usuario no válido.' });
+            }
 
-        const user = await User.findById(userId);
-        if (!user) {
-            return res.status(404).json({ message: 'Usuario no encontrado' });
-        }
+            user = await User.findById(userId);
+            if (!user) {
+                return res.status(404).json({ message: 'Usuario no encontrado' });
+            }
 
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-            return res.status(401).json({ message: 'La contraseña actual es incorrecta' });
+            const isMatch = await bcrypt.compare(password, user.password);
+            if (!isMatch) {
+                return res.status(401).json({ message: 'La contraseña actual es incorrecta' });
+            }
         }
 
         const passwordHash = await bcrypt.hash(newPassword, 10);
@@ -267,10 +273,103 @@ export const updatePassword = async (req, res) => {
         user.password = passwordHash;
         await user.save();
 
-        return res.status(200).json({ message: 'La contraseña ha sido actualizada exitosamente.' });
+        return res.status(200).json(
+            {
+                message: 'La contraseña ha sido actualizada exitosamente.',
+                cambio: true,
+            },);
     } catch (error) {
         return res.status(500).json({
             message: error.message,
         });
-    } 
+    }
 };
+
+export const setCode = async (req, res) => {
+    const { userId, password, email } = req.body;
+
+    try {
+        let user;
+        if (email) {
+            user = await User.findOne({ email });
+            if (!user) {
+                return res.status(404).json({ message: 'El email parece no estar registrado' });
+            }
+
+        } else {
+            if (!mongoose.Types.ObjectId.isValid(userId)) {
+                return res.status(400).json({ message: 'ID de usuario no válido.' });
+            }
+
+            user = await User.findById(userId);
+            if (!user) {
+                return res.status(404).json({ message: 'Usuario no encontrado' });
+            }
+
+            const isMatch = await bcrypt.compare(password, user.password);
+            if (!isMatch) {
+                return res.status(401).json({ message: 'La contraseña actual es incorrecta' });
+            }
+        }
+
+        const recoverCode = generarCodigoAleatorio(8);
+        user.recoverCode = recoverCode;
+        await user.save();
+
+        return res.status(200).json({
+            isValid: true,
+            recoverCode: user.recoverCode,
+        });
+
+    } catch (error) {
+        console.error('Error en al validar el Codigo:', error);
+        return res.status(500).json({ message: 'Error del servidor. Intenta nuevamente más tarde.' });
+    }
+};
+
+export const dropAccount = async (req, res) => {
+    const { userId } = req.query;
+    
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+        return res.status(400).json({ message: 'ID de usuario no válido.' });
+    }
+
+    try {
+        const user = await User.findById(userId);
+        
+        // 1. Buscar el usuario
+        if (!user) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+        // 2. Eliminar todas las publicaciones del usuario
+        await Post.deleteMany({ "user.id": userId });
+        
+        // 3. Eliminar los likes del usuario en publicaciones ajenas
+        const posts = await Post.updateMany(
+            { "likes.user.id": userId }, // Condición para encontrar publicaciones con sus likes
+            { $pull: { likes: { "user.id": userId } } } // Remover los likes de ese usuario
+        );
+
+        // 4. Eliminar al usuario
+        await User.findByIdAndDelete(userId);
+
+        return res.status(200).json({ message: 'Cuenta eliminada correctamente, publicaciones y likes eliminados.' });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Error al eliminar la cuenta.' });
+    }
+};
+
+function generarCodigoAleatorio(longitud = 8) {
+    const caracteres = 'abcdefghijklmnopqrstuvwxyz0123456789@#$%&';
+    let codigo = '';
+
+    for (let i = 0; i < longitud; i++) {
+        const randomIndex = Math.floor(Math.random() * caracteres.length);
+        codigo += caracteres[randomIndex];
+    }
+
+    return codigo;
+}

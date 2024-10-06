@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { registerRequest, loginRequest, logoutRequest, updateRequest, profileRequest, updatePasswordRequest } from "../API/auth";
+import { registerRequest, loginRequest, logoutRequest, updateRequest, profileRequest, updatePasswordRequest, dropRequest,} from "../API/auth";
 import { getUbicacionesRequest } from "../API/recursos";
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
@@ -102,10 +102,9 @@ export const AuthProvider = ({ children }) => {
             const res = await logoutRequest();
 
             if (res.status === 200) {
+                sessionStorage.removeItem('user');
                 setIsAuthenticated(false);
                 setUser(null);
-                // Eliminar el usuario de sesionStorage
-                sessionStorage.removeItem('user');
             }
         } catch (error) {
             console.error(error);
@@ -163,6 +162,31 @@ export const AuthProvider = ({ children }) => {
                 icon: "error"
             });
             setErrors(error.response.data);
+        }
+    }
+
+    const deleteAccount = async (userId) => {
+        try {
+            const res = await dropRequest(userId);
+
+            if (res.status === 200) {
+                sessionStorage.removeItem('user');
+                await logoutRequest();                
+                setIsAuthenticated(false);
+                setUser(null);
+                withReactContent(Swal).fire({
+                    title: "Hasta Pronto",
+                    text: "Se han eliminado todos los datos asociados a su cuenta",
+                    icon: "warning"
+                });
+            }
+         } catch (error) {
+            console.error(error);
+            withReactContent(Swal).fire({
+                title: "Error",
+                text: error.response?.data?.message || "Error al eliminar la cuenta.",
+                icon: "error"
+            });
         } 
     }
 
@@ -215,7 +239,6 @@ export const AuthProvider = ({ children }) => {
         }
     }
 
-
     return (
         <AuthContext.Provider value={{
             singUp,
@@ -225,6 +248,7 @@ export const AuthProvider = ({ children }) => {
             updateUser,
             updatePassword,
             getUserProfile,
+            deleteAccount,
             ubicaciones,
             user,
             isAuthenticated,
