@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import './Post.css';
 import { useAuth } from '../context/AuthContext';
 import { usePost } from '../context/PostContext';
+import Swal from 'sweetalert2';
 
 const Post = ({ post }) => {
 
@@ -64,16 +65,24 @@ const Post = ({ post }) => {
 
     const handleReaction = (e) => {
         e.preventDefault();
+        if (isAuthenticated) {
+            putReaction({
+                _id: post._id,
+                user: {
+                    id: user.id,
+                    username: user.username
+                }
+            });
 
-        putReaction({
-            _id: post._id,
-            user: {
-                id: user.id,
-                username: user.username
-            }
-        });
+            setLiked(!liked);
+        }else{
+            Swal.fire({
+                title: "Error",
+                text: "Debe registrarse o Iniciar sesión para realizar esta acción.",
+                icon: "error",
+            });
+        }
 
-        setLiked(!liked);
     };
 
     return (

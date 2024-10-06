@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useAuth } from '../context/AuthContext';
+import Swal from 'sweetalert2';
 
 const PersonalInfo = () => {
     const { register, handleSubmit, formState: { errors }, setValue } = useForm();
@@ -31,13 +32,27 @@ const PersonalInfo = () => {
     };
 
     const handleSave = (data) => {
-        updateUser(data); // Lógica para actualizar la información en el backend
-        setIsEditable(false);
-    };
+        Swal.fire({
+            title: "¿Estás seguro?",
+            text: "Estás a punto de actualizar tu información personal.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Sí, actualizar",
+            cancelButtonText: "Cancelar"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                updateUser(data);
+                setIsEditable(false);
     
-    const convertDateToISO = (dateString) => {
-        const [day, month, year] = dateString.split('/');
-        return `${year}-${month}-${day}`;
+                Swal.fire({
+                    title: "¡Actualizado!",
+                    text: "Tu información personal ha sido actualizada.",
+                    icon: "success"
+                });
+            }
+        });
     };
 
 
@@ -61,9 +76,10 @@ const PersonalInfo = () => {
                 <input
                     type="date"
                     disabled={!isEditable}
-                    defaultValue={user?.birthDate ? convertDateToISO(user.birthDate) : ''}
+                    defaultValue={user?.birthDate ? user.birthDate : ''}  
                     {...register("birthDate", { required: "Fecha de nacimiento es requerida" })}
                 />
+
 
                 {errors.birthDate && <span>{errors.birthDate.message}</span>}
 
@@ -72,12 +88,14 @@ const PersonalInfo = () => {
                 <select
                     disabled={!isEditable}
                     {...register("gender", { required: "Género es requerido" })}
+                    defaultValue={user?.gender ?? ''}
                 >
-                    <option value={user?.gender ?? ''} disabled selected>{user?.gender ?? 'Selecciona tu género'}</option>
+                    <option value="">Selecciona tu género</option>
                     <option value="Masculino">Masculino</option>
                     <option value="Femenino">Femenino</option>
                     <option value="Otro">Prefiero no decirlo</option>
                 </select>
+
                 {errors.gender && <span>{errors.gender.message}</span>}
 
                 <p>Ciudad de Origen</p>
@@ -90,7 +108,7 @@ const PersonalInfo = () => {
                             onChange={(e) => setSelectedDepartamento(e.target.value)}
                             disabled={!isEditable}
                         >
-                            <option value={user?.lugarOrigen?.nombreDepartamento ?? ''} disabled>{user?.lugarOrigen?.nombreDepartamento ?? 'Selecciona un Departamento'}</option>
+                            <option value="">Selecciona un Departamento</option>
                             {departamentos.map((ubicacion) => (
                                 <option key={ubicacion.departamentoId} value={ubicacion.nombre}>
                                     {ubicacion.nombre}
@@ -98,18 +116,21 @@ const PersonalInfo = () => {
                             ))}
                         </select>
 
+
                         <p>Municipio</p>
                         <select
                             {...register("city.municipio", { required: "El municipio es requerido" })}
+                            value={user?.lugarOrigen?.nombreMunicipio ?? ''} 
                             disabled={!isEditable}
                         >
-                            <option value={user?.lugarOrigen?.nombreMunicipio ?? ''} disabled>{user?.lugarOrigen?.nombreMunicipio ?? 'Selecciona un Municipio'}</option>
+                            <option value="">Selecciona un Municipio</option>
                             {municipios.map((municipio) => (
                                 <option key={municipio.id} value={municipio.nombreMunicipio}>
                                     {municipio.nombreMunicipio}
                                 </option>
                             ))}
                         </select>
+
                     </>
                 )}
 

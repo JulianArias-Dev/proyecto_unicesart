@@ -65,25 +65,42 @@ export const PostProvider = ({ children }) => {
     }
 
     const getPost = async (userId = null, userName = null) => {
+        let timerInterval;
         try {
+            Swal.fire({
+                title: "Cargando publicaciones...",
+                html: "Por favor, espere.",
+                timerProgressBar: true,
+                didOpen: () => {
+                    Swal.showLoading();
+                    timerInterval = setInterval(() => { }, 150); 
+                },
+                willClose: () => {
+                    clearInterval(timerInterval); 
+                }
+            });
+
             const res = userId && userName
                 ? await getPostRequest(userId, userName)
                 : await getPostRequest();
 
             if (res.status === 200) {
-                setPublicaciones(res.data);
+                Swal.close(); 
+                setPublicaciones(res.data); 
             } else {
-                withReactContent(Swal).fire({
+                Swal.fire({
                     title: "Advertencia",
-                    text: "No se han encontrado Publicaciones, intente recargar la página",
+                    text: "No se han encontrado Publicaciones, intente recargar la página.",
                     icon: "warning"
                 });
             }
         } catch (error) {
             console.error(error);
-            withReactContent(Swal).fire({
+
+            Swal.close();
+            Swal.fire({
                 title: "Error",
-                text: error.response?.data?.message || "Error al consultar publicaciones",
+                text: error.response?.data?.message || "Error al consultar publicaciones.",
                 icon: "error"
             });
 
@@ -94,9 +111,9 @@ export const PostProvider = ({ children }) => {
     };
 
 
-
     const putReaction = async (reaction) => {
         try {
+            console.log(reaction);
             const res = await reactionRequest(reaction);
 
             if (res.status === 200) {

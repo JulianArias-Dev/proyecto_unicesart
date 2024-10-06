@@ -11,6 +11,7 @@ import Register from "./Pages/RegisterPage.jsx";
 import Welcome from "./Pages/Welcome.jsx";
 import RecuperarContraseña from './Pages/RecuperarContraseña.jsx';
 import { PostProvider } from './context/PostContext.jsx';
+import ProtectedRoute from './context/ProtectedRoute.jsx';  
 
 function App() {
   return (
@@ -24,9 +25,11 @@ function App() {
                 <Route path="/singin" element={<Login />} />
                 <Route path="/singup" element={<Register />} />
                 <Route path="/recover" element={<RecuperarContraseña />} />
-                <Route path='/home' element={<DashBoard />} />
                 <Route path="/profile/:username" element={<Profile />} />
-                <Route path='/configuration' element={<Configuration />} />
+                <Route path='/home' element={<DashBoard />} />
+
+                <Route path='/configuration' element={<ProtectedRoute element={<Configuration />} />} />
+
               </Routes>
               <Footer />
             </div>

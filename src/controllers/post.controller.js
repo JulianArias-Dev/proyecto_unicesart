@@ -73,7 +73,7 @@ export const reactions = async (req, res) => {
         }
 
         const userIndex = post.likes.findIndex(
-            like => like.user.userId.toString() === user.id
+            like => like.user.id.toString() === user.id
         );
 
         if (userIndex > -1) {
