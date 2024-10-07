@@ -112,8 +112,8 @@ const NewPost = () => {
                     </div>
 
                     <form className='formPost' onSubmit={handleSubmit(onSubmit)}>
-                        <p>
-                            Título:
+                        <div>
+                            <p>Título:</p>
                             <input
                                 type="text"
                                 {...register('title', {
@@ -122,18 +122,18 @@ const NewPost = () => {
                                 })}
                             />
                             {errors.title && <span>{errors.title.message}</span>}
-                        </p>
-                        <p>
-                            Descripción:
+                        </div>
+                        <div>
+                            <p>Descripción:</p>
                             <textarea
                                 {...register('description', {
                                     maxLength: { value: 500, message: "Máximo 500 caracteres" }
                                 })}
                             />
                             {errors.description && <span>{errors.description.message}</span>}
-                        </p>
-                        <p>
-                            Categoría:
+                        </div>
+                        <div>
+                            <p>Categoría:</p>
                             <select
                                 className="postCategoria"
                                 value={selectedCategory}
@@ -146,7 +146,7 @@ const NewPost = () => {
                                     </option>
                                 ))}
                             </select>
-                        </p>
+                        </div>
                         <div className='botones'>
                             <button type="submit" style={{ background: '#1d8348' }}>Publicar</button>
                             <button type="button" onClick={closeDialog} style={{ background: '#DE2D18' }}>Cancelar</button>

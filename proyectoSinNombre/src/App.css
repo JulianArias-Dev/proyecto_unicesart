@@ -189,14 +189,16 @@ header {
   color: #1d8348;
 }
 
-.usuario>a {
+.usuario>button {
   font-size: 30px;
   font-weight: 550;
   margin-left: 5px;
   cursor: pointer;
+  background-color: #fff;
+  color: #000;
 }
 
-.usuario>a:hover {
+.usuario>button:hover {
   scale: 1.05;
   text-decoration: underline;
 }
@@ -264,7 +266,7 @@ header {
 @media screen and (max-width:500px) {
 
   header {
-    height: 145px !important;
+    height: 160px !important;
     padding-top: 10px !important;
   }
 

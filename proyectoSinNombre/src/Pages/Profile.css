@@ -148,5 +148,8 @@
         font-size: 25px;
     }
 
-
+    .report-menu2 {
+        top: 20%;
+        left: 5%;
+    }
 }

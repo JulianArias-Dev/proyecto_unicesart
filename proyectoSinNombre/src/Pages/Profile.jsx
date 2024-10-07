@@ -87,15 +87,25 @@ const Profile = () => {
                     )}
                     {isOpen && (
                         <ul className="report-menu2">
-                            <li className="report-item" onClick={() => handleReport('Contenido inapropiado')}>
-                                <i className="fa-solid fa-ban"></i>Suspender Usuario
+                            <li >
+                                <button className="report-item" onClick={() => handleReport('Contenido inapropiado')}>
+                                    <i className="fa-solid fa-ban"></i>Suspender Usuario
+                                </button>
                             </li>
-                            <li className="report-item" onClick={showDialog}>
-                                <i className="fa-solid fa-flag"></i>Reportar Usuario
+                            <li >
+                                <button className="report-item" onClick={showDialog}>
+                                    <i className="fa-solid fa-flag"></i>Reportar Usuario
+                                </button>
                             </li>
-                            <li className="report-item" onClick={() => handleReport('Otro')}>Otro</li>
-                            <li className="report-item" onClick={toggleMenu}>
-                                <i className="fa-solid fa-x"></i> Cerrar
+                            <li >
+                                <button className="report-item" onClick={() => handleReport('Otro')}>
+                                    Otro
+                                </button>
+                            </li>
+                            <li >
+                                <button className="report-item" onClick={toggleMenu}>
+                                    <i className="fa-solid fa-x"></i> Cerrar
+                                </button>
                             </li>
                         </ul>
                     )}
@@ -106,28 +116,20 @@ const Profile = () => {
                             <form method="dialog" className="formPost">
                                 <p>Selecciona un motivo:</p>
                                 <p>
-                                    <label>
-                                        <input type="checkbox" name="motivo" value="spam" />
-                                        Spam
-                                    </label>
+                                    <input type="checkbox" name="motivo" value="spam" />
+                                    Spam
                                 </p>
                                 <p>
-                                    <label>
-                                        <input type="checkbox" name="motivo" value="contenido_inapropiado" />
-                                        Contenido inapropiado
-                                    </label>
+                                    <input type="checkbox" name="motivo" value="contenido_inapropiado" />
+                                    Contenido inapropiado
                                 </p>
                                 <p>
-                                    <label>
-                                        <input type="checkbox" name="motivo" value="acoso" />
-                                        Acoso
-                                    </label>
+                                    <input type="checkbox" name="motivo" value="acoso" />
+                                    Acoso
                                 </p>
                                 <p>
-                                    <label>
-                                        <input type="checkbox" name="motivo" value="otro" />
-                                        Otro
-                                    </label>
+                                    <input type="checkbox" name="motivo" value="otro" />
+                                    Otro
                                 </p>
 
                                 <p>

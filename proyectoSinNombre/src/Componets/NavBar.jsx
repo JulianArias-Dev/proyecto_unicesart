@@ -34,7 +34,7 @@ const NavBar = () => {
                     {!isAuthenticated ? (
                         <>
                             <div className="logo">
-                                <Link to="/"><img src="src/assets/LogoUnicesArt.png" alt="Logo" /></Link>
+                                <Link to="/"><img src="src/assets/LogoUnicesArt.png" alt="Logo UnicesArt" /></Link>
                             </div>
                             <div className="container2">
                                 <div className="enlaces">
@@ -53,17 +53,9 @@ const NavBar = () => {
                         <>
                             <div className="usuario">
                                 <i className="fa-solid fa-user"></i>
-                                <a
-                                    onClick={navegar}
-                                    tabIndex={0}
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter') {
-                                            navegar();
-                                        }
-                                    }}
-                                >
+                                <button onClick={navegar}>
                                     {user?.fullName}
-                                </a>
+                                </button>
 
                             </div>
                             <div className="search">

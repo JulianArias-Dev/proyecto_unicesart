@@ -3,6 +3,7 @@ import { registerRequest, loginRequest, logoutRequest, updateRequest, profileReq
 import { getUbicacionesRequest } from "../API/recursos";
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
+import PropTypes from 'prop-types';
 
 const AuthContext = createContext();
 
@@ -258,3 +259,7 @@ export const AuthProvider = ({ children }) => {
         </AuthContext.Provider>
     );
 }
+
+AuthProvider.propTypes = {
+    children: PropTypes.node.isRequired,
+};

@@ -75,7 +75,7 @@ const Post = ({ post }) => {
             });
 
             setLiked(!liked);
-        }else{
+        } else {
             Swal.fire({
                 title: "Error",
                 text: "Debe registrarse o Iniciar sesión para realizar esta acción.",
@@ -138,30 +138,21 @@ const Post = ({ post }) => {
                     <form method="dialog" className="formPost">
                         <p>Selecciona un motivo:</p>
                         <p>
-                            <label>
-                                <input type="checkbox" name="motivo" value="spam" />
-                                Spam
-                            </label>
+                            <input type="checkbox" name="motivo" value="spam" />
+                            Spam
                         </p>
                         <p>
-                            <label>
-                                <input type="checkbox" name="motivo" value="contenido_inapropiado" />
-                                Contenido inapropiado
-                            </label>
+                            <input type="checkbox" name="motivo" value="contenido_inapropiado" />
+                            Contenido inapropiado
                         </p>
                         <p>
-                            <label>
-                                <input type="checkbox" name="motivo" value="acoso" />
-                                Acoso
-                            </label>
+                            <input type="checkbox" name="motivo" value="acoso" />
+                            Acoso
                         </p>
                         <p>
-                            <label>
-                                <input type="checkbox" name="motivo" value="otro" />
-                                Otro
-                            </label>
+                            <input type="checkbox" name="motivo" value="otro" />
+                            Otro
                         </p>
-
                         <p>
                             <label>Descripción (Opcional):</label>
                             <textarea name="descripcion" id="descripcion" onChange={autoResize}></textarea>

@@ -19,32 +19,31 @@ const Configuration = () => {
     return (
         <div className="configuration">
             <div className="options">
-                <div
+                <button
                     className={`option ${activeOption === 'option1' ? 'active' : ''}`}
                     onClick={() => handleOptionClick('option1')}
                 >
                     <p>Cambiar Contraseña</p>
                     {activeOption === 'option1' ?
                         (<i className="fa-solid fa-angle-up"></i>) : (<i className="fa-solid fa-angle-down"></i>)}
-                </div>
+                </button>
                 {activeOption === 'option1' &&
                     (<div className="deployOption">
                         <CambioContrasena />
                     </div>)}
-                <div
+                <button
                     className={`option ${activeOption === 'option2' ? 'active' : ''}`}
                     onClick={() => handleOptionClick('option2')}
                 >
                     <p>Eliminar Cuenta</p>
-
                     {activeOption === 'option2' ?
                         (<i className="fa-solid fa-angle-up"></i>) : (<i className="fa-solid fa-angle-down"></i>)}
-                </div>
+                </button>
                 {activeOption === 'option2' &&
                     (<div className="deployOption">
                         <EliminarCuenta />
                     </div>)}
-                <div
+                <button
                     className={`option ${activeOption === 'option3' ? 'active' : ''}`}
                     onClick={() => handleOptionClick('option3')}
                 >
@@ -52,19 +51,19 @@ const Configuration = () => {
 
                     {activeOption === 'option3' ?
                         (<i className="fa-solid fa-angle-up"></i>) : (<i className="fa-solid fa-angle-down"></i>)}
-                </div>
+                </button>
                 {activeOption === 'option3' &&
                     (<div className="deployOption">
                         <PersonalInfo />
                     </div>)}
-                <div
+                <button
                     className={`option ${activeOption === 'option4' ? 'active' : ''}`}
                     onClick={() => handleOptionClick('option4')}
                 >
                     <p>Reportes</p>
                     {activeOption === 'option4' ?
                         (<i className="fa-solid fa-angle-up"></i>) : (<i className="fa-solid fa-angle-down"></i>)}
-                </div>
+                </button>
                 {activeOption === 'option4' &&
                     (<div className="deployOption">
                         <h1>Reportes</h1>

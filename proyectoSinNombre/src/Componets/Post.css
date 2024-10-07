@@ -163,23 +163,23 @@
 
 /* Estilos para los elementos del menú */
 .report-item {
-    padding: 10px 20px;
+    margin: 2px;
     cursor: pointer;
-    border-bottom: 1px solid #ddd;
+    border-radius: 0px;
+    border-bottom: 1px solid #000000;
     align-items: center;
+    width: 100%;
+    background-color: #fff;
+    color: #000;
 }
 
 .report-item i {
     margin-right: 5px;
 }
 
-.report-item:last-child {
-    border-bottom: none;
-}
-
 /* Efecto hover para los elementos del menú */
 .report-item:hover {
-    background-color: #f1f1f1;
+    background-color: #d5d5d5;
 }
 
 @media screen and (max-width:500px) {
@@ -188,6 +188,12 @@
         font-size: 20px;
         margin-left: 1%;
     }
+
+    .report-menu {
+        top: 20%;
+        left: 5%;
+    }
+    
 }
 
 @media screen and (max-width:900px) {

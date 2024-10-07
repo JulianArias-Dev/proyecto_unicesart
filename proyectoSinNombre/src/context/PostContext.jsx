@@ -4,6 +4,7 @@ import { getCategoriasRequest } from "../API/recursos.js";
 import { createPostRequest, getPostRequest, reactionRequest } from "../API/post.js"
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
+import PropTypes from 'prop-types';
 
 const PostContext = createContext();
 
@@ -73,10 +74,10 @@ export const PostProvider = ({ children }) => {
                 timerProgressBar: true,
                 didOpen: () => {
                     Swal.showLoading();
-                    timerInterval = setInterval(() => { }, 150); 
+                    timerInterval = setInterval(() => { }, 150);
                 },
                 willClose: () => {
-                    clearInterval(timerInterval); 
+                    clearInterval(timerInterval);
                 }
             });
 
@@ -85,8 +86,8 @@ export const PostProvider = ({ children }) => {
                 : await getPostRequest();
 
             if (res.status === 200) {
-                Swal.close(); 
-                setPublicaciones(res.data); 
+                Swal.close();
+                setPublicaciones(res.data);
             } else {
                 Swal.fire({
                     title: "Advertencia",
@@ -138,4 +139,9 @@ export const PostProvider = ({ children }) => {
             {children}
         </PostContext.Provider>
     );
+
 }
+
+PostProvider.propTypes = {
+    children: PropTypes.node.isRequired,
+};
