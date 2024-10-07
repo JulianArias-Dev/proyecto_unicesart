@@ -72,43 +72,39 @@ const Register = () => {
                                     />
                                     {errors.username && <span className="error-message">{errors.username.message}</span>}
                                 </div>
-
-
                                 <div className="field campo">
-                                    <>
-                                        <div>
-                                            <i className="fa-solid fa-user"></i>
-                                            <input
-                                                type="email"
-                                                {...register("email", {
-                                                    required: "Correo electrónico es requerido",
-                                                    pattern: {
-                                                        value: /^[a-zA-Z0-9._%+-]+@unicesar\.edu\.co$/,
-                                                        message: "El correo debe ser del dominio @unicesar.edu.co"
-                                                    }
-                                                })}
-                                                placeholder="Correo Electrónico"
-                                            />
-                                        </div>
-                                        <div>
-                                            <i className="fa-solid fa-lock"></i>
-                                            <input
-                                                type="password"
-                                                {...register("password", {
-                                                    required: "Contraseña es requerida",
-                                                    minLength: {
-                                                        value: 8,
-                                                        message: "La contraseña debe tener al menos 8 caracteres"
-                                                    },
-                                                    pattern: {
-                                                        value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-                                                        message: "La contraseña debe contener al menos una mayúscula, una minúscula, un número y un carácter especial"
-                                                    }
-                                                })}
-                                                placeholder="Contraseña"
-                                            />
-                                        </div>
-                                    </>
+                                    <div>
+                                        <i className="fa-solid fa-user"></i>
+                                        <input
+                                            type="email"
+                                            {...register("email", {
+                                                required: "Correo electrónico es requerido",
+                                                pattern: {
+                                                    value: /^[a-zA-Z0-9._%+-]+@unicesar\.edu\.co$/,
+                                                    message: "El correo debe ser del dominio @unicesar.edu.co"
+                                                }
+                                            })}
+                                            placeholder="Correo Electrónico"
+                                        />
+                                    </div>
+                                    <div>
+                                        <i className="fa-solid fa-lock"></i>
+                                        <input
+                                            type="password"
+                                            {...register("password", {
+                                                required: "Contraseña es requerida",
+                                                minLength: {
+                                                    value: 8,
+                                                    message: "La contraseña debe tener al menos 8 caracteres"
+                                                },
+                                                pattern: {
+                                                    value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+                                                    message: "La contraseña debe contener al menos una mayúscula, una minúscula, un número y un carácter especial"
+                                                }
+                                            })}
+                                            placeholder="Contraseña"
+                                        />
+                                    </div>
                                     {errors.email && <span className="error-message">{errors.email.message}</span>}
                                     {errors.password && <span className="error-message">{errors.password.message}</span>}
                                 </div>
