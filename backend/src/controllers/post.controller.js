@@ -31,6 +31,49 @@ export const createPost = async (req, res) => {
     }
 };
 
+export const updatePost = async (req, res) => {
+    try {
+        const { id } = req.body; 
+        const { title, description, category, imageUrl} = req.body;
+
+        const updatedPost = await Post.findByIdAndUpdate(
+            id,
+            {
+                title,
+                description,
+                category,
+                imageUrl,                
+            },
+            { new: true } 
+        );
+
+        if (updatedPost) {
+            return res.status(200).json({ message: 'La publicación ha sido actualizada exitosamente', updatedPost });
+        }
+
+        return res.status(404).json({ message: 'Publicación no encontrada' });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
+
+export const deletePost = async (req, res) => {
+    try {
+        const { id } = req.query; 
+
+        const deletedPost = await Post.findByIdAndDelete(id);
+
+        if (deletedPost) {
+            return res.status(200).json({ message: 'La publicación ha sido eliminada exitosamente' });
+        }
+
+        return res.status(404).json({ message: 'Publicación no encontrada' });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
+
+
 export const getPost = async (req, res) => {
     try {
         const { id, username } = req.query;
