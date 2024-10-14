@@ -12,20 +12,18 @@ const Profile = () => {
     const { username } = useParams();
     const [profileUser, setProfileUser] = useState(null);
     const [loading, setLoading] = useState(true);
-    const { getPost, publicaciones } = usePost()
+    const { getPost, publicaciones } = usePost();
 
     useEffect(() => {
         const fetchUserProfile = async () => {
             setLoading(true);
-            setProfileUser(null);
-
+            setProfileUser(null); 
+    
             try {
-
                 const userProfile = await getUserProfile(username);
-                setProfileUser(userProfile);
-
                 if (userProfile) {
-                    getPost(userProfile.id, userProfile.username);
+                    setProfileUser(userProfile);
+                    await getPost(userProfile.id, userProfile.username);  
                 }
             } catch (error) {
                 console.error('Error fetching user profile:', error);
@@ -33,39 +31,37 @@ const Profile = () => {
                 setLoading(false);
             }
         };
-
+    
         fetchUserProfile();
-    }, [username]);
-
-
-
+    }, [username, getUserProfile, getPost]);
+    
     const toggleMenu = () => {
         setIsOpen(!isOpen);
     };
 
     const handleReport = () => {
-        setIsOpen(false);
+        setIsOpen(false);  // Close the menu after reporting
     };
 
     const autoResize = (e) => {
-        e.target.style.height = 'auto';
-        e.target.style.height = e.target.scrollHeight + 'px';
+        e.target.style.height = 'auto';  // Reset height
+        e.target.style.height = `${e.target.scrollHeight}px`;  // Adjust to content
     };
 
     const showDialog = () => {
         if (dialogReportRef.current) {
-            if (!dialogReportRef.current.open) {
-                dialogReportRef.current.showModal();
-            } else {
-                dialogReportRef.current.close();
-            }
+            dialogReportRef.current.open
+                ? dialogReportRef.current.close()
+                : dialogReportRef.current.showModal();
         }
     };
 
+    // If profile is loading
     if (loading) {
         return <div style={{ height: '120px' }}>Cargando perfil...</div>;
     }
 
+    // If profile is not found
     if (!profileUser) {
         return <div>No se encontró el perfil del usuario.</div>;
     }
@@ -87,22 +83,22 @@ const Profile = () => {
                     )}
                     {isOpen && (
                         <ul className="report-menu2">
-                            <li >
+                            <li>
                                 <button className="report-item" onClick={() => handleReport('Contenido inapropiado')}>
                                     <i className="fa-solid fa-ban"></i>Suspender Usuario
                                 </button>
                             </li>
-                            <li >
+                            <li>
                                 <button className="report-item" onClick={showDialog}>
                                     <i className="fa-solid fa-flag"></i>Reportar Usuario
                                 </button>
                             </li>
-                            <li >
+                            <li>
                                 <button className="report-item" onClick={() => handleReport('Otro')}>
                                     Otro
                                 </button>
                             </li>
-                            <li >
+                            <li>
                                 <button className="report-item" onClick={toggleMenu}>
                                     <i className="fa-solid fa-x"></i> Cerrar
                                 </button>
@@ -131,14 +127,12 @@ const Profile = () => {
                                     <input type="checkbox" name="motivo" value="otro" />
                                     Otro
                                 </p>
-
                                 <p>
                                     <label>Descripción (Opcional):</label>
                                     <textarea name="descripcion" id="descripcion" onChange={autoResize}></textarea>
                                 </p>
                             </form>
                         </div>
-
                         <div className="botones">
                             <button style={{ background: '#1d8348' }} onClick={showDialog}>Reportar</button>
                             <button style={{ background: '#DE2D18' }} onClick={showDialog}>Cancelar</button>
@@ -157,18 +151,22 @@ const Profile = () => {
                                 <p>Carrera: {profileUser.profession ?? 'N/A'}</p>
                             </div>
                         </div>
-                        {profileUser.skills && <div className="cloud" style={{ border: '3px solid #27ae60' }}>
-                            <p>Habilidades</p>
-                            <div>
-                                <p>{profileUser.skills ?? 'No se han agregado habilidades'}</p>
+                        {profileUser.skills && (
+                            <div className="cloud" style={{ border: '3px solid #27ae60' }}>
+                                <p>Habilidades</p>
+                                <div>
+                                    <p>{profileUser.skills ?? 'No se han agregado habilidades'}</p>
+                                </div>
                             </div>
-                        </div>}
-                        {profileUser.description && <div className="cloud" style={{ border: '3px solid #27ae60' }}>
-                            <p>Descripción</p>
-                            <div>
-                                <p>{profileUser.description ?? 'El usuario no ha agregado una descripción'}</p>
+                        )}
+                        {profileUser.description && (
+                            <div className="cloud" style={{ border: '3px solid #27ae60' }}>
+                                <p>Descripción</p>
+                                <div>
+                                    <p>{profileUser.description ?? 'El usuario no ha agregado una descripción'}</p>
+                                </div>
                             </div>
-                        </div>}
+                        )}
                         <div className="cloud" style={{ border: '3px solid #2ecc71' }}>
                             <p>Contacto</p>
                             <div>
@@ -177,12 +175,17 @@ const Profile = () => {
                             </div>
                         </div>
                     </div>
+
                     <div className="myPost">
                         <h2>Trabajos destacados</h2>
                         <div>
-                            {publicaciones.map((post) => (
-                                <Post key={post._id} post={post} />
-                            ))}
+                            {publicaciones?.length > 0 ? (
+                                publicaciones.map((post) => (
+                                    <Post key={post._id} post={post} />
+                                ))
+                            ) : (
+                                <p>No hay publicaciones disponibles.</p>
+                            )}
                         </div>
                     </div>
                 </section>

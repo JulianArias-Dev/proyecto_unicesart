@@ -1,6 +1,6 @@
-import Adversiting from "../Componets/Advertising";
-import NewPost from "../Componets/NewPost";
-import Post from "../Componets/Post";
+import NewPost from '../Componets/NewPost.jsx'
+import Advertising from '../Componets/Advertising.jsx';
+import Post from '../Componets/Post.jsx'
 import { useAuth } from "../context/AuthContext.jsx";
 import { usePost } from "../context/PostContext.jsx";
 import { useEffect } from 'react';
@@ -12,27 +12,34 @@ const DashBoard = () => {
         'src/assets/not2.png'
     ];
 
-    const { publicaciones, getPost } = usePost();
+    const { publicaciones, getPost } = usePost(); // Destructure getPost and publicaciones
     const { isAuthenticated } = useAuth();
 
-    
     useEffect(() => {
-        getPost(); 
-    },[]);
+        getPost();
+    }, [getPost]);
 
     return (
         <>
-            {isAuthenticated && <NewPost />}
+            {isAuthenticated && (<NewPost />)}  {/* Render NewPost if authenticated */}
             <section className="main">
                 <div className="dashboard">
-                    <div className="mainContent">                        
-                        {publicaciones.map((post) => (
-                            <Post key={post._id} post={post} />
-                        ))}                        
+                    <div className="mainContent">
+                        {publicaciones.length === 0 ? (
+                            <h2>No hay publicaciones para mostrar</h2>
+                        ) : (
+                            publicaciones.map((post) => {
+                                if (typeof post.user === 'string') {
+                                    post.user = { username: post.user, id: post._id };
+                                }
+                                return <Post key={post._id} post={post} />;
+                            })
+                        )}
                     </div>
+
                     <div className="rightContent">
-                        <Adversiting imagen={imagenes[0]} />
-                        <Adversiting imagen={imagenes[1]} />
+                        <Advertising imagen={imagenes[0]} />
+                        <Advertising imagen={imagenes[1]} />
                     </div>
                 </div>
             </section>

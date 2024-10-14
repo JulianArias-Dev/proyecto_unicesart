@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 
-const Adversiting = ({ imagen }) => {
+const Advertising = ({ imagen }) => {
 
     return (
         <div className="add">
@@ -14,8 +14,8 @@ const Adversiting = ({ imagen }) => {
     );
 }
 
-Adversiting.propTypes = {
+Advertising.propTypes = {
     imagen: PropTypes.string.isRequired,
 }
 
-export default Adversiting;
+export default Advertising;

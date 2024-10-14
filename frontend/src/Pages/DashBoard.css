@@ -16,13 +16,12 @@
 }
 
 .mainContent {
-    height: 750px;
+    height: auto;
     display: flex;
     flex-direction: row;
     justify-content: left;
     flex-wrap: wrap;
     flex-basis: 80%;
-    overflow-y: scroll;
 }
 
 .rightContent {

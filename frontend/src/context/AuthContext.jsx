@@ -1,5 +1,5 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import { registerRequest, loginRequest, logoutRequest, updateRequest, profileRequest, updatePasswordRequest, dropRequest,} from "../API/auth";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { registerRequest, loginRequest, logoutRequest, updateRequest, profileRequest, updatePasswordRequest, dropRequest, } from "../API/auth";
 import { getUbicacionesRequest } from "../API/recursos";
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
@@ -172,7 +172,7 @@ export const AuthProvider = ({ children }) => {
 
             if (res.status === 200) {
                 sessionStorage.removeItem('user');
-                await logoutRequest();                
+                await logoutRequest();
                 setIsAuthenticated(false);
                 setUser(null);
                 withReactContent(Swal).fire({
@@ -181,17 +181,17 @@ export const AuthProvider = ({ children }) => {
                     icon: "warning"
                 });
             }
-         } catch (error) {
+        } catch (error) {
             console.error(error);
             withReactContent(Swal).fire({
                 title: "Error",
                 text: error.response?.data?.message || "Error al eliminar la cuenta.",
                 icon: "error"
             });
-        } 
+        }
     }
 
-    const getUserProfile = async (username) => {
+    const getUserProfile = useCallback(async (username) => {
         try {
             const res = await profileRequest(username);
 
@@ -216,7 +216,7 @@ export const AuthProvider = ({ children }) => {
             setIsAuthenticated(false);
             setErrors(error.response.data);
         }
-    }
+    }, []);
 
     const getUbicaciones = async () => {
         try {
