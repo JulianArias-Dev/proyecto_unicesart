@@ -108,7 +108,7 @@ button {
 
 .sub {
     display: flex;
-    flex-basis: 40%;
+    width: 40%;
     align-items: center;
 }
 

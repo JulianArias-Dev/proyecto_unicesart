@@ -96,8 +96,7 @@
     border-radius: 5px;
     border-top: 2px solid#1d8348;
     border-bottom: 2px solid #1d8348;
-    overflow-y: auto;
-    height: 600px;
+    height: auto;
     display: flex;
     flex-direction: row;
     justify-content: left;
