@@ -205,39 +205,39 @@
         height: auto;
     }
 
-    .field>p {
+    .field p {
         font-size: 20px;
     }
 
-    .field>input {
+    .field input {
         font-size: 15px;
     }
 
-    .field>button {
+    .field button {
         font-size: 18px;
     }
 
-    .field>i{
+    .field i{
         line-height: 34px;
         font-size: 17px;
     }
 
-    .field>button img {
+    .field button img {
         height: 20px;
         margin-left: 8px;
     }
 
-    .campo>button {
+    .campo button {
         color: #FFF;
         font-size: 18px;
     }
 
-    .campo>button img {
+    .campo button img {
         height: 20px;
         margin-left: 8px;
     }
 
-    .campo>input {
+    .campo input {
         width: 85% !important;
     }
 

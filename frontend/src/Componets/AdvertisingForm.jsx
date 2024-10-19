@@ -2,20 +2,16 @@ import PropTypes from 'prop-types';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
-const PostForm = ({ onSubmit, categorias, defaultValues = {}, actionLabel = 'Guardar', onCancel }) => {
+const AdvertisingForm = ({ onSubmit,defaultValues = {}, actionLabel = 'Guardar', onCancel }) => {
     const [selectedFile, setSelectedFile] = useState(null);
     const [preview, setPreview] = useState(null);
     const { register, handleSubmit, formState: { errors }, reset } = useForm({
         defaultValues
     });
-    const [selectedCategory, setSelectedCategory] = useState(defaultValues.category || '');
 
     useEffect(() => {
         if (defaultValues.image) {
             setPreview(defaultValues.image);
-        }
-        if (defaultValues.category) {
-            setSelectedCategory(defaultValues.category);
         }
     }, [defaultValues.image, defaultValues.category]);
 
@@ -31,15 +27,11 @@ const PostForm = ({ onSubmit, categorias, defaultValues = {}, actionLabel = 'Gua
         reader.readAsDataURL(file);
     };
 
-    const handleCategoryChange = (e) => {
-        setSelectedCategory(e.target.value);
-    };
 
     const onSubmitForm = (data) => {
         // Pasa los datos y el archivo seleccionado al componente principal
         onSubmit({
             ...data,
-            category: selectedCategory,
             image: selectedFile, // Solo pasar el archivo si fue seleccionado
         });
         resetForm();
@@ -49,7 +41,6 @@ const PostForm = ({ onSubmit, categorias, defaultValues = {}, actionLabel = 'Gua
         reset(); // Resetea los campos del formulario
         setSelectedFile(null);
         setPreview(null);
-        setSelectedCategory('');
     };
 
     const handleCancel = () => {
@@ -79,41 +70,25 @@ const PostForm = ({ onSubmit, categorias, defaultValues = {}, actionLabel = 'Gua
             </div>
             <form className='formPost' onSubmit={handleSubmit(onSubmitForm)}>
                 <div>
-                    <p>Título:</p>
+                    <p>Mostrar hasta:</p>
                     <input
-                        type="text"
-                        {...register('title', {
+                        type="date"
+                        {...register('endDate', {
                             required: "El título es requerido",
                             maxLength: { value: 100, message: "Máximo 100 caracteres" }
                         })}
                     />
-                    {errors.title && <span>{errors.title.message}</span>}
+                    {errors.endDate && <span>{errors.endDate.message}</span>}
                 </div>
                 <div>
-                    <p>Descripción:</p>
+                    <p>Enlace:</p>
                     <textarea
-                        {...register('description', {
+                        {...register('linkTo', {
                             maxLength: { value: 500, message: "Máximo 500 caracteres" }
                         })}
                     />
-                    {errors.description && <span>{errors.description.message}</span>}
+                    {errors.linkTo && <span>{errors.linkTo.message}</span>}
                 </div>
-                <div>
-                    <p>Categoría:</p>
-                    <select
-                        className="postCategoria"
-                        value={selectedCategory}
-                        onChange={handleCategoryChange}
-                    >
-                        <option value="" disabled>Selecciona una categoría</option>
-                        {categorias?.map((categoria) => (
-                            <option key={categoria.nombre} value={categoria.nombre}>
-                                {categoria.nombre} - {categoria.description}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-
                 <div className='botones'>
                     <button type="submit" style={{ background: '#1d8348' }}>{actionLabel}</button>
                     <button type="button" onClick={handleCancel} style={{ background: '#DE2D18' }}>Cancelar</button>
@@ -123,14 +98,8 @@ const PostForm = ({ onSubmit, categorias, defaultValues = {}, actionLabel = 'Gua
     );
 };
 
-PostForm.propTypes = {
+AdvertisingForm.propTypes = {
     onSubmit: PropTypes.func.isRequired,
-    categorias: PropTypes.arrayOf(
-        PropTypes.shape({
-            nombre: PropTypes.string.isRequired,
-            description: PropTypes.string,
-        })
-    ).isRequired,
     defaultValues: PropTypes.shape({
         title: PropTypes.string,
         description: PropTypes.string,
@@ -141,4 +110,4 @@ PostForm.propTypes = {
     onCancel: PropTypes.func,
 };
 
-export default PostForm;
+export default AdvertisingForm;

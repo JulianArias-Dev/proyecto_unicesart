@@ -30,6 +30,7 @@ const Post = ({ post }) => {
     };
 
     const openDialog = (dialogRef) => {
+        toggleMenu();
         if (!dialogRef.current?.open) {
             dialogRef.current.showModal();
         }
@@ -118,9 +119,9 @@ const Post = ({ post }) => {
                     <p><Link to={`/profile/${post.user.username}`}>{post.user.username}</Link></p>
                 </div>
                 {
-                    isAuthenticated &&
+                    (isAuthenticated) &&
                     <div className="report-dropdown">
-                        <button className="report-button" onClick={toggleMenu}>
+                        <button style={{textAlign:'center'}}className="report-button" onClick={toggleMenu}>
                             <i className="fa-solid fa-ellipsis-vertical"></i>
                         </button>
                     </div>
@@ -128,7 +129,7 @@ const Post = ({ post }) => {
                 {isOpen && (
                     <ul className="report-menu">
 
-                        {post.user.id === user.id ?
+                        {(post.user.id === user.id) ?
                             (
                                 <>
                                     <li className="report-item">
@@ -143,13 +144,21 @@ const Post = ({ post }) => {
                                     </li>
                                 </>
                             ) :
-                            (
+                            (user.role !== "administrador" &&
                                 <li className="report-item">
                                     <button onClick={() => openDialog(dialogReportRef)} className="report-button">
                                         <i className="fa-solid fa-flag"></i> Contenido inapropiado
                                     </button>
                                 </li>
                             )
+                        }
+                        {
+                            user.role === "administrador" &&
+                            <li className="report-item">
+                                <button onClick={handleDelete} className="report-button">
+                                    <i className="fa-solid fa-trash"></i> Eliminar Publicación
+                                </button>
+                            </li>
                         }
                         <li className="report-item">
                             <button onClick={toggleMenu} className="report-button">
@@ -206,32 +215,33 @@ const Post = ({ post }) => {
             {/* Dialog para reportar */}
             <dialog ref={dialogReportRef} className="dialogPost dialogReport">
                 <h3>Reportar</h3>
-                <div className="sub">
-                    <form method="dialog" className="formPost">
-                        <p>Selecciona un motivo:</p>
-                        <p>
-                            <input type="checkbox" name="motivo" value="spam" />
-                            Spam
-                        </p>
-                        <p>
-                            <input type="checkbox" name="motivo" value="contenido_inapropiado" />
-                            Contenido inapropiado
-                        </p>
-                        <p>
-                            <input type="checkbox" name="motivo" value="acoso" />
-                            Acoso
-                        </p>
-                        <p>
-                            <input type="checkbox" name="motivo" value="otro" />
-                            Otro
-                        </p>
-                        <p>
-                            <label>Descripción (Opcional):</label>
-                            <textarea name="descripcion" id="descripcion" onChange={e => e.target.style.height = 'auto'}></textarea>
-                        </p>
-                    </form>
+                <form method="dialog" className="formPost">
+                    <p>Selecciona un motivo:</p>
+                    <p>
+                        <input type="checkbox" name="motivo" value="spam" />
+                        Spam
+                    </p>
+                    <p>
+                        <input type="checkbox" name="motivo" value="contenido_inapropiado" />
+                        Contenido inapropiado
+                    </p>
+                    <p>
+                        <input type="checkbox" name="motivo" value="acoso" />
+                        Acoso
+                    </p>
+                    <p>
+                        <input type="checkbox" name="motivo" value="otro" />
+                        Otro
+                    </p>
+                    <p>
+                        <label>Descripción (Opcional):</label>
+                        <textarea name="descripcion" id="descripcion" onChange={e => e.target.style.height = 'auto'}></textarea>
+                    </p>
+                </form>
+                <div className="botones2">
+                    <button style={{ background: '#1d8348' }} onClick={() => closeDialog(dialogReportRef)}>Reportar</button>
+                    <button style={{ background: '#DE2D18' }} onClick={() => closeDialog(dialogReportRef)}>Cancelar</button>
                 </div>
-
                 <div className="botones">
                     <button style={{ background: '#1d8348' }} onClick={() => closeDialog(dialogReportRef)}>Reportar</button>
                     <button style={{ background: '#DE2D18' }} onClick={() => closeDialog(dialogReportRef)}>Cancelar</button>

@@ -1,0 +1,19 @@
+.reportedUser{
+    padding: 2%;
+    border: 1px solid #000;
+    width: 92%;
+    margin: auto;
+    margin-top: 1.5%;
+}
+
+.reportedUser p{
+    font-size: 20px;
+    border-bottom: 1px solid #000;
+    margin-bottom: 2%;
+}
+
+@media screen and (max-width:500px) {
+    .reportedUser p{
+        font-size: 16px;
+    }
+}

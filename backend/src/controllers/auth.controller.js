@@ -29,16 +29,17 @@ const formatFecha = (fechaISO) => {
 
 export const register = async (req, res) => {
     try {
-        const { email, username, fullName, gender, password } = req.body;
+        const { email, username, fullName, gender, password, role } = req.body;
 
         const userFoundByEmail = await User.findOne({ email }).lean().exec();
         const userFoundByUsername = await User.findOne({ username }).lean().exec();
 
         if (userFoundByEmail || userFoundByUsername) {
             return res.status(400).json({
+                message: 'Errores en el registro',
                 errors: [
-                    userFoundByEmail ? 'La dirección de correo electrónico ya está en uso' : null,
-                    userFoundByUsername ? 'El nombre de usuario ya está en uso' : null
+                    userFoundByEmail ? 'La dirección de correo electrónico ya está en uso.' : null,
+                    userFoundByUsername ? 'El nombre de usuario ya está en uso.' : null,
                 ].filter(Boolean),
             });
         }
@@ -51,6 +52,7 @@ export const register = async (req, res) => {
             username,
             fullName,
             gender,
+            role : role ?? 'usuario',
         });
 
         const savedUser = await newUser.save();
@@ -64,7 +66,7 @@ export const register = async (req, res) => {
                 maxAge: 24 * 60 * 60 * 1000, // 1 día
             });
 
-            return res.json({
+            return res.status(200).json({
                 id: savedUser._id,
                 email: savedUser.email,
                 username: savedUser.username,
@@ -78,6 +80,7 @@ export const register = async (req, res) => {
     } catch (error) {
         if (error instanceof z.ZodError) {
             return res.status(400).json({
+                message: 'Errores de validación',
                 errors: error.errors.map((err) => err.message),
             });
         }
@@ -88,6 +91,7 @@ export const register = async (req, res) => {
         });
     }
 };
+
 
 export const login = async (req, res) => {
     try {
@@ -126,8 +130,8 @@ export const login = async (req, res) => {
             skills: userFound.skills,
             profession: userFound.profession,
             lugarOrigen: {
-                nombreDepartamento: userFound.lugarOrigen.nombreDepartamento,
-                nombreMunicipio: userFound.lugarOrigen.nombreMunicipio,
+                nombreDepartamento: userFound.lugarOrigen?.nombreDepartamento,
+                nombreMunicipio: userFound.lugarOrigen?.nombreMunicipio,
             },
             birthDate: userFound.birthDate,
             phone: userFound.phone,
@@ -137,6 +141,7 @@ export const login = async (req, res) => {
             updatedAt: userFound.updatedAt,
             imageUrl: userFound.imageUrl,
             edad: calcularEdad(userFound.birthDate),
+            role : userFound.role,
         });
     } catch (error) {
         if (error instanceof z.ZodError) {
@@ -243,7 +248,8 @@ export const profile = async (req, res) => {
             createdAt: userFound.createdAt,
             updatedAt: userFound.updatedAt,
             imageUrl: userFound.imageUrl,
-            edad: calcularEdad(userFound.birthDate)
+            edad: calcularEdad(userFound.birthDate),
+            role : userFound.role,
         });
     } catch (error) {
         res.status(500).json({ message: error.message });

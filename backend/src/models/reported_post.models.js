@@ -1,7 +1,5 @@
 import mongoose from "mongoose";
 
-import mongoose from "mongoose";
-
 const reporteSchema = new mongoose.Schema({
     reportId: { type: String, required: true, unique: true },
     usuarioReporte: {
@@ -17,7 +15,11 @@ const reporteSchema = new mongoose.Schema({
             username: { type: String, required: true },
         }
     },
-    status: { type: String }
+    status: { 
+        type: String,
+        enum : ['Por Verificar','Verificado'],
+        default : 'Por Verificar'
+    }
 });
 
-export default mongoose.model('ReportPost', reporteSchema);
+export default mongoose.model('ReportedPost', reporteSchema);

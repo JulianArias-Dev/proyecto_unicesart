@@ -9,7 +9,7 @@ const routerPost = Router()
 const upload = multer({ dest: 'uploads/' });
 
 routerPost.post('/createPost', upload.single('image'), authRequired,  validateSchema(createPostSchema),createPost);
-routerPost.put('/update-post', upload.single('image'), authRequired, updatePost);
+routerPost.put('/update-post', upload.single('file'), authRequired, updatePost);
 routerPost.delete('/remove-post', authRequired, deletePost);
 routerPost.get('/getPost', validateSchema(getPostSchema), getPost);
 routerPost.put('/reaction', authRequired,validateSchema(reactionsSchema), reactions);

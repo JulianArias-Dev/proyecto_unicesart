@@ -14,16 +14,23 @@ const Profile = () => {
     const [loading, setLoading] = useState(true);
     const { getPost, publicaciones } = usePost();
 
+    const [formData, setFormData] = useState({
+        motivo: [],
+        descripcion: ""
+    });
+
     useEffect(() => {
         const fetchUserProfile = async () => {
             setLoading(true);
-            setProfileUser(null); 
-    
+            setProfileUser(null);
+
             try {
                 const userProfile = await getUserProfile(username);
                 if (userProfile) {
                     setProfileUser(userProfile);
-                    await getPost(userProfile.id, userProfile.username);  
+                    if (userProfile.role === "usuario") {
+                        await getPost(userProfile.id, userProfile.username);
+                    }
                 }
             } catch (error) {
                 console.error('Error fetching user profile:', error);
@@ -31,10 +38,10 @@ const Profile = () => {
                 setLoading(false);
             }
         };
-    
+
         fetchUserProfile();
     }, [username, getUserProfile, getPost]);
-    
+
     const toggleMenu = () => {
         setIsOpen(!isOpen);
     };
@@ -48,7 +55,50 @@ const Profile = () => {
         e.target.style.height = `${e.target.scrollHeight}px`;  // Adjust to content
     };
 
+    const handleCheckboxChange = (e) => {
+        const { value, checked } = e.target;
+        setFormData((prevData) => {
+            let updatedMotivo = [...prevData.motivo];
+            if (checked) {
+                updatedMotivo.push(value);
+            } else {
+                updatedMotivo = updatedMotivo.filter((motivo) => motivo !== value);
+            }
+            return { ...prevData, motivo: updatedMotivo };
+        });
+    };
+
+    const handleTextareaChange = (e) => {
+        const { value } = e.target;
+        setFormData((prevData) => ({
+            ...prevData,
+            descripcion: value
+        }));
+    };
+
+    const handleSubmit = () => {
+        const concatenatedData = `
+            Motivo(s): ${formData.motivo.join(", ")}
+            Descripción: ${formData.descripcion}
+        `;
+        const data = {
+            usuarioReporte: {
+                id: profileUser.id,
+                username: profileUser.username,
+            },
+            description: concatenatedData,
+            usuarioReportado: {
+                id: loggedInUser.id,
+                username: loggedInUser.username,
+            }
+        }
+        console.log(data);
+
+        dialogReportRef.current.close();
+    };
+
     const showDialog = () => {
+        toggleMenu();
         if (dialogReportRef.current) {
             dialogReportRef.current.open
                 ? dialogReportRef.current.close()
@@ -75,29 +125,32 @@ const Profile = () => {
                         <p>{profileUser.fullName ?? 'N/A'}</p>
                     </div>
                     {loggedInUser?.username !== profileUser.username && (
-                        <div style={{ marginLeft: '85%' }} className="report-dropdown">
+                        <section style={{ marginLeft: '85%' }} className="report-dropdown">
                             <button className="report-button" onClick={toggleMenu}>
                                 <i style={{ color: 'white', fontSize: '25px' }} className="fa-solid fa-ellipsis-vertical"></i>
                             </button>
-                        </div>
+                        </section>
                     )}
                     {isOpen && (
                         <ul className="report-menu2">
-                            <li>
-                                <button className="report-item" onClick={() => handleReport('Contenido inapropiado')}>
-                                    <i className="fa-solid fa-ban"></i>Suspender Usuario
-                                </button>
-                            </li>
-                            <li>
-                                <button className="report-item" onClick={showDialog}>
-                                    <i className="fa-solid fa-flag"></i>Reportar Usuario
-                                </button>
-                            </li>
-                            <li>
-                                <button className="report-item" onClick={() => handleReport('Otro')}>
-                                    Otro
-                                </button>
-                            </li>
+
+                            {
+                                loggedInUser?.role !== "administrador" ?
+                                    (
+                                        <li>
+                                            <button className="report-item" onClick={showDialog}>
+                                                <i className="fa-solid fa-flag"></i>Reportar Usuario
+                                            </button>
+                                        </li>
+                                    )
+                                    : (
+                                        <li>
+                                            <button className="report-item" onClick={() => handleReport('Contenido inapropiado')}>
+                                                <i className="fa-solid fa-ban"></i>Suspender Usuario
+                                            </button>
+                                        </li>
+                                    )
+                            }
                             <li>
                                 <button className="report-item" onClick={toggleMenu}>
                                     <i className="fa-solid fa-x"></i> Cerrar
@@ -108,34 +161,82 @@ const Profile = () => {
 
                     <dialog ref={dialogReportRef} className="dialogPost dialogReport">
                         <h3>Reportar</h3>
-                        <div className="sub">
-                            <form method="dialog" className="formPost">
-                                <p>Selecciona un motivo:</p>
-                                <p>
-                                    <input type="checkbox" name="motivo" value="spam" />
-                                    Spam
-                                </p>
-                                <p>
-                                    <input type="checkbox" name="motivo" value="contenido_inapropiado" />
-                                    Contenido inapropiado
-                                </p>
-                                <p>
-                                    <input type="checkbox" name="motivo" value="acoso" />
-                                    Acoso
-                                </p>
-                                <p>
-                                    <input type="checkbox" name="motivo" value="otro" />
-                                    Otro
-                                </p>
-                                <p>
-                                    <label>Descripción (Opcional):</label>
-                                    <textarea name="descripcion" id="descripcion" onChange={autoResize}></textarea>
-                                </p>
-                            </form>
-                        </div>
+
+                        <form method="dialog" className="formReport formPost">
+                            <p>Selecciona un motivo:</p>
+                            <p>
+                                <input
+                                    type="checkbox"
+                                    name="motivo"
+                                    value="spam"
+                                    onChange={handleCheckboxChange}
+                                />
+                                Spam
+                            </p>
+                            <p>
+                                <input
+                                    type="checkbox"
+                                    name="motivo"
+                                    value="contenido_inapropiado"
+                                    onChange={handleCheckboxChange}
+                                />
+                                Contenido inapropiado
+                            </p>
+                            <p>
+                                <input
+                                    type="checkbox"
+                                    name="motivo"
+                                    value="acoso"
+                                    onChange={handleCheckboxChange}
+                                />
+                                Acoso
+                            </p>
+                            <p>
+                                <input
+                                    type="checkbox"
+                                    name="motivo"
+                                    value="otro"
+                                    onChange={handleCheckboxChange}
+                                />
+                                Otro
+                            </p>
+
+                            <p>Descripción (Opcional):</p>
+                            <textarea
+                                name="descripcion"
+                                id="descripcion"
+                                onChange={handleTextareaChange}
+                                onInput={autoResize}
+                            ></textarea>
+
+                        </form>
                         <div className="botones">
-                            <button style={{ background: '#1d8348' }} onClick={showDialog}>Reportar</button>
-                            <button style={{ background: '#DE2D18' }} onClick={showDialog}>Cancelar</button>
+                            <button
+                                style={{ background: "#1d8348" }}
+                                onClick={handleSubmit}
+                            >
+                                Reportar
+                            </button>
+                            <button
+                                style={{ background: "#DE2D18" }}
+                                onClick={() => dialogReportRef.current.close()}
+                            >
+                                Cancelar
+                            </button>
+                        </div>
+                        <div className="botones2">
+                            <button
+                                style={{ background: "#1d8348" }}
+                                onClick={handleSubmit}
+                            >
+                                Reportar
+                            </button>
+                            <button
+                                style={{ background: "#DE2D18" }}
+                                onClick={() => dialogReportRef.current.close()}
+                            >
+                                Cancelar
+                            </button>
                         </div>
                     </dialog>
                 </section>
@@ -179,7 +280,7 @@ const Profile = () => {
                     <div className="myPost">
                         <h2>Trabajos destacados</h2>
                         <div>
-                            {publicaciones?.length > 0 ? (
+                            {(publicaciones?.length > 0 && profileUser.role === "usuario") ? (
                                 publicaciones.map((post) => (
                                     <Post key={post._id} post={post} />
                                 ))

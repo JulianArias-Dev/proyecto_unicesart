@@ -5,6 +5,7 @@ import { useAuth } from "../context/AuthContext.jsx";
 import { usePost } from "../context/PostContext.jsx";
 import { useEffect } from 'react';
 import './DashBoard.css';
+import NewAdd from '../Componets/NewAdd.jsx';
 
 const DashBoard = () => {
     const imagenes = [
@@ -13,7 +14,7 @@ const DashBoard = () => {
     ];
 
     const { publicaciones, getPost } = usePost(); // Destructure getPost and publicaciones
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, user } = useAuth();
 
     useEffect(() => {
         getPost();
@@ -21,7 +22,7 @@ const DashBoard = () => {
 
     return (
         <>
-            {isAuthenticated && (<NewPost />)}  {/* Render NewPost if authenticated */}
+            {(isAuthenticated && user.role !== 'administrador') ? (<NewPost />) : (<NewAdd />)}
             <section className="main">
                 <div className="dashboard">
                     <div className="mainContent">

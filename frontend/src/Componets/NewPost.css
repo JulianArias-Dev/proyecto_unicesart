@@ -31,7 +31,6 @@ button {
     /* Evita que el texto del botón se divida en varias líneas */
 }
 
-
 .containerpost {
     display: flex;
     flex-direction: row;
@@ -57,7 +56,7 @@ button {
 }
 
 .dialogReport {
-    width: 400px;
+    width: 25%;
 }
 
 .dialogPost input {
@@ -128,7 +127,8 @@ button {
     height: 270px;
 }
 
-.newpost input[type="text"] {
+.newpost input[type="text"],
+.newpost input[type="date"]{
     width: 95%;
     padding: 1.5%;
     margin-top: 1%;
@@ -206,7 +206,7 @@ button {
     }
 
     .imageDiv{
-        width: 95%;
+        width: 95% !important;
         margin: auto;
         align-items: center ;
         padding-bottom: 15px;
@@ -216,12 +216,26 @@ button {
         font-size: 30px;
     }
 
+    .dialogReport {
+        width: 250px;
+        margin: 20% 10%;
+    }
+
     .botones{
         display: none;
     }
 
     .botones2{
         display: block;
+    }
+
+    .sub{
+        width: 99%;
+        margin: auto;
+    }
+
+    .formReport{
+        flex-basis: 95%;
     }
 
 }

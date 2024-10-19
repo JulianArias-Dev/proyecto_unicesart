@@ -33,36 +33,36 @@ export const AuthProvider = ({ children }) => {
     const singUp = async (user) => {
         try {
             const res = await registerRequest(user);
-
+    
             if (res.status === 200) {
                 withReactContent(Swal).fire({
                     title: "Usuario Registrado",
-                    text: "¡Usuario Registrado con Éxito!",
-                    icon: "success"
+                    text: "¡Usuario registrado con éxito!",
+                    icon: "success",
                 });
                 setUser(res.data);
                 setIsAuthenticated(true);
-                // Guardar el usuario en sesionStorage
+    
                 sessionStorage.setItem('user', JSON.stringify(res.data));
-            } else {
-                withReactContent(Swal).fire({
-                    title: "Advertencia",
-                    text: "Hubo un problema al registrar el usuario. Por favor, intente de nuevo.",
-                    icon: "warning"
-                });
             }
         } catch (error) {
             console.error(error);
+    
+            const errorMessage = error.response?.data?.message || "Error al registrar el usuario.";
+            const errorDetails = error.response?.data?.errors?.join('\n') || "";
+    
             withReactContent(Swal).fire({
                 title: "Error",
-                text: error.response?.data?.message || "Error al registrar el usuario.",
-                icon: "error"
+                text: `${errorMessage}\n${errorDetails}`,
+                icon: "error",
             });
+    
             setUser(null);
             setIsAuthenticated(false);
-            setErrors(error.response.data);
+            setErrors(error.response?.data || {});
         }
     };
+    
 
     const singIn = async (user) => {
         try {
