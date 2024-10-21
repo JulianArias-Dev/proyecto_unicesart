@@ -1,11 +1,8 @@
-import NewPost from '../Componets/NewPost.jsx'
-import Advertising from '../Componets/Advertising.jsx';
-import Post from '../Componets/Post.jsx'
+import {NewPost, Advertising, Post, NewAdd} from '../Componets/components.jsx';
 import { useAuth } from "../context/AuthContext.jsx";
 import { usePost } from "../context/PostContext.jsx";
 import { useEffect } from 'react';
 import './DashBoard.css';
-import NewAdd from '../Componets/NewAdd.jsx';
 
 const DashBoard = () => {
     const imagenes = [
@@ -13,7 +10,7 @@ const DashBoard = () => {
         'src/assets/not2.png'
     ];
 
-    const { publicaciones, getPost } = usePost(); // Destructure getPost and publicaciones
+    const { publicaciones, getPost } = usePost();
     const { isAuthenticated, user } = useAuth();
 
     useEffect(() => {

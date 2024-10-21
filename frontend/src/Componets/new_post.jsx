@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { usePost } from '../context/PostContext';
-import PostForm from './PostForm';
+import PostForm from './post_form';
 import './NewPost.css';
 
 const NewPost = () => {

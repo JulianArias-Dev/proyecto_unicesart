@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import './NewPost.css';
-import AdvertisingForm from './AdvertisingForm';
+import AdvertisingForm from './advertising_form';
 
 const NewAdd = () => {
     const dialogRef = useRef(null);

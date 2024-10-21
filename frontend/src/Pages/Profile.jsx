@@ -1,18 +1,21 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import Post from '../Componets/Post.jsx';
+import { Post } from '../Componets/components.jsx';
 import './Profile.css';
 import { useAuth } from '../context/AuthContext.jsx';
 import { usePost } from '../context/PostContext.jsx';
+import { useReport } from '../context/report_context.jsx';
 
 const Profile = () => {
     const [isOpen, setIsOpen] = useState(false);
     const dialogReportRef = useRef(null);
     const { user: loggedInUser, getUserProfile } = useAuth();
+    const { getPost, publicaciones } = usePost();
+    const { UserReportCRUD } = useReport();
     const { username } = useParams();
     const [profileUser, setProfileUser] = useState(null);
     const [loading, setLoading] = useState(true);
-    const { getPost, publicaciones } = usePost();
+
 
     const [formData, setFormData] = useState({
         motivo: [],
@@ -57,14 +60,16 @@ const Profile = () => {
 
     const handleCheckboxChange = (e) => {
         const { value, checked } = e.target;
+
         setFormData((prevData) => {
-            let updatedMotivo = [...prevData.motivo];
+            const updatedMotivo = new Set(prevData.motivo);
             if (checked) {
-                updatedMotivo.push(value);
+                updatedMotivo.add(value); // Añadir valor si está marcado
             } else {
-                updatedMotivo = updatedMotivo.filter((motivo) => motivo !== value);
+                updatedMotivo.delete(value); // Eliminar valor si está desmarcado
             }
-            return { ...prevData, motivo: updatedMotivo };
+
+            return { ...prevData, motivo: [...updatedMotivo] }; // Convertimos Set de nuevo a Array
         });
     };
 
@@ -77,23 +82,20 @@ const Profile = () => {
     };
 
     const handleSubmit = () => {
-        const concatenatedData = `
-            Motivo(s): ${formData.motivo.join(", ")}
-            Descripción: ${formData.descripcion}
-        `;
+
         const data = {
             usuarioReporte: {
-                id: profileUser.id,
-                username: profileUser.username,
-            },
-            description: concatenatedData,
-            usuarioReportado: {
                 id: loggedInUser.id,
                 username: loggedInUser.username,
+            },
+            descripcion: formData.descripcion,
+            motivo: formData.motivo.join(", "),
+            usuarioReportado: {
+                id: profileUser.id,
+                username: profileUser.username,
             }
         }
-        console.log(data);
-
+        UserReportCRUD(1,data)
         dialogReportRef.current.close();
     };
 
@@ -201,7 +203,7 @@ const Profile = () => {
                                 Otro
                             </p>
 
-                            <p>Descripción (Opcional):</p>
+                            <p>Descripción:</p>
                             <textarea
                                 name="descripcion"
                                 id="descripcion"

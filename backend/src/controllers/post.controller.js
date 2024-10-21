@@ -128,7 +128,6 @@ export const updatePost = async (req, res) => {
     }
 };
 
-
 export const deletePost = async (req, res) => {
     try {
         const { id } = req.query;

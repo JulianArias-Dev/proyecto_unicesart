@@ -12,7 +12,7 @@ router.post('/register', validateSchema(registerSchema), register);
 router.post('/login', validateSchema(loginSchema), login);
 router.post('/logout', authRequired, logout);
 router.post('/updateuser', authRequired, validateSchema(updateUserSchema), updateUser)
-router.put('/updatepassword', authRequired, validateSchema(updatePasswordSchema), updatePassword)
+router.put('/updatepassword', authRequired, updatePassword)
 router.put('/recover-password', validateSchema(updatePasswordSchema), updatePassword)
 router.put('/set-recover-code', validateSchema(setCodeSchema),setCode);
 router.get('/profile', validateSchema(profileSchema), profile);

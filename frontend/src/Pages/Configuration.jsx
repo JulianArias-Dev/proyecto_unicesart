@@ -1,9 +1,6 @@
 import './Configuration.css';
 import { useState } from 'react';
-import CambioContrasena from '../Componets/CambioContrasena';
-import PersonalInfo from '../Componets/PersonalInfo';
-import EliminarCuenta from '../Componets/EliminarCuenta';
-import ReportedUser from '../Componets/Reported_User';
+import {CambioContrasena, PersonalInfo, EliminarCuenta, ReportedUser, ReportedPost} from '../Componets/components.jsx';
 import { useAuth } from '../context/AuthContext';
 
 const Configuration = () => {
@@ -72,7 +69,20 @@ const Configuration = () => {
                             className={`option ${activeOption === 'option4' ? 'active' : ''}`}
                             onClick={() => handleOptionClick('option4')}
                         >
-                            <p>Reportes</p>
+                            <p>Usuarios Reportados</p>
+                            {activeOption === 'option4' ?
+                                (<i className="fa-solid fa-angle-up"></i>) : (<i className="fa-solid fa-angle-down"></i>)}
+                        </button>
+                        {activeOption === 'option5' &&
+                            (<div className="deployOption">
+                                <ReportedUser />
+                                <ReportedUser />
+                            </div>)}
+                        <button
+                            className={`option ${activeOption === 'option5' ? 'active' : ''}`}
+                            onClick={() => handleOptionClick('option5')}
+                        >
+                            <p>Publicaciones Reportadas</p>
                             {activeOption === 'option4' ?
                                 (<i className="fa-solid fa-angle-up"></i>) : (<i className="fa-solid fa-angle-down"></i>)}
                         </button>
@@ -82,6 +92,7 @@ const Configuration = () => {
                                 <ReportedUser />
                             </div>)}
                     </>
+
                 }
             </div>
             <div className="contenido-opcion">
@@ -90,9 +101,9 @@ const Configuration = () => {
                 {activeOption === 'option3' && <PersonalInfo />}
                 {activeOption === 'option4' && <>
                     <ReportedUser />
-                    <ReportedUser />
-                    <ReportedUser />
-                    <ReportedUser />
+                </>}
+                {activeOption === 'option5' && <>
+                    <ReportedPost />
                 </>}
             </div>
         </div>

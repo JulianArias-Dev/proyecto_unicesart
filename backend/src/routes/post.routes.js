@@ -2,7 +2,7 @@ import { Router } from "express";
 import { createPost, deletePost, getPost, reactions, updatePost } from "../controllers/post.controller.js";
 import { authRequired } from "../middlewares/validateToken.js";
 import { validateSchema } from "../middlewares/validator.middleware.js";
-import { createPostSchema, deletePostSchema, getPostSchema, reactionsSchema} from "../schemas/post.schema.js";
+import { createPostSchema, getPostSchema, reactionsSchema} from "../schemas/post.schema.js";
 import multer from 'multer';
 
 const routerPost = Router()

@@ -1,39 +1,48 @@
-import ReportedUser from  '../models/reported_user.model';
+import ReportedUser from '../models/reported_user.model.js';
+import User from '../models/user.model.js';
 
 export const saveReport = async (req, res) => {
     try {
-        // Validaciones de entrada
-        const { reportId, usuarioReporte, description, usuarioReportado } = req.body;
+        console.log(req.body);
+        const { usuarioReporte, descripcion, motivo, usuarioReportado } = req.body;
 
-        if (!reportId) {
-            return res.status(400).json({ message: 'El ID del reporte es requerido.' });
-        }
-        if (!usuarioReporte || !usuarioReporte.userId || !usuarioReporte.nickName) {
+        if (!usuarioReporte || !usuarioReporte.id || !usuarioReporte.username) {
             return res.status(400).json({ message: 'Los datos del usuario que reporta son requeridos.' });
         }
-        if (!description || description.length > 500) {
+        if (!descripcion || descripcion.length > 500) {
             return res.status(400).json({ message: 'La descripción es requerida y no puede exceder 500 caracteres.' });
         }
-        if (!usuarioReportado || !usuarioReportado.userId || !usuarioReportado.nickName) {
+        if (!motivo || motivo.length === 0) {
+            return res.status(400).json({ message: 'Debe proporcionar al menos un motivo para el reporte.' });
+        }
+        if (!usuarioReportado || !usuarioReportado.id || !usuarioReportado.username) {
             return res.status(400).json({ message: 'Los datos del usuario reportado son requeridos.' });
         }
 
-        // Crear nuevo reporte
+        const userReporting = await User.findById(usuarioReporte.id);
+        const userReported = await User.findById(usuarioReportado.id);
+
+        if (!userReporting) {
+            return res.status(404).json({ message: 'El usuario que reporta no existe.' });
+        }
+
+        if (!userReported) {
+            return res.status(404).json({ message: 'El usuario reportado no existe.' });
+        }
+
         const newReport = new ReportedUser({
-            reportId,
             usuarioReporte: {
-                userId: usuarioReporte.userId,
-                nickName: usuarioReporte.nickName
+                id: userReporting._id,
+                username: userReporting.username,
             },
-            description,
+            descripcion,
+            motivo,
             usuarioReportado: {
-                userId: usuarioReportado.userId,
-                nickName: usuarioReportado.nickName
+                id: userReported._id,
+                username: userReported.username,
             },
-            status: 'Por Verificar'  // Estado inicial predeterminado
         });
 
-        // Guardar el reporte en la base de datos
         const savedReport = await newReport.save();
 
         return res.status(201).json({
@@ -59,9 +68,9 @@ export const updateReport = async (req, res) => {
         }
 
         const updatedReport = await ReportedUser.findOneAndUpdate(
-            { reportId }, 
-            { status: 'Verificado' },  
-            { new: true }             
+            { reportId },
+            { status: 'Verificado' },
+            { new: true }
         );
 
         if (!updatedReport) {
@@ -112,11 +121,11 @@ export const deleteReport = async (req, res) => {
 
 export const getReports = async (req, res) => {
     try {
-        const { status } = req.query; 
+        const { status } = req.query;
 
         const query = {};
         if (status) {
-            query.status = status;  
+            query.status = status;
         }
 
         const reports = await ReportedUser.find(query);

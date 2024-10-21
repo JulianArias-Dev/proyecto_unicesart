@@ -4,8 +4,9 @@ import PropTypes from 'prop-types';
 import './Post.css';
 import { useAuth } from '../context/AuthContext';
 import { usePost } from '../context/PostContext';
+import { useReport } from '../context/report_context'
 import Swal from 'sweetalert2';
-import PostForm from './PostForm'; // Asegúrate de importar PostForm
+import PostForm from './post_form'; // Asegúrate de importar PostForm
 
 const Post = ({ post }) => {
 
@@ -14,6 +15,7 @@ const Post = ({ post }) => {
     const dialogReportRef = useRef(null);
     const { user, isAuthenticated, } = useAuth();
     const { putReaction, deletePost, categorias, updatePost } = usePost(); // Asumiendo que tienes deletePost y updatePost
+    const { PostReportCRUD } = useReport();
     const [liked, setLiked] = useState(false);
 
     useEffect(() => {
@@ -111,6 +113,56 @@ const Post = ({ post }) => {
         }
     };
 
+    const [formData, setFormData] = useState({
+        motivo: [],
+        descripcion: ""
+    });
+
+    const autoResize = (e) => {
+        e.target.style.height = 'auto';  // Reset height
+        e.target.style.height = `${e.target.scrollHeight}px`;  // Adjust to content
+    };
+
+    const handleTextareaChange = (e) => {
+        const { value } = e.target;
+        setFormData((prevData) => ({
+            ...prevData,
+            descripcion: value
+        }));
+    };
+
+    const handleCheckboxChange = (e) => {
+        const { value, checked } = e.target;
+
+        setFormData((prevData) => {
+            const updatedMotivo = new Set(prevData.motivo);
+            if (checked) {
+                updatedMotivo.add(value); // Añadir valor si está marcado
+            } else {
+                updatedMotivo.delete(value); // Eliminar valor si está desmarcado
+            }
+
+            return { ...prevData, motivo: [...updatedMotivo] }; // Convertimos Set de nuevo a Array
+        });
+    };
+
+    const handleSubmit = () => {
+        const data = {
+            usuarioReporte: {
+                id: user.id,
+                username: user.username,
+            },
+            motivo: formData.motivo.join(", "), // Enviar motivos separados por coma
+            descripcion: formData.descripcion, // Enviar la descripción directamente
+            publicacionReportada: {
+                id: post._id
+            }
+        };
+
+        PostReportCRUD(1, data);
+        dialogReportRef.current.close();
+    };
+
     return (
         <div className="post">
             <div className="post-top">
@@ -121,7 +173,7 @@ const Post = ({ post }) => {
                 {
                     (isAuthenticated) &&
                     <div className="report-dropdown">
-                        <button style={{textAlign:'center'}}className="report-button" onClick={toggleMenu}>
+                        <button style={{ textAlign: 'center' }} className="report-button" onClick={toggleMenu}>
                             <i className="fa-solid fa-ellipsis-vertical"></i>
                         </button>
                     </div>
@@ -218,32 +270,56 @@ const Post = ({ post }) => {
                 <form method="dialog" className="formPost">
                     <p>Selecciona un motivo:</p>
                     <p>
-                        <input type="checkbox" name="motivo" value="spam" />
+                        <input
+                            type="checkbox"
+                            name="motivo"
+                            value="spam"
+                            onChange={handleCheckboxChange}
+                        />
                         Spam
                     </p>
                     <p>
-                        <input type="checkbox" name="motivo" value="contenido_inapropiado" />
+                        <input
+                            type="checkbox"
+                            name="motivo"
+                            value="contenido_inapropiado"
+                            onChange={handleCheckboxChange}
+                        />
                         Contenido inapropiado
                     </p>
                     <p>
-                        <input type="checkbox" name="motivo" value="acoso" />
+                        <input
+                            type="checkbox"
+                            name="motivo"
+                            value="acoso"
+                            onChange={handleCheckboxChange}
+                        />
                         Acoso
                     </p>
                     <p>
-                        <input type="checkbox" name="motivo" value="otro" />
+                        <input
+                            type="checkbox"
+                            name="motivo"
+                            value="otro"
+                            onChange={handleCheckboxChange}
+                        />
                         Otro
                     </p>
-                    <p>
-                        <label>Descripción (Opcional):</label>
-                        <textarea name="descripcion" id="descripcion" onChange={e => e.target.style.height = 'auto'}></textarea>
-                    </p>
+                    <p>Descripción:</p>
+                    <textarea
+                        name="descripcion"
+                        id="descripcion"
+                        onChange={handleTextareaChange}
+                        onInput={autoResize}
+
+                    ></textarea>
                 </form>
                 <div className="botones2">
-                    <button style={{ background: '#1d8348' }} onClick={() => closeDialog(dialogReportRef)}>Reportar</button>
+                    <button style={{ background: '#1d8348' }} onClick={handleSubmit}>Reportar</button>
                     <button style={{ background: '#DE2D18' }} onClick={() => closeDialog(dialogReportRef)}>Cancelar</button>
                 </div>
                 <div className="botones">
-                    <button style={{ background: '#1d8348' }} onClick={() => closeDialog(dialogReportRef)}>Reportar</button>
+                    <button style={{ background: '#1d8348' }} onClick={handleSubmit}>Reportar</button>
                     <button style={{ background: '#DE2D18' }} onClick={() => closeDialog(dialogReportRef)}>Cancelar</button>
                 </div>
             </dialog>
