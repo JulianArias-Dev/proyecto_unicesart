@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { validateRequest } from "../API/auth";
 import Swal from 'sweetalert2';
 import { useNavigate } from "react-router-dom";
+import axios from 'axios';
 
 const EliminarCuenta = () => {
+
+    const API = 'http://localhost:4000/api';
     const [step, setStep] = useState(1);
     const [buttonText, setButtonText] = useState('Enviar Codigo de Verificación');
     const [password, setPassword] = useState('');
@@ -19,8 +21,8 @@ const EliminarCuenta = () => {
         if (step === 1) {
             try {
                 const userId = user.id;
-                const res = await validateRequest(userId, password);
-    
+                const res = await axios.put(`${API}/set-recover-code`, { userId, password }, { withCredentials: true });
+
                 const { isValid, recoverCode } = res.data;
                 if (isValid) {
                     setTimeout(() => {
@@ -30,7 +32,7 @@ const EliminarCuenta = () => {
                                 text: `Su código de verificación es: ${recoverCode}`,
                                 icon: "info",
                             });
-    
+
                             // Avanza al siguiente paso: ingreso del código de verificación
                             user.recoverCode = recoverCode;
                             setStep(2);
@@ -43,7 +45,7 @@ const EliminarCuenta = () => {
                             });
                         }
                     }, 500);
-    
+
                 } else {
                     Swal.fire({
                         title: "Error",
@@ -66,7 +68,7 @@ const EliminarCuenta = () => {
                     text: "El código ha sido verificado correctamente.",
                     icon: "success",
                 });
-    
+
                 setStep(3);
                 setButtonText('Eliminar Cuenta');
             } else {
@@ -91,13 +93,13 @@ const EliminarCuenta = () => {
                     try {
                         const userId = user.id;
                         await deleteAccount(userId);
-    
+
                         Swal.fire({
                             title: "Cuenta eliminada",
                             text: "Tu cuenta ha sido eliminada correctamente.",
                             icon: "success",
                         });
-    
+
                         setTimeout(() => {
                             navigate('/');
                         }, 500);
@@ -113,7 +115,7 @@ const EliminarCuenta = () => {
             });
         }
     };
-    
+
 
     return (
         <div className="cambioContrasena">

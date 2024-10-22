@@ -5,6 +5,7 @@ import cors from 'cors'
 
 import authRoutes from "./routes/auth.routes.js";
 import postRoutes from "./routes/post.routes.js";
+import reportRoutes from "./routes/report.routes.js";
 
 const app = express();
 
@@ -18,5 +19,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use("/api", authRoutes);
-app.use('/api', postRoutes)
+app.use('/api', postRoutes);
+app.use('/api', reportRoutes);
+
 export default app;

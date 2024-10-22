@@ -1,0 +1,35 @@
+.reportedUser {
+    padding: 2%;
+    border: 1px solid #000;
+    width: 92%;
+    margin: auto;
+    margin-top: 1.5%;
+}
+
+.report>p,
+.reported>p     {
+    margin-bottom: 5px;
+}
+
+.reported>div {
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 5px;
+}
+
+.reported>div>button {
+    background-color: #fff;
+    color: #000;
+    padding: 0px;
+    margin: 0px;
+    font-size: 18px;
+    text-decoration: underline;
+    border: none;
+    border-radius: 0px;
+}
+
+@media screen and (max-width:500px) {
+    .reportedUser p {
+        font-size: 16px;
+    }
+}

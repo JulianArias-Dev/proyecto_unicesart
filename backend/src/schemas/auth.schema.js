@@ -82,11 +82,9 @@ export const updateUserSchema = z.object({
 });
 
 export const profileSchema = z.object({
-    username: z.string({
-        required_error: "El nombre de usuario es requerido",
+    id: z.string({
+        required_error: "Se necesita una id de Usuario",
     })
-        .min(3, "El nombre de usuario debe tener al menos 3 caracteres")
-        .max(20, "El nombre de usuario no debe exceder los 20 caracteres"),
 });
 
 export const updatePasswordSchema = z.object({

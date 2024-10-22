@@ -1,11 +1,12 @@
 import { useState } from 'react';
+import axios from 'axios';
 import './Login.css';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import { useNavigate } from 'react-router-dom';
-import { validateRequest, recoverPasswordRequest } from '../API/auth';
 
 const RecuperarContraseña = () => {
+    const API = 'http://localhost:4000/api';
     const [sendMail, setSendMail] = useState(false);
     const [codeVerified, setCodeVerified] = useState(false);
     const [email, setEmail] = useState('');
@@ -35,7 +36,7 @@ const RecuperarContraseña = () => {
     const handleMailRequest = async () => {
         try {
             console.log(email);
-            const res = await validateRequest(null, null, email);
+            const res = await axios.put(`${API}/set-recover-code`, { email }, { withCredentials: true });
             const { isValid, recoverCode } = res.data;
 
             if (isValid) {
@@ -83,7 +84,7 @@ const RecuperarContraseña = () => {
 
     const handlePasswordUpdate = async () => {
         try {
-            const res = await recoverPasswordRequest(newPassword, email);
+            const res = await axios.put(`${API}/recover-password`, { newPassword, email });
             if (res.status === 200) {
                 MySwal.fire({
                     title: "Contraseña Actualizada",

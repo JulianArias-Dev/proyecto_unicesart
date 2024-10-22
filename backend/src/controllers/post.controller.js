@@ -64,36 +64,48 @@ export const createPost = async (req, res) => {
 
 export const updatePost = async (req, res) => {
     try {
-
         const { id, title, description, category, userid, username } = req.body;
-        console.log(req.body);
         const postToUpdate = await Post.findById(id);
+
         if (!postToUpdate) {
             return res.status(404).json({ message: 'Publicación no encontrada.' });
         }
 
         let imageUrl = postToUpdate.imageUrl;
 
-        // Si hay un archivo, sube la nueva imagen y sobrescribe la anterior en Cloudinary
-        console.log(req.file);
-        if (req.file) {
-            const publicId = postToUpdate.imageUrl.split('/').pop().split('.')[0];
-            const uploadResult = await cloudinary.uploader.upload(req.file.path, {
-                public_id: publicId,  // Sobrescribe la imagen existente
-                overwrite: true,
-                upload_preset: 'unicesart_preset',
-            });
-            imageUrl = uploadResult.secure_url;
+        if (req?.file) {
+            try {
+                const publicId = postToUpdate.imageUrl
+                    ? postToUpdate.imageUrl.split('/').pop().split('.')[0]
+                    : null;
+
+                const uploadResult = await cloudinary.uploader.upload(req.file.path, {
+                    public_id: publicId || undefined,  
+                    overwrite: !!publicId,  
+                    upload_preset: 'unicesart_preset',
+                });
+
+                imageUrl = uploadResult.secure_url;
+
+                fs.unlink(req.file.path, (err) => {
+                    if (err) {
+                        console.error('Error al eliminar el archivo local:', err);
+                    }
+                });
+            } catch (uploadError) {
+                console.error('Error uploading file to Cloudinary:', uploadError);
+                return res.status(500).json({ message: 'Error al subir la imagen.', error: uploadError.message });
+            }
         }
 
-        // Actualizar la publicación con los nuevos datos
+        // Update the post in the database
         const updatedPost = await Post.findByIdAndUpdate(
             id,
             {
                 title,
                 description,
                 category,
-                imageUrl, // Mantén la URL de la imagen actual o actualiza si hay nueva imagen
+                imageUrl, // Keep the current image URL or update it with the new one
                 user: {
                     id: userid,
                     username,
@@ -101,22 +113,20 @@ export const updatePost = async (req, res) => {
             },
             { new: true }
         );
-        
-        fs.unlink(req.file.path, (err) => {
-            if (err) console.error('Error al eliminar el archivo local:', err);
-        });
 
         if (updatedPost) {
-            return res.status(200).json({ message: 'La publicación ha sido actualizada exitosamente', post: updatedPost });
+            return res.status(200).json({
+                message: 'La publicación ha sido actualizada exitosamente',
+                post: updatedPost,
+            });
         }
 
-        return res.status(404).json({ message: 'Publicación no encontrada' });
+        return res.status(404).json({ message: 'Publicación no encontrada.' });
     } catch (error) {
-        console.error(error);
+        console.error('Error al actualizar la publicación:', error);
         return res.status(500).json({ message: 'Error al actualizar la publicación.', error: error.message });
     }
 };
-
 
 export const deletePost = async (req, res) => {
     try {

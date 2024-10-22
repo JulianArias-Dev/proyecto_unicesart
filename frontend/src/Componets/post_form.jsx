@@ -59,6 +59,10 @@ const PostForm = ({ onSubmit, categorias, defaultValues = {}, actionLabel = 'Gua
 
     return (
         <div className='containerpost'>
+            <div className='botones botones2'>
+                    <button type="submit" style={{ background: '#1d8348' }}>{actionLabel}</button>
+                    <button type="button" onClick={handleCancel} style={{ background: '#DE2D18' }}>Cancelar</button>
+                </div>
             <div className="sub">
                 <div className='imageDiv'>
                     <label htmlFor="fileInput" className="file-link">

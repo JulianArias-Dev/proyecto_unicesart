@@ -1,9 +1,8 @@
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
-import { registerRequest, loginRequest, logoutRequest, updateRequest, profileRequest, updatePasswordRequest, dropRequest, } from "../API/auth";
-import { getUbicacionesRequest } from "../API/recursos";
-import Swal from 'sweetalert2'
-import withReactContent from 'sweetalert2-react-content'
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
 import PropTypes from 'prop-types';
+import axios from "axios";
 
 const AuthContext = createContext();
 
@@ -16,6 +15,7 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
+    const API = 'http://localhost:4000/api';
     const [user, setUser] = useState(null);
     const [ubicaciones, setUbicaciones] = useState(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -30,24 +30,78 @@ export const AuthProvider = ({ children }) => {
         }
     }, []);
 
-    const singUp = async (user) => {
+    const handleAuthAction = async (action, data = {}, userId = null) => {
         try {
-            const res = await registerRequest(user);
+            let res;
 
-            if (res.status === 200) {
-                withReactContent(Swal).fire({
-                    title: "Usuario Registrado",
-                    text: "¡Usuario Registrado con Éxito!",
-                    icon: "success"
-                });
-                setUser(res.data);
-                setIsAuthenticated(true);
-                // Guardar el usuario en sesionStorage
-                sessionStorage.setItem('user', JSON.stringify(res.data));
+            switch (action) {
+                case 'signUp':
+                    res = await axios.post(`${API}/register`, data, { withCredentials: true });
+                    break;
+                case 'signIn':
+                    res = await axios.post(`${API}/login`, data, { withCredentials: true });
+                    break;
+                case 'logOut':
+                    res = await axios.post(`${API}/logout`, user, { withCredentials: true });
+                    break;
+                case 'updateUser':
+                    res = await axios.post(`${API}/updateuser`, data, { withCredentials: true });
+                    break;
+                case 'updatePassword':
+                    res = await axios.put(`${API}/updatepassword`, data, { withCredentials: true });
+                    break;
+                case 'deleteAccount':
+                    res = await axios.delete(`${API}/removeAccount`, {
+                        params: { userId },
+                        withCredentials: true
+                    });
+                    break;
+                case 'getUbicaciones':
+                    res = await axios.get(`${API}/ubicaciones`);
+                    setUbicaciones(res.data);
+                    return;
+                case 'getProfile':
+                    res = await axios.get(`${API}/profile`, {
+                        params: { id: data.username },
+                        withCredentials: true
+                    });
+                    return res.data;
+                default:
+                    throw new Error("Acción no válida");
+            }
+
+            // Manejo de resultados
+            if (res.status === 200 || res.status === 201) {
+                if (action === 'signUp' || action === 'signIn') {
+                    setUser(res.data);
+                    setIsAuthenticated(true);
+                    sessionStorage.setItem('user', JSON.stringify(res.data));
+                    withReactContent(Swal).fire({
+                        title: action === 'signUp' ? "Usuario Registrado" : "Credenciales Correctas",
+                        text: action === 'signUp' ? "¡Usuario registrado con éxito!" : "¡Bienvenido de nuevo!",
+                        icon: "success"
+                    });
+                } else if (action === 'logOut' || action === 'deleteAccount') {
+                    sessionStorage.removeItem('user');
+                    setUser(null);
+                    setIsAuthenticated(false);
+                    withReactContent(Swal).fire({
+                        title: action === 'logOut' ? "Sesión Cerrada" : "Cuenta Eliminada",
+                        text: action === 'logOut' ? "¡Hasta pronto!" : "Se han eliminado todos los datos asociados a su cuenta.",
+                        icon: action === 'logOut' ? "info" : "warning"
+                    });
+                } else if (action === 'updateUser' || action === 'updatePassword') {
+                    setUser(res.data);
+                    withReactContent(Swal).fire({
+                        title: "Actualización",
+                        text: action === 'updateUser' ? "Datos actualizados correctamente" : "Contraseña actualizada correctamente",
+                        icon: "success"
+                    });
+                }
             } else {
                 withReactContent(Swal).fire({
                     title: "Advertencia",
-                    text: "Hubo un problema al registrar el usuario. Por favor, intente de nuevo.",
+                    text: res.data?.message || "Ocurrió un error, por favor intente de nuevo.",
                     icon: "warning"
                 });
             }
@@ -55,201 +109,36 @@ export const AuthProvider = ({ children }) => {
             console.error(error);
             withReactContent(Swal).fire({
                 title: "Error",
-                text: error.response?.data?.message || "Error al registrar el usuario.",
+                text: error.response?.data?.message || "Error en la operación solicitada.",
                 icon: "error"
             });
-            setUser(null);
-            setIsAuthenticated(false);
-            setErrors(error.response.data);
-        }
-    };
-
-    const singIn = async (user) => {
-        try {
-            const res = await loginRequest(user);
-
-            if (res.status === 200) {
-                withReactContent(Swal).fire({
-                    title: "Credenciales Correctas",
-                    text: "¡Bienvenido de Nuevo!",
-                    icon: "success"
-                });
-                setUser(res.data);
-                setIsAuthenticated(true);
-                // Guardar el usuario en sesionStorage
-                sessionStorage.setItem('user', JSON.stringify(res.data));
-            } else {
-                withReactContent(Swal).fire({
-                    title: "Advertencia",
-                    text: "No se han encontrado los datos: Usuario o contraseña incorrectos",
-                    icon: "warning"
-                });
-            }
-        } catch (error) {
-            console.error(error);
-            withReactContent(Swal).fire({
-                title: "Error",
-                text: error.response?.data?.message || "Error al iniciar sesión.",
-                icon: "error"
-            });
-            setUser(null);
-            setIsAuthenticated(false);
-            setErrors(error.response.data);
-        }
-    };
-
-    const logOut = async () => {
-        try {
-            const res = await logoutRequest();
-
-            if (res.status === 200) {
-                sessionStorage.removeItem('user');
-                setIsAuthenticated(false);
+            setErrors(error.response?.data || {});
+            if (action === 'signIn' || action === 'logOut' || action === 'deleteAccount') {
                 setUser(null);
+                setIsAuthenticated(false);
             }
-        } catch (error) {
-            console.error(error);
-            withReactContent(Swal).fire({
-                title: "Error",
-                text: error.response?.data?.message || "Error al cerrar sesión.",
-                icon: "error"
-            });
         }
     };
 
-    const updateUser = async (user) => {
-        try {
-
-            const res = await updateRequest(user);
-
-            if (res.status === 200) {
-                withReactContent(Swal).fire({
-                    title: "Actualizacion",
-                    text: "¡Se han actualizado los datos Correctamente!",
-                    icon: "success"
-                });
-                setUser(res.data);
-            }
-
-        } catch (error) {
-            console.error(error);
-            withReactContent(Swal).fire({
-                title: "Error",
-                text: error.response?.data?.message || "Error al actualizar los datos de usuario.",
-                icon: "error"
-            });
-            setErrors(error.response.data);
-        }
-    }
-
-    const updatePassword = async (userId, password, newPassword) => {
-        try {
-            const res = await updatePasswordRequest(userId, password, newPassword);
-
-            if (res.status === 200) {
-                withReactContent(Swal).fire({
-                    title: "Actualizacion",
-                    text: "¡Se ha actualizado su contraseña Correctamente!",
-                    icon: "success"
-                });
-                setUser(res.data);
-            }
-
-        } catch (error) {
-            console.error(error);
-            withReactContent(Swal).fire({
-                title: "Error",
-                text: error.response?.data?.message || "Error al actualizar su contraseña.",
-                icon: "error"
-            });
-            setErrors(error.response.data);
-        }
-    }
-
-    const deleteAccount = async (userId) => {
-        try {
-            const res = await dropRequest(userId);
-
-            if (res.status === 200) {
-                sessionStorage.removeItem('user');
-                await logoutRequest();
-                setIsAuthenticated(false);
-                setUser(null);
-                withReactContent(Swal).fire({
-                    title: "Hasta Pronto",
-                    text: "Se han eliminado todos los datos asociados a su cuenta",
-                    icon: "warning"
-                });
-            }
-        } catch (error) {
-            console.error(error);
-            withReactContent(Swal).fire({
-                title: "Error",
-                text: error.response?.data?.message || "Error al eliminar la cuenta.",
-                icon: "error"
-            });
-        }
-    }
-
+    // Funciones envueltas en useCallback para evitar recreación en cada render
     const getUserProfile = useCallback(async (username) => {
-        try {
-            const res = await profileRequest(username);
+        return await handleAuthAction('getProfile', { username });
+    }, [API]);
 
-            if (res.status === 200) {
-                return res.data;
-            } else {
-                withReactContent(Swal).fire({
-                    title: "Advertencia",
-                    text: "Error al consultar el perfil del usuario",
-                    icon: "warning"
-                });
-            }
-
-        } catch (error) {
-            console.error(error);
-            withReactContent(Swal).fire({
-                title: "Error",
-                text: error.response?.data?.message || "Error al buscar el usuario.",
-                icon: "error"
-            });
-            setUser(null);
-            setIsAuthenticated(false);
-            setErrors(error.response.data);
-        }
-    }, []);
-
-    const getUbicaciones = async () => {
-        try {
-
-            const res = await getUbicacionesRequest();
-
-            if (res.status === 200) {
-                setUbicaciones(res.data);
-            }
-
-        } catch (error) {
-            console.error(error);
-            withReactContent(Swal).fire({
-                title: "Error",
-                text: error.response?.data?.message || "Error al Consultar base de datos.",
-                icon: "error"
-            });
-            setUser(null);
-            setIsAuthenticated(false);
-            setErrors(error.response.data);
-        }
-    }
+    const getUbicaciones = useCallback(async () => {
+        await handleAuthAction('getUbicaciones');
+    }, [API]);
 
     return (
         <AuthContext.Provider value={{
-            singUp,
-            singIn,
-            logOut,
-            getUbicaciones,
-            updateUser,
-            updatePassword,
+            signUp: (user) => handleAuthAction('signUp', user),
+            signIn: (user) => handleAuthAction('signIn', user),
+            logOut: () => handleAuthAction('logOut'),
+            updateUser: (user) => handleAuthAction('updateUser', user),
+            updatePassword: (userId, password, newPassword) => handleAuthAction('updatePassword', { userId, password, newPassword }),
+            deleteAccount: (userId) => handleAuthAction('deleteAccount', {}, userId),
             getUserProfile,
-            deleteAccount,
+            getUbicaciones,
             ubicaciones,
             user,
             isAuthenticated,

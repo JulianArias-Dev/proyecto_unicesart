@@ -1,6 +1,4 @@
-import NewPost from '../Componets/NewPost.jsx'
-import Advertising from '../Componets/Advertising.jsx';
-import Post from '../Componets/Post.jsx'
+import {NewPost, Advertising, Post, NewAdd} from '../Componets/components.jsx';
 import { useAuth } from "../context/AuthContext.jsx";
 import { usePost } from "../context/PostContext.jsx";
 import { useEffect } from 'react';
@@ -12,8 +10,8 @@ const DashBoard = () => {
         'src/assets/not2.png'
     ];
 
-    const { publicaciones, getPost } = usePost(); // Destructure getPost and publicaciones
-    const { isAuthenticated } = useAuth();
+    const { publicaciones, getPost } = usePost();
+    const { isAuthenticated, user } = useAuth();
 
     useEffect(() => {
         getPost();
@@ -21,7 +19,7 @@ const DashBoard = () => {
 
     return (
         <>
-            {isAuthenticated && (<NewPost />)}  {/* Render NewPost if authenticated */}
+            {(isAuthenticated && user.role !== 'administrador') ? (<NewPost />) : (<NewAdd />)}
             <section className="main">
                 <div className="dashboard">
                     <div className="mainContent">

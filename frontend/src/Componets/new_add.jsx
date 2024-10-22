@@ -1,13 +1,11 @@
 import { useRef, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { usePost } from '../context/PostContext';
-import PostForm from './PostForm';
 import './NewPost.css';
+import AdvertisingForm from './advertising_form';
 
-const NewPost = () => {
+const NewAdd = () => {
     const dialogRef = useRef(null);
     const { user } = useAuth();
-    const { categorias, createPost } = usePost();
     const [textButton, setTextButton] = useState('+');
 
     const onSubmit = async (data) => {
@@ -24,7 +22,7 @@ const NewPost = () => {
         formData.append('userId', user.id);
         formData.append('username', user.username);
 
-        try {
+        /* try {
             const check = await createPost(formData);
             if (check) {
                 closeDialog();
@@ -32,7 +30,7 @@ const NewPost = () => {
         } catch (error) {
             console.error("Error al crear la publicación:", error);
             alert("Hubo un error al crear la publicación.");
-        }
+        } */
     };
 
     const showDialog = () => dialogRef.current?.showModal();
@@ -53,9 +51,8 @@ const NewPost = () => {
 
             <dialog className='dialogPost' ref={dialogRef}>
                 <h3>Nueva Publicación</h3>
-                <PostForm
+                <AdvertisingForm
                     onSubmit={onSubmit}
-                    categorias={categorias}
                     actionLabel="Publicar"
                     onCancel={closeDialog}
                 />
@@ -64,4 +61,4 @@ const NewPost = () => {
     );
 };
 
-export default NewPost;
+export default NewAdd;

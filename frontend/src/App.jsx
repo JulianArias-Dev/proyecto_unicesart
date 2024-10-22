@@ -1,22 +1,15 @@
 import './App.css'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Footer from './Componets/Footer.jsx';
-import DashBoard from './Pages/DashBoard.jsx';
-import Profile from './Pages/Profile.jsx';
-import Configuration from './Pages/Configuration.jsx';
-import { AuthProvider } from './context/AuthContext.jsx';
-import NavBar from './Componets/NavBar.jsx';
-import Login from "./Pages/LoginPage.jsx";
-import Register from "./Pages/RegisterPage.jsx";
-import Welcome from "./Pages/Welcome.jsx";
-import RecuperarContraseña from './Pages/RecuperarContraseña.jsx';
-import { PostProvider } from './context/PostContext.jsx';
-import ProtectedRoute from './context/ProtectedRoute.jsx';  
+import {Welcome, Login, Register, RecuperarContraseña, Profile, DashBoard, Configuration} from './Pages/pages.jsx'
+import {Footer, NavBar} from './Componets/components.jsx'
+import { AuthProvider, PostProvider, ReportProvider, ProtectedRoute } from './context/providers.jsx'
+
 
 function App() {
   return (
-      <AuthProvider>
-        <PostProvider>
+    <AuthProvider>
+      <PostProvider>
+        <ReportProvider>
           <Router>
             <div className='App'>
               <NavBar />
@@ -29,13 +22,13 @@ function App() {
                 <Route path='/home' element={<DashBoard />} />
 
                 <Route path='/configuration' element={<ProtectedRoute element={<Configuration />} />} />
-
               </Routes>
               <Footer />
             </div>
           </Router>
-        </PostProvider>
-      </AuthProvider>
+        </ReportProvider>
+      </PostProvider>
+    </AuthProvider>
   );
 }
 

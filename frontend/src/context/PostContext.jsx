@@ -1,9 +1,8 @@
-
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
-import Swal from 'sweetalert2'
-import withReactContent from 'sweetalert2-react-content'
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
 import PropTypes from 'prop-types';
-import axios from 'axios'
+import axios from 'axios';
 
 const PostContext = createContext();
 
@@ -21,11 +20,11 @@ export const PostProvider = ({ children }) => {
     const [errors, setErrors] = useState([]);
     const [publicaciones, setPublicaciones] = useState([]);
 
-    const createPost = async (formData) => {
+    const handlePostCRUD = async (process, data = {}, id = null) => {
         let timerInterval;
         try {
             Swal.fire({
-                title: "Guardando la publicación...",
+                title: "Procesando la solicitud...",
                 html: "Por favor, espere.",
                 timerProgressBar: true,
                 didOpen: () => {
@@ -37,123 +36,58 @@ export const PostProvider = ({ children }) => {
                 }
             });
 
-            const res = await axios.post(`${API}/createPost`, formData, {
-                withCredentials: true, // Para enviar cookies si es necesario
-                headers: {
-                    'Content-Type': 'multipart/form-data', // axios automáticamente lo establece, pero es útil tenerlo presente
-                },
-            });
-
-            if (res.status === 201) {  // Verifica el código de estado correcto para creación exitosa
-                withReactContent(Swal).fire({
-                    title: "Nueva Publicación",
-                    text: "¡Publicación creada con éxito!",
-                    icon: "success"
-                });
-                return true;
-            } else {
-                withReactContent(Swal).fire({
-                    title: "Advertencia",
-                    text: "Hubo un problema al crear la publicación. Por favor, intente de nuevo.",
-                    icon: "warning"
-                });
-                return false;
-            }
-
-        } catch (error) {
-            withReactContent(Swal).fire({
-                title: "Error",
-                text: error.response?.data?.message || "Error al crear la publicación.",
-                icon: "error"
-            });
-
-            if (error.response && error.response.data) {
-                setErrors(error.response.data);
-            }
-
-            return false;
-        }
-    };
-
-    const getPost = useCallback(async (userId = null, userName = null) => {
-        try {
             let res;
-            if (userId && userName) {
-                res = await axios.get(`${API}/getPost`, { params: { id: userId, username: userName } });
-            } else {
-                res = await axios.get(`${API}/getPost`)
+
+            switch (process) {
+                case 'create':
+                    res = await axios.post(`${API}/createPost`, data, {
+                        withCredentials: true,
+                        headers: {
+                            'Content-Type': 'multipart/form-data',
+                        }
+                    });
+                    break;
+                case 'update':
+                    res = await axios.put(`${API}/update-post`, data, {
+                        withCredentials: true,
+                    });
+                    break;
+                case 'delete':
+                    res = await axios.delete(`${API}/remove-post?id=${id}`, {
+                        withCredentials: true,
+                    });
+                    break;
+                case 'fetch':
+                    res = await axios.get(`${API}/getPost`, { params: data });
+                    setPublicaciones(res.data);
+                    break;
+                case 'fetchCategorias':
+                    res = await axios.get(`${API}/categorias`);
+                    setCategorias(res.data);
+                    break;
+                case 'reaction':
+                    res = await axios.put(`${API}/reaction`, data, { withCredentials: true });
+                    break;
+                default:
+                    throw new Error("Operación no válida");
             }
 
-            if (res.status === 200) {
-                setPublicaciones(res.data); // Successful fetch
-            }
-        } catch (error) {
-            console.error('Error during getPost request:', error);
-
-            // Handle network error
-            if (!error.response) {
-                Swal.fire({
-                    title: "Error",
-                    text: "No se pudo contactar al servidor.",
-                    icon: "error"
-                });
-            } else {
-                Swal.fire({
-                    title: "Error",
-                    text: error.response.data?.message || "Error al consultar publicaciones.",
-                    icon: "error"
-                });
-                setErrors(error.response.data);
-            }
-        }
-    }, [API]);
-
-    const putReaction = async (reaction) => {
-        try {
-            console.log(reaction);
-            const res = await axios.put(`${API}/reaction`, reaction, { withCredentials: true });
-
-            if (res.status === 200) {
-                console.log(res.status);
-            }
-
-        } catch (error) {
-            console.log(error);
-            setErrors(error.response.data);
-        }
-    }
-
-    const updatePost = async (formData) => {
-        let timerInterval;
-        try {
-            Swal.fire({
-                title: "Cargando publicaciones...",
-                html: "Por favor, espere.",
-                timerProgressBar: true,
-                didOpen: () => {
-                    Swal.showLoading();
-                    timerInterval = setInterval(() => { }, 200);
-                },
-                willClose: () => {
-                    clearInterval(timerInterval);
+            if (res.status === 201 || res.status === 200) {
+                if (process === 'fetch' || process === 'fetchCategorias') {
+                    // Ya manejamos la respuesta en el fetch
+                    Swal.close();
+                } else {
+                    withReactContent(Swal).fire({
+                        title: process === 'create' ? "Publicación creada" : process === 'update' ? "Publicación actualizada" : "Publicación eliminada",
+                        text: "¡Operación realizada con éxito!",
+                        icon: "success"
+                    });
                 }
-            });
-
-            const res = await axios.put(`${API}/update-post`, formData, {
-                withCredentials: true,  // Para enviar cookies si es necesario
-            });
-
-            if (res.status === 200) {  // Código correcto para actualización
-                withReactContent(Swal).fire({
-                    title: "Actualización de Publicación",
-                    text: "¡Publicación actualizada con éxito!",
-                    icon: "success"
-                });
                 return true;
             } else {
                 withReactContent(Swal).fire({
                     title: "Advertencia",
-                    text: "Hubo un problema al actualizar la publicación. Por favor, intente de nuevo.",
+                    text: res.data?.message || "Hubo un problema. Por favor, intente de nuevo.",
                     icon: "warning"
                 });
                 return false;
@@ -162,86 +96,39 @@ export const PostProvider = ({ children }) => {
         } catch (error) {
             withReactContent(Swal).fire({
                 title: "Error",
-                text: error.response?.data?.message || "Error al actualizar la publicación.",
+                text: error.response?.data?.message || "Error al procesar la solicitud.",
                 icon: "error"
             });
 
             if (error.response && error.response.data) {
                 setErrors(error.response.data);
             }
-
             return false;
         }
     };
 
-    const deletePost = async (id) => {
-        try {
-            console.log(id);
-            const res = await axios.delete(`${API}/remove-post?id=${id}`, {
-                withCredentials: true, // Para enviar cookies si es necesario
-            });
-
-            if (res.status === 200 || res.status === 204) {  // Verifica si la eliminación fue exitosa
-                withReactContent(Swal).fire({
-                    title: "Eliminación de Publicación",
-                    text: "¡Publicación eliminada con éxito!",
-                    icon: "success"
-                });
-                return true;
-            } else {
-                withReactContent(Swal).fire({
-                    title: "Advertencia",
-                    text: "Hubo un problema al eliminar la publicación. Por favor, intente de nuevo.",
-                    icon: "warning"
-                });
-                return false;
-            }
-
-        } catch (error) {
-            withReactContent(Swal).fire({
-                title: "Error",
-                text: error.response?.data?.message || "Error al eliminar la publicación.",
-                icon: "error"
-            });
-
-            if (error.response && error.response.data) {
-                setErrors(error.response.data);
-            }
-
-            return false;
-        }
-    };
-
-    const fetchCategorias = useCallback(async () => {
-        try {
-            const response = await axios.get(`${API}/categorias`)
-            setCategorias(response.data);
-        } catch (error) {
-            setErrors(error);
-            console.error('Error al obtener las categorías', error);
-        }
-    }, []);  // No dependencies, so it won't change
+    const getPost = useCallback((userId = null, userName = null) => {
+        handlePostCRUD('fetch', { id: userId, username: userName });
+    }, []);
 
     useEffect(() => {
-        getPost(); // Call getPost to fetch the posts
-        fetchCategorias();
-    }, [fetchCategorias, getPost]);
+        handlePostCRUD('fetchCategorias');
+    }, []);
 
     return (
         <PostContext.Provider value={{
             categorias,
             errors,
             publicaciones,
-            createPost,
+            createPost: (formData) => handlePostCRUD('create', formData),
             getPost,
-            putReaction,
-            updatePost,
-            deletePost,
+            putReaction: (reaction) => handlePostCRUD('reaction', reaction),
+            updatePost: (formData) => handlePostCRUD('update', formData),
+            deletePost: (id) => handlePostCRUD('delete', {}, id),
         }}>
             {children}
         </PostContext.Provider>
     );
-
 }
 
 PostProvider.propTypes = {

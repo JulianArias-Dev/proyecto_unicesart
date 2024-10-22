@@ -52,7 +52,8 @@
 
 .contenido-opcion {
     width: 68%;
-    height: 600px;
+    min-height: 600px;
+    padding-bottom: 10px;
     margin: 1.5% 0.5%;
     border-left: 2px solid #858585;
     border-bottom: 2px solid #858585;
@@ -161,6 +162,16 @@
 
 .deployOption {
     display: none;
+}
+
+.reportedUser{
+    background-color: #fff;
+    border-radius: 15px;
+}
+
+.publicaciones-list{
+    background-color: #27ae5fd4;
+    padding-bottom: 20px;
 }
 
 @keyframes fadeInOut {
