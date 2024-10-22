@@ -5,3 +5,5 @@ export { default as Profile } from './profile.jsx';
 export { default as RecuperarContraseña } from './recuperar_contraseña.jsx';
 export { default as Register } from './register_page.jsx';
 export { default as Welcome } from './welcome.jsx'
+export {default as Publicaciones} from './publicaciones_reportadas.jsx'
+export {default as Usuarios} from './usuarios_reportados.jsx'

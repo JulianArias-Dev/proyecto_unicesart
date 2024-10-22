@@ -10,5 +10,6 @@ export { default as PersonalInfo } from './personal_info.jsx'
 export { default as Post } from './post.jsx'
 export { default as PostForm } from './post_form.jsx';
 export { default as ReportedPost } from './reported_post.jsx';
-export { default as ReportedUser} from './reported_user.jsx';
+export { default as ReportedUser } from './reported_user.jsx';
+export { default as ReportForm } from './report_form.jsx';
 

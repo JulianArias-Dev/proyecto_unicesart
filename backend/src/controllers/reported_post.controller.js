@@ -1,4 +1,4 @@
-import ReportedPost from  '../models/reported_post.models.js';
+import ReportedPost from '../models/reported_post.models.js';
 import User from '../models/user.model.js';
 import Post from '../models/post.models.js';
 
@@ -15,7 +15,7 @@ export const saveReportPost = async (req, res) => {
         if (!motivo || motivo.length === 0) {
             return res.status(400).json({ message: 'Debe proporcionar al menos un motivo para el reporte.' });
         }
-        if (!publicacionReportada || !publicacionReportada.id ) {
+        if (!publicacionReportada || !publicacionReportada.id) {
             return res.status(400).json({ message: 'Los datos del usuario reportado son requeridos.' });
         }
 
@@ -38,7 +38,7 @@ export const saveReportPost = async (req, res) => {
             descripcion,
             motivo,
             publicacionReportada: {
-                id: publicacionReportada.id, 
+                id: publicacionReportada.id,
             },
         });
 
@@ -120,6 +120,7 @@ export const deleteReportPost = async (req, res) => {
 
 export const getReportsPost = async (req, res) => {
     try {
+        console.log(req.query);
         const { status } = req.query;
 
         const query = {};
@@ -129,9 +130,29 @@ export const getReportsPost = async (req, res) => {
 
         const reports = await ReportedPost.find(query);
 
+        const reportsWithPosts = await Promise.all(
+            reports.map(async (report) => {
+                try {
+                    const post = await Post.findById(report.publicacionReportada.id);
+
+                    return {
+                        ...report.toObject(),
+                        publicacionAsociada: post
+                    };
+                } catch (err) {
+                    console.error(`Error al obtener la publicación asociada para el reporte con ID ${report._id}:`, err);
+                    return {
+                        ...report.toObject(),
+                        publicacionAsociada: null,
+                        error: 'Error al obtener la publicación asociada'
+                    };
+                }
+            })
+        );
+
         return res.status(200).json({
             message: 'Reportes obtenidos exitosamente.',
-            reports
+            reports: reportsWithPosts
         });
     } catch (error) {
         console.error('Error al obtener los reportes:', error);

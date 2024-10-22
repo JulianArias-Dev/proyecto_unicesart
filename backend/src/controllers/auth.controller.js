@@ -52,7 +52,7 @@ export const register = async (req, res) => {
             username,
             fullName,
             gender,
-            role : role ?? 'usuario',
+            role: role ?? 'usuario',
         });
 
         const savedUser = await newUser.save();
@@ -141,7 +141,7 @@ export const login = async (req, res) => {
             updatedAt: userFound.updatedAt,
             imageUrl: userFound.imageUrl,
             edad: calcularEdad(userFound.birthDate),
-            role : userFound.role,
+            role: userFound.role,
         });
     } catch (error) {
         if (error instanceof z.ZodError) {
@@ -221,9 +221,9 @@ export const updateUser = async (req, res) => {
 
 export const profile = async (req, res) => {
     try {
-        const { username } = req.query; 
+        const { id } = req.query;
 
-        const userFound = await User.findOne({ username });
+        const userFound = await User.findById(id);
 
         if (!userFound) {
             return res.status(404).json({ message: "Usuario no encontrado" });
@@ -249,7 +249,7 @@ export const profile = async (req, res) => {
             updatedAt: userFound.updatedAt,
             imageUrl: userFound.imageUrl,
             edad: calcularEdad(userFound.birthDate),
-            role : userFound.role,
+            role: userFound.role,
         });
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -257,7 +257,7 @@ export const profile = async (req, res) => {
 };
 
 export const updatePassword = async (req, res) => {
-    const { userId, password, newPassword, email } = req.body; 
+    const { userId, password, newPassword, email } = req.body;
     let user;
 
     try {

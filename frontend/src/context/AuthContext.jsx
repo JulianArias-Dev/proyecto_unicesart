@@ -62,7 +62,7 @@ export const AuthProvider = ({ children }) => {
                     return;
                 case 'getProfile':
                     res = await axios.get(`${API}/profile`, {
-                        params: { username: data.username },
+                        params: { id: data.username },
                         withCredentials: true
                     });
                     return res.data;

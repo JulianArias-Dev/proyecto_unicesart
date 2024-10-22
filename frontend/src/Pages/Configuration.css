@@ -164,6 +164,16 @@
     display: none;
 }
 
+.reportedUser{
+    background-color: #fff;
+    border-radius: 15px;
+}
+
+.publicaciones-list{
+    background-color: #27ae5fd4;
+    padding-bottom: 20px;
+}
+
 @keyframes fadeInOut {
     0% {
         opacity: 0;

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { Post } from '../Componets/components.jsx';
+import { Post, ReportForm } from '../Componets/components.jsx'; 
 import './Profile.css';
 import { useAuth } from '../context/AuthContext.jsx';
 import { usePost } from '../context/PostContext.jsx';
@@ -15,12 +15,6 @@ const Profile = () => {
     const { username } = useParams();
     const [profileUser, setProfileUser] = useState(null);
     const [loading, setLoading] = useState(true);
-
-
-    const [formData, setFormData] = useState({
-        motivo: [],
-        descripcion: ""
-    });
 
     useEffect(() => {
         const fetchUserProfile = async () => {
@@ -49,40 +43,7 @@ const Profile = () => {
         setIsOpen(!isOpen);
     };
 
-    const handleReport = () => {
-        setIsOpen(false);  // Close the menu after reporting
-    };
-
-    const autoResize = (e) => {
-        e.target.style.height = 'auto';  // Reset height
-        e.target.style.height = `${e.target.scrollHeight}px`;  // Adjust to content
-    };
-
-    const handleCheckboxChange = (e) => {
-        const { value, checked } = e.target;
-
-        setFormData((prevData) => {
-            const updatedMotivo = new Set(prevData.motivo);
-            if (checked) {
-                updatedMotivo.add(value); // Añadir valor si está marcado
-            } else {
-                updatedMotivo.delete(value); // Eliminar valor si está desmarcado
-            }
-
-            return { ...prevData, motivo: [...updatedMotivo] }; // Convertimos Set de nuevo a Array
-        });
-    };
-
-    const handleTextareaChange = (e) => {
-        const { value } = e.target;
-        setFormData((prevData) => ({
-            ...prevData,
-            descripcion: value
-        }));
-    };
-
-    const handleSubmit = () => {
-
+    const handleSubmitReport = (formData) => {
         const data = {
             usuarioReporte: {
                 id: loggedInUser.id,
@@ -94,9 +55,9 @@ const Profile = () => {
                 id: profileUser.id,
                 username: profileUser.username,
             }
-        }
-        UserReportCRUD(1,data)
-        dialogReportRef.current.close();
+        };
+        UserReportCRUD(1, data);
+        dialogReportRef.current.close();  
     };
 
     const showDialog = () => {
@@ -108,12 +69,10 @@ const Profile = () => {
         }
     };
 
-    // If profile is loading
     if (loading) {
         return <div style={{ height: '120px' }}>Cargando perfil...</div>;
     }
 
-    // If profile is not found
     if (!profileUser) {
         return <div>No se encontró el perfil del usuario.</div>;
     }
@@ -135,24 +94,19 @@ const Profile = () => {
                     )}
                     {isOpen && (
                         <ul className="report-menu2">
-
-                            {
-                                loggedInUser?.role !== "administrador" ?
-                                    (
-                                        <li>
-                                            <button className="report-item" onClick={showDialog}>
-                                                <i className="fa-solid fa-flag"></i>Reportar Usuario
-                                            </button>
-                                        </li>
-                                    )
-                                    : (
-                                        <li>
-                                            <button className="report-item" onClick={() => handleReport('Contenido inapropiado')}>
-                                                <i className="fa-solid fa-ban"></i>Suspender Usuario
-                                            </button>
-                                        </li>
-                                    )
-                            }
+                            {loggedInUser?.role !== "administrador" ? (
+                                <li>
+                                    <button className="report-item" onClick={showDialog}>
+                                        <i className="fa-solid fa-flag"></i>Reportar Usuario
+                                    </button>
+                                </li>
+                            ) : (
+                                <li>
+                                    <button className="report-item" onClick={toggleMenu}>
+                                        <i className="fa-solid fa-ban"></i>Suspender Usuario
+                                    </button>
+                                </li>
+                            )}
                             <li>
                                 <button className="report-item" onClick={toggleMenu}>
                                     <i className="fa-solid fa-x"></i> Cerrar
@@ -162,84 +116,13 @@ const Profile = () => {
                     )}
 
                     <dialog ref={dialogReportRef} className="dialogPost dialogReport">
-                        <h3>Reportar</h3>
-
-                        <form method="dialog" className="formReport formPost">
-                            <p>Selecciona un motivo:</p>
-                            <p>
-                                <input
-                                    type="checkbox"
-                                    name="motivo"
-                                    value="spam"
-                                    onChange={handleCheckboxChange}
-                                />
-                                Spam
-                            </p>
-                            <p>
-                                <input
-                                    type="checkbox"
-                                    name="motivo"
-                                    value="contenido_inapropiado"
-                                    onChange={handleCheckboxChange}
-                                />
-                                Contenido inapropiado
-                            </p>
-                            <p>
-                                <input
-                                    type="checkbox"
-                                    name="motivo"
-                                    value="acoso"
-                                    onChange={handleCheckboxChange}
-                                />
-                                Acoso
-                            </p>
-                            <p>
-                                <input
-                                    type="checkbox"
-                                    name="motivo"
-                                    value="otro"
-                                    onChange={handleCheckboxChange}
-                                />
-                                Otro
-                            </p>
-
-                            <p>Descripción:</p>
-                            <textarea
-                                name="descripcion"
-                                id="descripcion"
-                                onChange={handleTextareaChange}
-                                onInput={autoResize}
-                            ></textarea>
-
-                        </form>
-                        <div className="botones">
-                            <button
-                                style={{ background: "#1d8348" }}
-                                onClick={handleSubmit}
-                            >
-                                Reportar
-                            </button>
-                            <button
-                                style={{ background: "#DE2D18" }}
-                                onClick={() => dialogReportRef.current.close()}
-                            >
-                                Cancelar
-                            </button>
-                        </div>
-                        <div className="botones2">
-                            <button
-                                style={{ background: "#1d8348" }}
-                                onClick={handleSubmit}
-                            >
-                                Reportar
-                            </button>
-                            <button
-                                style={{ background: "#DE2D18" }}
-                                onClick={() => dialogReportRef.current.close()}
-                            >
-                                Cancelar
-                            </button>
-                        </div>
+                        <h3>Reportar Usuario</h3>
+                        {/* Aquí integramos el ReportForm */}
+                        <ReportForm
+                            onSubmit={handleSubmitReport}  
+                            onCancel={() => dialogReportRef.current.close()}  
+                            opcion='usuario'
+                        />
                     </dialog>
                 </section>
 

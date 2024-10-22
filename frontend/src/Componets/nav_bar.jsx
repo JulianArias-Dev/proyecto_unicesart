@@ -9,7 +9,7 @@ const NavBar = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        setUserLink(user?.username);
+        setUserLink(user?.id);
     }, [isAuthenticated, user, setUserLink]);
 
     const handleLogOut = async (e) => {
@@ -21,6 +21,7 @@ const NavBar = () => {
             console.error('Error al cerrar sesión', error);
         }
     };
+    
     const navegar = (e) => {
         e.preventDefault();
         navigate(`/profile/${userLink}`);

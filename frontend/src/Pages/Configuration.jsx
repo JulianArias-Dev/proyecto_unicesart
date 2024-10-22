@@ -1,7 +1,8 @@
 import './Configuration.css';
 import { useState } from 'react';
-import {CambioContrasena, PersonalInfo, EliminarCuenta, ReportedUser, ReportedPost} from '../Componets/components.jsx';
+import { CambioContrasena, PersonalInfo, EliminarCuenta} from '../Componets/components.jsx';
 import { useAuth } from '../context/AuthContext';
+import {Usuarios, Publicaciones} from './pages.jsx';
 
 const Configuration = () => {
     const [activeOption, setActiveOption] = useState(null);
@@ -73,23 +74,21 @@ const Configuration = () => {
                             {activeOption === 'option4' ?
                                 (<i className="fa-solid fa-angle-up"></i>) : (<i className="fa-solid fa-angle-down"></i>)}
                         </button>
-                        {activeOption === 'option5' &&
+                        {activeOption === 'option4' &&
                             (<div className="deployOption">
-                                <ReportedUser />
-                                <ReportedUser />
+                                <Usuarios />
                             </div>)}
                         <button
                             className={`option ${activeOption === 'option5' ? 'active' : ''}`}
                             onClick={() => handleOptionClick('option5')}
                         >
                             <p>Publicaciones Reportadas</p>
-                            {activeOption === 'option4' ?
+                            {activeOption === 'option5' ?
                                 (<i className="fa-solid fa-angle-up"></i>) : (<i className="fa-solid fa-angle-down"></i>)}
                         </button>
-                        {activeOption === 'option4' &&
+                        {activeOption === 'option5' &&
                             (<div className="deployOption">
-                                <ReportedUser />
-                                <ReportedUser />
+                                <Publicaciones />
                             </div>)}
                     </>
 
@@ -99,12 +98,8 @@ const Configuration = () => {
                 {activeOption === 'option1' && <CambioContrasena />}
                 {activeOption === 'option2' && <EliminarCuenta />}
                 {activeOption === 'option3' && <PersonalInfo />}
-                {activeOption === 'option4' && <>
-                    <ReportedUser />
-                </>}
-                {activeOption === 'option5' && <>
-                    <ReportedPost />
-                </>}
+                {activeOption === 'option4' && <Usuarios />}
+                {activeOption === 'option5' && <Publicaciones />}
             </div>
         </div>
     );

@@ -4,17 +4,16 @@ import PropTypes from 'prop-types';
 import './Post.css';
 import { useAuth } from '../context/AuthContext';
 import { usePost } from '../context/PostContext';
-import { useReport } from '../context/report_context'
+import { useReport } from '../context/report_context';
 import Swal from 'sweetalert2';
-import PostForm from './post_form'; // Asegúrate de importar PostForm
+import {PostForm, ReportForm} from './components';
 
 const Post = ({ post }) => {
-
     const [isOpen, setIsOpen] = useState(false);
-    const dialogEditRef = useRef(null); // Ref para el dialog de edición
+    const dialogEditRef = useRef(null);
     const dialogReportRef = useRef(null);
-    const { user, isAuthenticated, } = useAuth();
-    const { putReaction, deletePost, categorias, updatePost } = usePost(); // Asumiendo que tienes deletePost y updatePost
+    const { user, isAuthenticated } = useAuth();
+    const { putReaction, deletePost, categorias, updatePost } = usePost();
     const { PostReportCRUD } = useReport();
     const [liked, setLiked] = useState(false);
 
@@ -66,8 +65,8 @@ const Post = ({ post }) => {
     };
 
     const handleEdit = () => {
-        setIsOpen(false); // Cerramos el menú de opciones
-        openDialog(dialogEditRef); // Abrimos el dialog para edición
+        setIsOpen(false);
+        openDialog(dialogEditRef);
     };
 
     const handleDelete = async () => {
@@ -92,7 +91,6 @@ const Post = ({ post }) => {
     };
 
     const handleSubmitEdit = async (data) => {
-        console.log(data);
         const formData = new FormData();
         formData.append('id', data.id);
         formData.append('title', data.title);
@@ -113,40 +111,8 @@ const Post = ({ post }) => {
         }
     };
 
-    const [formData, setFormData] = useState({
-        motivo: [],
-        descripcion: ""
-    });
-
-    const autoResize = (e) => {
-        e.target.style.height = 'auto';  // Reset height
-        e.target.style.height = `${e.target.scrollHeight}px`;  // Adjust to content
-    };
-
-    const handleTextareaChange = (e) => {
-        const { value } = e.target;
-        setFormData((prevData) => ({
-            ...prevData,
-            descripcion: value
-        }));
-    };
-
-    const handleCheckboxChange = (e) => {
-        const { value, checked } = e.target;
-
-        setFormData((prevData) => {
-            const updatedMotivo = new Set(prevData.motivo);
-            if (checked) {
-                updatedMotivo.add(value); // Añadir valor si está marcado
-            } else {
-                updatedMotivo.delete(value); // Eliminar valor si está desmarcado
-            }
-
-            return { ...prevData, motivo: [...updatedMotivo] }; // Convertimos Set de nuevo a Array
-        });
-    };
-
-    const handleSubmit = () => {
+    // Mantener el handleSubmit para reportes, pero ahora se integrará con el componente ReportForm
+    const handleSubmitReport = (formData) => {
         const data = {
             usuarioReporte: {
                 id: user.id,
@@ -160,7 +126,7 @@ const Post = ({ post }) => {
         };
 
         PostReportCRUD(1, data);
-        dialogReportRef.current.close();
+        closeDialog(dialogReportRef);
     };
 
     return (
@@ -168,7 +134,7 @@ const Post = ({ post }) => {
             <div className="post-top">
                 <div className="userInfo">
                     <i className="fa-solid fa-user"></i>
-                    <p><Link to={`/profile/${post.user.username}`}>{post.user.username}</Link></p>
+                    <p><Link to={`/profile/${post.user.id}`}>{post.user.username}</Link></p>
                 </div>
                 {
                     (isAuthenticated) &&
@@ -181,8 +147,7 @@ const Post = ({ post }) => {
                 {isOpen && (
                     <ul className="report-menu">
 
-                        {(post.user.id === user.id) ?
-                            (
+                        {(post.user.id === user.id) ? (
                                 <>
                                     <li className="report-item">
                                         <button onClick={handleDelete} className="report-button">
@@ -250,7 +215,7 @@ const Post = ({ post }) => {
                 <h3>Editar Publicación</h3>
                 <PostForm
                     onSubmit={handleSubmitEdit}
-                    categorias={categorias} // Aquí deberías pasar tus categorías reales
+                    categorias={categorias}
                     defaultValues={{
                         id: post._id,
                         title: post.title,
@@ -260,68 +225,18 @@ const Post = ({ post }) => {
                         user: post.user,
                     }}
                     actionLabel="Actualizar"
-                    onCancel={() => closeDialog(dialogEditRef)} // Cerrar el diálogo al cancelar
+                    onCancel={() => closeDialog(dialogEditRef)}
                 />
             </dialog>
 
             {/* Dialog para reportar */}
             <dialog ref={dialogReportRef} className="dialogPost dialogReport">
                 <h3>Reportar</h3>
-                <form method="dialog" className="formPost">
-                    <p>Selecciona un motivo:</p>
-                    <p>
-                        <input
-                            type="checkbox"
-                            name="motivo"
-                            value="spam"
-                            onChange={handleCheckboxChange}
-                        />
-                        Spam
-                    </p>
-                    <p>
-                        <input
-                            type="checkbox"
-                            name="motivo"
-                            value="contenido_inapropiado"
-                            onChange={handleCheckboxChange}
-                        />
-                        Contenido inapropiado
-                    </p>
-                    <p>
-                        <input
-                            type="checkbox"
-                            name="motivo"
-                            value="acoso"
-                            onChange={handleCheckboxChange}
-                        />
-                        Acoso
-                    </p>
-                    <p>
-                        <input
-                            type="checkbox"
-                            name="motivo"
-                            value="otro"
-                            onChange={handleCheckboxChange}
-                        />
-                        Otro
-                    </p>
-                    <p>Descripción:</p>
-                    <textarea
-                        name="descripcion"
-                        id="descripcion"
-                        onChange={handleTextareaChange}
-                        onInput={autoResize}
-
-                    ></textarea>
-                </form>
-                <div className="botones2">
-                    <button style={{ background: '#1d8348' }} onClick={handleSubmit}>Reportar</button>
-                    <button style={{ background: '#DE2D18' }} onClick={() => closeDialog(dialogReportRef)}>Cancelar</button>
-                </div>
-                <div className="botones">
-                    <button style={{ background: '#1d8348' }} onClick={handleSubmit}>Reportar</button>
-                    <button style={{ background: '#DE2D18' }} onClick={() => closeDialog(dialogReportRef)}>Cancelar</button>
-                </div>
+                <ReportForm
+                    onSubmit={handleSubmitReport}
+                    onCancel={() => closeDialog(dialogReportRef)}
+                    opcion='publicacion'
+                />
             </dialog>
         </div>
     );

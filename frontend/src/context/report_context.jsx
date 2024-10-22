@@ -58,11 +58,15 @@ export const ReportProvider = ({ children }) => {
                 if (res.data.reports) {
                     setUsuariosReportados(res.data.reports)
                 }
-                withReactContent(Swal).fire({
-                    title: res.status === 201 ? "Operación exitosa" : "Operación completada",
-                    text: "¡Operación realizada con éxito!",
-                    icon: "success"
-                });
+
+                Swal.close();
+                if (process !== 4) {
+                    withReactContent(Swal).fire({
+                        title: res.status === 201 ? "Operación exitosa" : "Operación completada",
+                        text: "¡Operación realizada con éxito!",
+                        icon: "success"
+                    });
+                }
                 return res.data;  // Para obtener datos si es necesario
             } else {
                 withReactContent(Swal).fire({
@@ -73,6 +77,7 @@ export const ReportProvider = ({ children }) => {
             }
 
         } catch (error) {
+            Swal.close();
             withReactContent(Swal).fire({
                 title: "Error",
                 text: error.response?.data?.message || "Error al procesar la solicitud.",
@@ -122,14 +127,17 @@ export const ReportProvider = ({ children }) => {
 
             if (res.status === 201 || res.status === 200) {
                 if (res.data.reports) {
-                    setPublicacionesReportadas(res.data.reports);  // Si existen reportes, los almacenamos
+                    setPublicacionesReportadas(res.data.reports);
                 }
-                withReactContent(Swal).fire({
-                    title: res.status === 201 ? "Operación exitosa" : "Operación completada",
-                    text: "¡Operación realizada con éxito!",
-                    icon: "success"
-                });
-                return res.data;  // Retornar los datos si es necesario
+                Swal.close();
+                if (process !== 4) {
+                    withReactContent(Swal).fire({
+                        title: res.status === 201 ? "Operación exitosa" : "Operación completada",
+                        text: "¡Operación realizada con éxito!",
+                        icon: "success"
+                    });
+                }
+                return res.data;
             } else {
                 withReactContent(Swal).fire({
                     title: "Operación Fallida",
@@ -139,6 +147,7 @@ export const ReportProvider = ({ children }) => {
             }
 
         } catch (error) {
+            Swal.close();
             withReactContent(Swal).fire({
                 title: "Error",
                 text: error.response?.data?.message || "Error al procesar la solicitud.",
@@ -151,6 +160,7 @@ export const ReportProvider = ({ children }) => {
             return false;
         }
     };
+
 
     return (
         <ReportContext.Provider value={{
