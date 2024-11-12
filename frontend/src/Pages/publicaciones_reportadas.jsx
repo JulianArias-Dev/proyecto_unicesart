@@ -1,9 +1,16 @@
-import { useEffect } from 'react';
+import './DashBoard.css'
+import { useEffect, useState } from 'react';
 import { useReport } from '../context/report_context';
 import { ReportedPost } from '../Componets/components' // Importa el componente ReportedPost para mostrar cada reporte
 
 const Publicaciones = () => {
     const { PostReportCRUD, publicacionesReportadas } = useReport();
+    
+    const categorias = ['Todas', 'Por Verificar', 'Verificado'];
+    const [selectedCategory, setSelectedCategory] = useState('');
+    const handleCategoryChange = (category) => {
+        setSelectedCategory(category); // Actualiza la categoría seleccionada directamente
+    };
 
     useEffect(() => {
         const data = {
@@ -14,6 +21,18 @@ const Publicaciones = () => {
 
     return (
         <div className="publicaciones-list">
+            <div className="categoriaBotones">
+                {/* Botón para seleccionar "Todas" las categorías */}
+                {categorias?.map((categoria) => (
+                    <button
+                        key={categoria}
+                        className={`categoriaBoton ${selectedCategory === categoria ? 'seleccionado' : ''}`}
+                        onClick={() => handleCategoryChange(categoria)}
+                    >
+                        {categoria}
+                    </button>
+                ))}
+            </div>
             {/** Renderiza cada reporte utilizando el componente ReportedPost */}
             {publicacionesReportadas && publicacionesReportadas.length > 0 ? (
                 publicacionesReportadas.map((reporte) => (

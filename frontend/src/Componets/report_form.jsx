@@ -62,7 +62,7 @@ const ReportForm = ({ onSubmit, onCancel, opcion }) => {
                 </p>
             ))}
 
-            <p>Descripción:</p>
+            <p>Descripción: (obligatoria)</p>
             <textarea
                 name="descripcion"
                 id="descripcion"

@@ -6,9 +6,9 @@ import { useAuth } from '../context/AuthContext';
 import { usePost } from '../context/PostContext';
 import { useReport } from '../context/report_context';
 import Swal from 'sweetalert2';
-import {PostForm, ReportForm} from './components';
+import { PostForm, ReportForm } from './components';
 
-const Post = ({ post }) => {
+const Post = ({ post, onDelete }) => {
     const [isOpen, setIsOpen] = useState(false);
     const dialogEditRef = useRef(null);
     const dialogReportRef = useRef(null);
@@ -83,6 +83,7 @@ const Post = ({ post }) => {
             if (result.isConfirmed) {
                 try {
                     deletePost(post._id);
+                    onDelete(post._id);
                 } catch (error) {
                     console.log(error);
                 }
@@ -101,10 +102,8 @@ const Post = ({ post }) => {
         formData.append('username', data.user.username);
 
         try {
-            const check = await updatePost(formData);
-            if (check) {
-                closeDialog(dialogEditRef);
-            }
+            closeDialog(dialogEditRef);
+            await updatePost(formData);
         } catch (error) {
             console.error("Error al modificar la publicación:", error);
             alert("Hubo un error al modificar la publicación.");
@@ -148,19 +147,19 @@ const Post = ({ post }) => {
                     <ul className="report-menu">
 
                         {(post.user.id === user.id) ? (
-                                <>
-                                    <li className="report-item">
-                                        <button onClick={handleDelete} className="report-button">
-                                            <i className="fa-solid fa-trash"></i> Eliminar Publicación
-                                        </button>
-                                    </li>
-                                    <li className="report-item">
-                                        <button onClick={handleEdit} className="report-button">
-                                            <i className="fa-solid fa-pen"></i> Editar Publicación
-                                        </button>
-                                    </li>
-                                </>
-                            ) :
+                            <>
+                                <li className="report-item">
+                                    <button onClick={handleDelete} className="report-button">
+                                        <i className="fa-solid fa-trash"></i> Eliminar Publicación
+                                    </button>
+                                </li>
+                                <li className="report-item">
+                                    <button onClick={handleEdit} className="report-button">
+                                        <i className="fa-solid fa-pen"></i> Editar Publicación
+                                    </button>
+                                </li>
+                            </>
+                        ) :
                             (user.role !== "administrador" &&
                                 <li className="report-item">
                                     <button onClick={() => openDialog(dialogReportRef)} className="report-button">
@@ -200,13 +199,20 @@ const Post = ({ post }) => {
                             </div>
                         </div>
                     </div>
-                    <div onClick={handleReaction} style={{ cursor: 'pointer' }} className="reaccion">
-                        <p>
-                            <span>{post.likesCount}</span>
+                    <div className="reaccion">
+                        <p onClick={handleReaction} style={{ cursor: 'pointer' }}>
+                            {post.likesCount}
                             {liked ? <i className="fa-solid fa-heart"></i> : <i className="fa-regular fa-heart"></i>}
-                            <span>Me encanta</span>
+                            Me encanta
+                        </p>
+                        <p>
+                            <Link to={`/comments/${post._id}`}>
+                                <i className="fa-regular fa-comment"></i>
+                                Comentarios
+                            </Link>
                         </p>
                     </div>
+                    <p style={{ marginLeft: '10px', marginBottom: '5px', fontSize: '12px' }}>{post.date}</p>
                 </div>
             </div>
 
@@ -263,7 +269,9 @@ Post.propTypes = {
                 _id: PropTypes.string
             })
         ).isRequired,
+        date: PropTypes.string.isRequired,
     }).isRequired,
+    onDelete: PropTypes.func,
 };
 
 export default Post;

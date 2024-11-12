@@ -1,9 +1,15 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useReport } from '../context/report_context';
 import {ReportedUser} from '../Componets/components';  // Importamos el componente ReportedUser
 
 const Usuarios = () => {
     const { UserReportCRUD, usuariosReportados } = useReport();
+
+    const categorias = ['Todas', 'Por Verificar', 'Verificado'];
+    const [selectedCategory, setSelectedCategory] = useState('');
+    const handleCategoryChange = (category) => {
+        setSelectedCategory(category); // Actualiza la categoría seleccionada directamente
+    };
 
     useEffect(() => {
         const data = {
@@ -14,6 +20,18 @@ const Usuarios = () => {
 
     return (
         <div className="publicaciones-list">
+            <div className="categoriaBotones">
+                {/* Botón para seleccionar "Todas" las categorías */}
+                {categorias?.map((categoria) => (
+                    <button
+                        key={categoria}
+                        className={`categoriaBoton ${selectedCategory === categoria ? 'seleccionado' : ''}`}
+                        onClick={() => handleCategoryChange(categoria)}
+                    >
+                        {categoria}
+                    </button>
+                ))}
+            </div>
             {usuariosReportados && usuariosReportados.length > 0 ? (
                 usuariosReportados.map((reporte) => (
                     <ReportedUser key={reporte._id} report={reporte} />

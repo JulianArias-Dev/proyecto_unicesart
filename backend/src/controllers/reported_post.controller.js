@@ -60,14 +60,14 @@ export const saveReportPost = async (req, res) => {
 
 export const updateReportPost = async (req, res) => {
     try {
-        const { reportId } = req.params;
+        const { _id } = req.body;
 
-        if (!reportId) {
+        if (!_id) {
             return res.status(400).json({ message: 'El ID del reporte es requerido.' });
         }
 
         const updatedReport = await ReportedPost.findOneAndUpdate(
-            { reportId },
+            { _id },
             { status: 'Verificado' },
             { new: true }
         );
@@ -92,13 +92,13 @@ export const updateReportPost = async (req, res) => {
 
 export const deleteReportPost = async (req, res) => {
     try {
-        const { reportId } = req.params;
+        const { _id } = req.query;
 
-        if (!reportId) {
+        if (!_id) {
             return res.status(400).json({ message: 'El ID del reporte es requerido.' });
         }
 
-        const deletedReport = await ReportedPost.findOneAndDelete({ reportId });
+        const deletedReport = await ReportedPost.findOneAndDelete({ _id });
 
         if (!deletedReport) {
             return res.status(404).json({ message: 'Reporte no encontrado.' });
