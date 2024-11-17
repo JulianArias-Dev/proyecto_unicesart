@@ -19,6 +19,7 @@ export const PostProvider = ({ children }) => {
     const [categorias, setCategorias] = useState([]);
     const [errors, setErrors] = useState([]);
     const [publicaciones, setPublicaciones] = useState([]);
+    const [noticias, setNoticias] = useState([]);
 
     const handlePostCRUD = async (process, data = {}, id = null) => {
         let timerInterval;
@@ -199,6 +200,97 @@ export const PostProvider = ({ children }) => {
         }
     }
 
+    const handleAddviseCrud = async (process, data = {}, id = null) => {
+        let timerInterval;
+        try {
+            Swal.fire({
+                title: "Procesando la solicitud...",
+                html: "Por favor, espere.",
+                timerProgressBar: true,
+                didOpen: () => {
+                    Swal.showLoading();
+                    timerInterval = setInterval(() => { }, 200);
+                },
+                willClose: () => {
+                    clearInterval(timerInterval);
+                }
+            });
+
+            let res;
+            let message;
+
+            switch (process) {
+                case 'saveAdd':
+                    message = "El comentario ha sido guardado con éxito"
+                    res = await axios.post(`${API}/save-new`, data, {
+                        withCredentials: true,
+                        headers: {
+                            'Content-Type': 'multipart/form-data',
+                        }
+                    });
+                    break;
+                case 'getAdds':
+                    res = await axios.get(`${API}/getAdds`);
+                    break;
+                case 'deleteAdd':
+                    message = "El comentario ha sido eliminado"
+                    res = await axios.delete(`${API}/delete-add?_id=${id}`, {
+                        withCredentials: true,
+                    });
+                    break;
+                case 'updateAdd':
+                    message = "El comentario ha actualizado"
+                    res = await axios.put(`${API}/update-new`, data, {
+                        withCredentials: true,
+                        headers: {
+                            'Content-Type': 'multipart/form-data',
+                        }
+                    });
+                    break;
+
+                default:
+                    throw new Error("Operación no válida");
+            }
+
+            if (res.status === 201 || res.status === 200) {
+                if (process === "getAdds") {
+                    Swal.close();
+                    console.log(res.data);
+                    setNoticias(res.data);  
+                } else {
+                    withReactContent(Swal).fire({
+                        title: message,
+                        text: "¡Operación realizada con éxito!",
+                        icon: "success"
+                    });
+                }
+            } else {
+                withReactContent(Swal).fire({
+                    title: "Advertencia",
+                    text: res.data?.message || "Hubo un problema. Por favor, intente de nuevo.",
+                    icon: "warning"
+                });
+                return false;
+            }
+
+        } catch (error) {
+            withReactContent(Swal).fire({
+                title: "Error",
+                text: error.response?.data?.message || "Error al procesar la solicitud.",
+                icon: "error"
+            });
+
+            if (error.response && error.response.data) {
+                setErrors(error.response.data);
+            }
+            return false;
+        }
+    }
+
+    const getAdds = useCallback(() => {
+        handleAddviseCrud('getAdds', {}, null);
+    }, []);
+
     const getPost = useCallback((userId = null, userName = null, category = null) => {
         handlePostCRUD('fetch', { id: userId, username: userName, category: category });
     }, []);
@@ -213,6 +305,8 @@ export const PostProvider = ({ children }) => {
             errors,
             publicaciones,
             setPublicaciones,
+            noticias,
+            setNoticias,
             createPost: (formData) => handlePostCRUD('create', formData),
             getPost,
             putReaction: (reaction) => handlePostCRUD('reaction', reaction),
@@ -222,6 +316,10 @@ export const PostProvider = ({ children }) => {
             saveComment: (formData) => handleCommentsCrud('saveComment', formData),
             deleteComment: (id) => handleCommentsCrud('deleteComment', {}, id),
             updateComment: (formData) => handleCommentsCrud('updateComment', formData),
+            getAdds,
+            saveAdd: (formData) => handleAddviseCrud('saveAdd', formData, null),
+            updateAdd: (formData) => handleAddviseCrud('updateAdd', formData, null),
+            deleteAdd: (id) => handleAddviseCrud('deleteAdd', {}, id),
         }}>
             {children}
         </PostContext.Provider>

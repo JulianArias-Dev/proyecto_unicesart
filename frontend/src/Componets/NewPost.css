@@ -1,6 +1,6 @@
 /* Ejemplo de estilos para el componente NewPost */
 button {
-    background-color: #005187;
+    background-color: #1d8348;
     color: white;
     padding: 10px 20px;
     border: none;
@@ -37,7 +37,6 @@ button {
 }
 
 .floating-button:hover {
-    background-color: #005187;
     transform: scale(1.1);
 }
 

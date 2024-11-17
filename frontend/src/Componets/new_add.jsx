@@ -1,36 +1,23 @@
 import { useRef, useState } from 'react';
-import { useAuth } from '../context/AuthContext';
 import './NewPost.css';
 import AdvertisingForm from './advertising_form';
+import { usePost } from '../context/PostContext';
 
 const NewAdd = () => {
     const dialogRef = useRef(null);
-    const { user } = useAuth();
     const [textButton, setTextButton] = useState('+');
+    const { saveAdd } = usePost();
 
     const onSubmit = async (data) => {
-        const formData = new FormData();
-        formData.append('title', data.title);
-        formData.append('description', data.description);
-        formData.append('category', data.category);
-
-        // Si hay una imagen seleccionada, agrégala al FormData
-        if (data.image) {
-            formData.append('image', data.image);
-        }
-
-        formData.append('userId', user.id);
-        formData.append('username', user.username);
-
-        /* try {
-            const check = await createPost(formData);
+        try {
+            const check = await saveAdd(data);
             if (check) {
                 closeDialog();
             }
         } catch (error) {
             console.error("Error al crear la publicación:", error);
             alert("Hubo un error al crear la publicación.");
-        } */
+        }
     };
 
     const showDialog = () => dialogRef.current?.showModal();

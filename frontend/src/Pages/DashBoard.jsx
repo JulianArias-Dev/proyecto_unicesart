@@ -5,18 +5,14 @@ import { useEffect, useState } from 'react';
 import './DashBoard.css';
 
 const DashBoard = () => {
-    const imagenes = [
-        'src/assets/not1.png',
-        'src/assets/not2.png'
-    ];
-
-    const { publicaciones, setPublicaciones, getPost, categorias } = usePost();
+    const { publicaciones, setPublicaciones, getPost, categorias, noticias, getAdds } = usePost();
     const { isAuthenticated, user } = useAuth();
     const [selectedCategory, setSelectedCategory] = useState('');
 
     useEffect(() => {
         getPost();
-    }, [getPost]);
+        getAdds();
+    }, [getPost, getAdds]);
 
     const handleCategoryChange = (category) => {
         setSelectedCategory(category);
@@ -73,10 +69,14 @@ const DashBoard = () => {
                         </div>
                     </div>
 
-
                     <div className="rightContent">
-                        <Advertising imagen={imagenes[0]} />
-                        <Advertising imagen={imagenes[1]} />
+                        {noticias.length === 0 ? (
+                            <h2>No hay noticias para mostrar</h2>
+                        ) : (
+                            noticias.map((add) => {                                
+                                return <Advertising key={add._id} add={add} />;
+                            })
+                        )}
                     </div>
                 </div>
             </section>

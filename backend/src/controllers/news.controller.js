@@ -2,14 +2,14 @@ import Noticia from '../models/news.models.js'
 import cloudinary from 'cloudinary';
 import fs from 'fs';
 
-const saveNew = async (req, res) => {
+export const saveNew = async (req, res) => {
     try {
         if (!req.file) {
             return res.status(400).json({ message: 'La imagen es requerida.' });
         }
 
         const { link, fechaFin } = req.body;
-
+        console.log(req.body);
         if (!link) {
             return res.status(400).json({ message: 'Se requiere un enlace para la informacion del evento' });
         }
@@ -38,7 +38,7 @@ const saveNew = async (req, res) => {
 
         return res.status(201).json({
             message: 'Este evento ha sido guardada exitosamente.',
-            post: savedPost,
+            post: savedAdd,
         });
     } catch (error) {
         console.error('Error al crear el evento:', error);
@@ -50,7 +50,7 @@ const saveNew = async (req, res) => {
     }
 }
 
-const updateNew = async (req, res) => {
+export const updateNew = async (req, res) => {
     try {
         const { _id, link, fechaFin } = res.body;
         let { imageUrl } = req.body;
