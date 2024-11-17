@@ -6,7 +6,7 @@ export const saveReportPost = async (req, res) => {
     try {
         const { usuarioReporte, descripcion, motivo, publicacionReportada } = req.body;
 
-        if (!usuarioReporte || !usuarioReporte.id || !usuarioReporte.username) {
+        if (!usuarioReporte?.id || !usuarioReporte?.username) {
             return res.status(400).json({ message: 'Los datos del usuario que reporta son requeridos.' });
         }
         if (!descripcion || descripcion.length > 500) {
@@ -15,7 +15,7 @@ export const saveReportPost = async (req, res) => {
         if (!motivo || motivo.length === 0) {
             return res.status(400).json({ message: 'Debe proporcionar al menos un motivo para el reporte.' });
         }
-        if (!publicacionReportada || !publicacionReportada.id) {
+        if (!publicacionReportada?.id) {    
             return res.status(400).json({ message: 'Los datos del usuario reportado son requeridos.' });
         }
 

@@ -32,7 +32,7 @@ export const registerSchema = z.object({
         .min(8, "La contraseña debe tener al menos 8 caracteres")
         .regex(/[A-Z]/, "La contraseña debe contener al menos una letra mayúscula")
         .regex(/[a-z]/, "La contraseña debe contener al menos una letra minúscula")
-        .regex(/[0-9]/, "La contraseña debe contener al menos un número")
+        .regex(/\d/, "La contraseña debe contener al menos un número")
         .regex(/[\W_]/, "La contraseña debe contener al menos un carácter especial"),
 });
 
@@ -53,7 +53,7 @@ export const loginSchema = z.object({
         .min(8, "La contraseña debe tener al menos 8 caracteres")
         .regex(/[A-Z]/, "La contraseña debe contener al menos una letra mayúscula")
         .regex(/[a-z]/, "La contraseña debe contener al menos una letra minúscula")
-        .regex(/[0-9]/, "La contraseña debe contener al menos un número")
+        .regex(/\d/, "La contraseña debe contener al menos un número")
         .regex(/[\W_]/, "La contraseña debe contener al menos un carácter especial"),
 })
 
@@ -97,7 +97,7 @@ export const updatePasswordSchema = z.object({
         .min(8, "La contraseña debe tener al menos 8 caracteres")
         .regex(/[A-Z]/, "La contraseña debe contener al menos una letra mayúscula")
         .regex(/[a-z]/, "La contraseña debe contener al menos una letra minúscula")
-        .regex(/[0-9]/, "La contraseña debe contener al menos un número")
+        .regex(/\d/, "La contraseña debe contener al menos un número")
         .regex(/[\W_]/, "La contraseña debe contener al menos un carácter especial"),
 });
 
@@ -109,7 +109,7 @@ export const setCodeSchema = z.object({
         .min(8, "La contraseña debe tener al menos 8 caracteres")
         .regex(/[A-Z]/, "La contraseña debe contener al menos una letra mayúscula")
         .regex(/[a-z]/, "La contraseña debe contener al menos una letra minúscula")
-        .regex(/[0-9]/, "La contraseña debe contener al menos un número")
+        .regex(/\d/, "La contraseña debe contener al menos un número")
         .regex(/[\W_]/, "La contraseña debe contener al menos un carácter especial"),
     email: z.string().email("Formato de email inválido").optional(),
 }).refine(data => data.userId || data.email, {
