@@ -44,7 +44,7 @@ const userSchema = new mongoose.Schema({
     },
     phone: {
         type: String,
-        match: /^[0-9]{7,15}$/,
+        match: /^\d{7,15}$/,
         unique: true,
         sparse: true,
     },

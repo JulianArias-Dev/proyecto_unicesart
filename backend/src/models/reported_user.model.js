@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import { type } from "os";
 
 const reporteSchema = new mongoose.Schema({
     usuarioReporte: {
