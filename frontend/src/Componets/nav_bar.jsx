@@ -21,7 +21,7 @@ const NavBar = () => {
             console.error('Error al cerrar sesión', error);
         }
     };
-    
+
     const navegar = (e) => {
         e.preventDefault();
         navigate(`/profile/${userLink}`);
@@ -60,8 +60,8 @@ const NavBar = () => {
 
                             </div>
                             <div className="search">
-                                <input type="text" placeholder="Buscar..." />
-                                <i className="fa-solid fa-magnifying-glass"></i>
+                                <input type="text" placeholder="Buscar usuarios..." />
+                                <button onClick={() => navigate('/results')} className="fa-solid fa-magnifying-glass"></button>
                             </div>
                             <div className="enlaces-dash">
                                 <ul>

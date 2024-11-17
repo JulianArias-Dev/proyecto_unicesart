@@ -92,7 +92,6 @@ export const register = async (req, res) => {
     }
 };
 
-
 export const login = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -102,6 +101,12 @@ export const login = async (req, res) => {
         if (!userFound) {
             return res.status(400).json({
                 message: "Usuario no encontrado",
+            });
+        }
+
+        if(userFound.status==="Suspendido"){
+            return res.status(400).json({
+                message: "El usuario se encuentra suspendido por infringir las politicas de la página. ",
             });
         }
 
@@ -373,6 +378,51 @@ export const dropAccount = async (req, res) => {
         return res.status(500).json({ message: 'Error al eliminar la cuenta.' });
     }
 };
+
+export const suspendUser = async (req, res) => {
+    try {
+        const { _id } = req.body;
+
+        if (!_id) {
+            return res.status(400).json({ message: 'Se requiere la id del usuario.' });
+        }
+
+        const user = await User.findById({_id});
+
+        if (!user) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+        user.status = user.status === "Suspendido" ? "Activo" : "Suspendido";
+
+        await Post.updateMany(
+            { 
+                "user.id": _id, 
+                status: { $in: ["Suspendido", "Normal"] }  // Filtra solo los estados que queremos alternar
+            },
+            [
+                {
+                    $set: { 
+                        status: {
+                            $cond: { 
+                                if: { $eq: ["$status", "Suspendido"] },
+                                then: "Normal",
+                                else: "Suspendido"
+                            }
+                        }
+                    }
+                }
+            ]
+        );
+
+        const updatedUser = await user.save();
+
+        return res.status(200).json({ message: 'Se ha actualizado el estado del usuario', user: updatedUser });
+
+    } catch (error) {
+        return res.status(500).json({ message: 'Error del servidor. Intenta nuevamente más tarde.' });
+    }
+}
 
 function generarCodigoAleatorio(longitud = 8) {
     const caracteres = 'abcdefghijklmnopqrstuvwxyz0123456789@#$%&';

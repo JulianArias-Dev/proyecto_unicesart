@@ -34,6 +34,7 @@ const AdvertisingForm = ({ onSubmit,defaultValues = {}, actionLabel = 'Guardar',
             ...data,
             image: selectedFile, // Solo pasar el archivo si fue seleccionado
         });
+        
         resetForm();
     };
 
@@ -73,21 +74,22 @@ const AdvertisingForm = ({ onSubmit,defaultValues = {}, actionLabel = 'Guardar',
                     <p>Mostrar hasta:</p>
                     <input
                         type="date"
-                        {...register('endDate', {
+                        {...register('fechaFin', {
                             required: "El título es requerido",
                             maxLength: { value: 100, message: "Máximo 100 caracteres" }
                         })}
                     />
-                    {errors.endDate && <span>{errors.endDate.message}</span>}
+                    {errors.fechaFin && <span>{errors.fechaFin.message}</span>}
                 </div>
                 <div>
                     <p>Enlace:</p>
-                    <textarea
-                        {...register('linkTo', {
+                    <input
+                        type='text'
+                        {...register('link', {
                             maxLength: { value: 500, message: "Máximo 500 caracteres" }
                         })}
                     />
-                    {errors.linkTo && <span>{errors.linkTo.message}</span>}
+                    {errors.link && <span>{errors.link.message}</span>}
                 </div>
                 <div className='botones'>
                     <button type="submit" style={{ background: '#1d8348' }}>{actionLabel}</button>

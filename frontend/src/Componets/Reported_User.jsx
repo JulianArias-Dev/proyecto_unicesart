@@ -3,11 +3,14 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import './report.css';
+import { useReport } from '../context/report_context';
 
 const ReportedUser = ({ report }) => {
     const { user } = useAuth();
     const [userLink, setUserLink] = useState('');
     const navigate = useNavigate();
+    const { UserReportCRUD } = useReport();
+    const { _id } = report
 
     useEffect(() => {
         setUserLink(user?.id);
@@ -21,6 +24,14 @@ const ReportedUser = ({ report }) => {
     // Verificamos si el `report` está definido antes de intentar acceder a sus propiedades
     if (!report || !report.usuarioReportado) {
         return <div>No se puede mostrar el reporte. Faltan datos.</div>;
+    }
+
+    const handleDelete = async () => {
+        await UserReportCRUD(3, _id);
+    }
+
+    const handleVerificar = async () => {
+        await UserReportCRUD(2, _id);
     }
 
     return (
@@ -38,13 +49,13 @@ const ReportedUser = ({ report }) => {
             <div>
                 <button
                     style={{ background: '#1d8348' }}
-                    onClick={() => console.log('Eliminar reporte', report._id)}
+                    onClick={handleDelete}
                 >
                     Eliminar
                 </button>
                 <button
                     style={{ background: '#DE2D18' }}
-                    onClick={() => console.log('Verificado', report._id)}
+                    onClick={handleVerificar}
                 >
                     Verificado
                 </button>
@@ -55,6 +66,7 @@ const ReportedUser = ({ report }) => {
 
 // Definimos los PropTypes para el componente ReportedUser
 ReportedUser.propTypes = {
+    _id: PropTypes.string.isRequired,
     report: PropTypes.shape({
         usuarioReportado: PropTypes.shape({
             id: PropTypes.string.isRequired,

@@ -66,6 +66,13 @@ export const AuthProvider = ({ children }) => {
                         withCredentials: true
                     });
                     return res.data;
+                case 'suspend':
+                    res = await axios.put(
+                        `${API}/suspend-user`,
+                        { _id: userId }, 
+                        { withCredentials: true } 
+                    );                    
+                    break;
                 default:
                     throw new Error("Acción no válida");
             }
@@ -97,6 +104,13 @@ export const AuthProvider = ({ children }) => {
                         text: action === 'updateUser' ? "Datos actualizados correctamente" : "Contraseña actualizada correctamente",
                         icon: "success"
                     });
+                } else if (action === "suspend") {
+                    withReactContent(Swal).fire({
+                        title: res.data.message,
+                        text: "¡Operación realizada con éxito!",
+                        icon: "success"
+                    });
+                    return res.data.user;
                 }
             } else {
                 withReactContent(Swal).fire({
@@ -106,7 +120,6 @@ export const AuthProvider = ({ children }) => {
                 });
             }
         } catch (error) {
-            console.error(error);
             withReactContent(Swal).fire({
                 title: "Error",
                 text: error.response?.data?.message || "Error en la operación solicitada.",
@@ -137,6 +150,7 @@ export const AuthProvider = ({ children }) => {
             updateUser: (user) => handleAuthAction('updateUser', user),
             updatePassword: (userId, password, newPassword) => handleAuthAction('updatePassword', { userId, password, newPassword }),
             deleteAccount: (userId) => handleAuthAction('deleteAccount', {}, userId),
+            suspendUser: (userId) => handleAuthAction('suspend', {}, userId),
             getUserProfile,
             getUbicaciones,
             ubicaciones,

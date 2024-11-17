@@ -30,7 +30,7 @@ const postSchema = new mongoose.Schema({
     date: { type: Date, default: Date.now, required: true },
     status: {
         type: String,
-        enum: ['Normal', 'Reportado', 'Verificación'],
+        enum: ['Normal', 'Reportado', 'Verificación', 'Suspendido'],
         default: 'Normal',
     }
 });

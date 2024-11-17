@@ -1,8 +1,18 @@
 import PropTypes from 'prop-types';
 import { Post } from './components';
+import { useReport } from '../context/report_context';
 
 const ReportedPost = ({ report }) => {
-    const { publicacionAsociada, motivo } = report;
+    const { PostReportCRUD } = useReport();
+    const { publicacionAsociada, motivo, _id } = report;
+
+    const handleDelete = async () => {
+        await PostReportCRUD(3, _id);
+    }
+
+    const handleVerificar = async () => {
+        await PostReportCRUD(2, _id);
+    }
 
     return (
         <div className="reportedUser">
@@ -15,10 +25,10 @@ const ReportedPost = ({ report }) => {
                 <Post post={publicacionAsociada} />
             </div>
             <div>
-                <button style={{ background: '#1d8348' }}>
+                <button onClick={handleDelete} style={{ background: '#1d8348' }}>
                     Eliminar
                 </button>
-                <button style={{ background: '#DE2D18' }}>
+                <button onClick={handleVerificar} style={{ background: '#DE2D18' }}>
                     Verificado
                 </button>
             </div>
@@ -29,6 +39,7 @@ const ReportedPost = ({ report }) => {
 // Definimos las PropTypes para asegurar que se pase el reporte correctamente
 ReportedPost.propTypes = {
     report: PropTypes.shape({
+        _id: PropTypes.string.isRequired,
         publicacionAsociada: PropTypes.shape({
             _id: PropTypes.string.isRequired,
             title: PropTypes.string.isRequired,

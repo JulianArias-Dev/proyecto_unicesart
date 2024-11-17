@@ -25,10 +25,8 @@ const NewPost = () => {
         formData.append('username', user.username);
 
         try {
-            const check = await createPost(formData);
-            if (check) {
-                closeDialog();
-            }
+            closeDialog();
+            await createPost(formData);
         } catch (error) {
             console.error("Error al crear la publicación:", error);
             alert("Hubo un error al crear la publicación.");

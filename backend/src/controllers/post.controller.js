@@ -1,6 +1,17 @@
 import Post from '../models/post.models.js';
+import Comment from '../models/comment.models.js'
+import ReportedPost from '../models/reported_post.models.js'
 import cloudinary from 'cloudinary';
 import fs from 'fs';
+
+const formatFecha = (fechaISO) => {
+    const dateObj = new Date(fechaISO);
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const year = dateObj.getFullYear();
+
+    return `${day}/${month}/${year}`;
+};
 
 export const createPost = async (req, res) => {
     try {
@@ -80,8 +91,8 @@ export const updatePost = async (req, res) => {
                     : null;
 
                 const uploadResult = await cloudinary.uploader.upload(req.file.path, {
-                    public_id: publicId || undefined,  
-                    overwrite: !!publicId,  
+                    public_id: publicId || undefined,
+                    overwrite: !!publicId,
                     upload_preset: 'unicesart_preset',
                 });
 
@@ -146,6 +157,8 @@ export const deletePost = async (req, res) => {
             await cloudinary.uploader.destroy(publicId);
         }
 
+        await Comment.deleteMany({ "postId": id });
+        await ReportedPost.deleteMany({ "publicacionReportada.id": id });
         await Post.findByIdAndDelete(id);
 
         return res.status(200).json({ message: 'La publicación ha sido eliminada exitosamente' });
@@ -157,26 +170,30 @@ export const deletePost = async (req, res) => {
 
 export const getPost = async (req, res) => {
     try {
-        const { id, username } = req.query;
-
+        const { id, username, category } = req.query;
         let publicaciones = [];
 
         if (id && username) {
             publicaciones = await Post.find({
                 'user.id': id,
-                'user.username': username
+                'user.username': username,
+                status: { $ne: "Suspendido" }
+            }).lean();
+        } else if (category) {
+            publicaciones = await Post.find({
+                category,
+                status: { $ne: "Suspendido" }
             }).lean();
         } else {
-            publicaciones = await Post.find().lean();
-        }
-
-        if (!publicaciones || publicaciones.length === 0) {
-            return res.status(404).json({ message: 'No se encontraron publicaciones' });
+            publicaciones = await Post.find({
+                status: { $ne: "Suspendido" }
+            }).lean();
         }
 
         const publicacionesConLikes = publicaciones.map((publicacion) => ({
             ...publicacion,
             likesCount: publicacion.likes ? publicacion.likes.length : 0,
+            date: formatFecha(publicacion.date),
         }));
 
         return res.status(200).json(publicacionesConLikes);
@@ -184,6 +201,7 @@ export const getPost = async (req, res) => {
         return res.status(500).json({ message: 'Error del servidor. Intenta nuevamente más tarde.' });
     }
 };
+
 
 export const reactions = async (req, res) => {
     try {

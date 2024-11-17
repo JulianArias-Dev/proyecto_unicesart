@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { Post, ReportForm } from '../Componets/components.jsx'; 
+import { Post, ReportForm } from '../Componets/components.jsx';
 import './Profile.css';
 import { useAuth } from '../context/AuthContext.jsx';
 import { usePost } from '../context/PostContext.jsx';
@@ -9,8 +9,8 @@ import { useReport } from '../context/report_context.jsx';
 const Profile = () => {
     const [isOpen, setIsOpen] = useState(false);
     const dialogReportRef = useRef(null);
-    const { user: loggedInUser, getUserProfile } = useAuth();
-    const { getPost, publicaciones } = usePost();
+    const { user: loggedInUser, getUserProfile, suspendUser } = useAuth();
+    const { getPost, publicaciones, setPublicaciones } = usePost();
     const { UserReportCRUD } = useReport();
     const { username } = useParams();
     const [profileUser, setProfileUser] = useState(null);
@@ -57,7 +57,7 @@ const Profile = () => {
             }
         };
         UserReportCRUD(1, data);
-        dialogReportRef.current.close();  
+        dialogReportRef.current.close();
     };
 
     const showDialog = () => {
@@ -76,6 +76,22 @@ const Profile = () => {
     if (!profileUser) {
         return <div>No se encontró el perfil del usuario.</div>;
     }
+
+    const handleDeletePost = (postId) => {
+        setPublicaciones((prevPosts) => prevPosts.filter((post) => post._id !== postId));
+    };
+
+    const handleUpdateStatus = async () => {
+        toggleMenu();
+        const data = await suspendUser(profileUser.id);
+
+        if (data) {
+            setProfileUser({
+                ...profileUser,
+                status: data.status // Actualizamos el campo `status`
+            });
+        }
+    };
 
     return (
         <div className="main">
@@ -100,10 +116,16 @@ const Profile = () => {
                                         <i className="fa-solid fa-flag"></i>Reportar Usuario
                                     </button>
                                 </li>
+                            ) : profileUser.status === "Activo" ? (
+                                <li>
+                                    <button className="report-item" onClick={handleUpdateStatus}>
+                                        <i className="fa-solid fa-ban"></i>Suspender Usuario
+                                    </button>
+                                </li>
                             ) : (
                                 <li>
-                                    <button className="report-item" onClick={toggleMenu}>
-                                        <i className="fa-solid fa-ban"></i>Suspender Usuario
+                                    <button className="report-item" onClick={handleUpdateStatus}>
+                                        <i className="fa-regular fa-square-check"></i>Activar Usuario
                                     </button>
                                 </li>
                             )}
@@ -115,12 +137,13 @@ const Profile = () => {
                         </ul>
                     )}
 
+
                     <dialog ref={dialogReportRef} className="dialogPost dialogReport">
                         <h3>Reportar Usuario</h3>
                         {/* Aquí integramos el ReportForm */}
                         <ReportForm
-                            onSubmit={handleSubmitReport}  
-                            onCancel={() => dialogReportRef.current.close()}  
+                            onSubmit={handleSubmitReport}
+                            onCancel={() => dialogReportRef.current.close()}
                             opcion='usuario'
                         />
                     </dialog>
@@ -165,13 +188,15 @@ const Profile = () => {
                     <div className="myPost">
                         <h2>Trabajos destacados</h2>
                         <div>
-                            {(publicaciones?.length > 0 && profileUser.role === "usuario") ? (
-                                publicaciones.map((post) => (
-                                    <Post key={post._id} post={post} />
-                                ))
-                            ) : (
-                                <p>No hay publicaciones disponibles.</p>
-                            )}
+                            {profileUser.status === "Suspendido" ?
+                                (<p>El usuario ha sido suspendido debido a una infracción de las normas de la página.</p>) :
+                                publicaciones?.length > 0 && profileUser.role === "usuario" ? (
+                                    publicaciones.map((post) => (
+                                        <Post key={post._id} post={post} onDelete={handleDeletePost} />
+                                    ))
+                                ) : (
+                                    <p>No hay publicaciones disponibles.</p>
+                                )}
                         </div>
                     </div>
                 </section>

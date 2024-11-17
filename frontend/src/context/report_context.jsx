@@ -42,10 +42,10 @@ export const ReportProvider = ({ children }) => {
                     res = await axios.post(`${API}/save-report-user`, data, { withCredentials: true });
                     break;
                 case 2:
-                    res = await axios.put(`${API}/update-report-user`, data, { withCredentials: true });
+                    res = await axios.put(`${API}/update-report-user`, { _id: data }, { withCredentials: true });
                     break;
                 case 3:
-                    res = await axios.delete(`${API}/remove-report-user`, { data, withCredentials: true });
+                    res = await axios.delete(`${API}/remove-report-user`, { params: { _id: data }, withCredentials: true });
                     break;
                 case 4:
                     res = await axios.get(`${API}/fetch-reports-user`, { params: data, withCredentials: true });
@@ -113,10 +113,10 @@ export const ReportProvider = ({ children }) => {
                     res = await axios.post(`${API}/save-report-post`, data, { withCredentials: true });
                     break;
                 case 2:
-                    res = await axios.put(`${API}/update-report-post`, data, { withCredentials: true });
+                    res = await axios.put(`${API}/update-report-post`, { _id: data }, { withCredentials: true });
                     break;
                 case 3:
-                    res = await axios.delete(`${API}/remove-report-post`, { data, withCredentials: true });
+                    res = await axios.delete(`${API}/remove-report-post`, { params: { _id: data }, withCredentials: true });
                     break;
                 case 4:
                     res = await axios.get(`${API}/fetch-reports-post`, { params: data, withCredentials: true });

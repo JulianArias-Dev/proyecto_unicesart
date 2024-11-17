@@ -7,3 +7,5 @@ export { default as Register } from './register_page.jsx';
 export { default as Welcome } from './welcome.jsx'
 export {default as Publicaciones} from './publicaciones_reportadas.jsx'
 export {default as Usuarios} from './usuarios_reportados.jsx'
+export {default as CommentPage} from './comments_page.jsx'
+export {default as UserResult} from './user_results_page.jsx'
