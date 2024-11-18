@@ -1,5 +1,5 @@
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext.jsx';
+import { useAuth } from '../context/context';
 import PropTypes from 'prop-types';
 
 const ProtectedRoute = ({ element }) => {

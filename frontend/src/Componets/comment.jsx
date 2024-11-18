@@ -1,9 +1,9 @@
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import {useAuth, usePost} from '../context/context'
 import { useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
-import { usePost } from '../context/PostContext';
+
 
 const Comment = ({ comment, postUser, onDelete }) => {
     const { user, isAuthenticated } = useAuth();

@@ -1,330 +1,163 @@
-import { createContext, useCallback, useContext, useEffect, useState } from "react";
-import Swal from 'sweetalert2';
-import withReactContent from 'sweetalert2-react-content';
+// PostContext.js
+import { createContext, useCallback, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import axios from 'axios';
+import { handleRequest } from './helper_api'; // Centraliza lógica de solicitudes
 
-const PostContext = createContext();
-
-export const usePost = () => {
-    const context = useContext(PostContext);
-    if (!context) {
-        throw new Error('El usuario debe ser usado con authProvider');
-    }
-    return context;
-};
+export const PostContext = createContext();
 
 export const PostProvider = ({ children }) => {
-    const API = 'http://localhost:4000/api';
+    // Estados principales
     const [categorias, setCategorias] = useState([]);
     const [errors, setErrors] = useState([]);
     const [publicaciones, setPublicaciones] = useState([]);
     const [noticias, setNoticias] = useState([]);
 
-    const handlePostCRUD = async (process, data = {}, id = null) => {
-        let timerInterval;
+    // CRUD para Publicaciones
+    const fetchPosts = useCallback(async (params = {}) => {
         try {
-            Swal.fire({
-                title: "Procesando la solicitud...",
-                html: "Por favor, espere.",
-                timerProgressBar: true,
-                didOpen: () => {
-                    Swal.showLoading();
-                    timerInterval = setInterval(() => { }, 200);
-                },
-                willClose: () => {
-                    clearInterval(timerInterval);
-                }
-            });
-
-            let res;
-            let message;
-
-            switch (process) {
-                case 'create':
-                    message = "La publicación ha sido guardada"
-                    res = await axios.post(`${API}/createPost`, data, {
-                        withCredentials: true,
-                        headers: {
-                            'Content-Type': 'multipart/form-data',
-                        }
-                    });
-                    break;
-                case 'update':
-                    message = "La publicación ha sido actualizada"
-                    res = await axios.put(`${API}/update-post`, data, {
-                        withCredentials: true,
-                    });
-                    break;
-                case 'delete':
-                    message = "La publicación ha sido eliminada"
-                    res = await axios.delete(`${API}/remove-post?id=${id}`, {
-                        withCredentials: true,
-                    });
-                    break;
-                case 'fetch':
-                    res = await axios.get(`${API}/getPost`, { params: data });
-                    setPublicaciones(res.data);
-                    break;
-                case 'fetchCategorias':
-                    res = await axios.get(`${API}/categorias`);
-                    setCategorias(res.data);
-                    break;
-                case 'reaction':
-                    res = await axios.put(`${API}/reaction`, data, { withCredentials: true });
-                    break;
-                default:
-                    throw new Error("Operación no válida");
-            }
-
-            if (res.status === 201 || res.status === 200) {
-                if (process === 'fetch' || process === 'fetchCategorias' || process === "reaction") {
-                    Swal.close();
-                    return;
-                } if (process === 'create') {
-                    setPublicaciones([...publicaciones, res.data.post]);
-                }
-                withReactContent(Swal).fire({
-                    title: message,
-                    text: "¡Operación realizada con éxito!",
-                    icon: "success"
-                });
-                return true;
-            } else {
-                withReactContent(Swal).fire({
-                    title: "Advertencia",
-                    text: res.data?.message || "Hubo un problema. Por favor, intente de nuevo.",
-                    icon: "warning"
-                });
-                return false;
-            }
-
+            const res = await handleRequest('get', '/getPost', { params });
+            setPublicaciones(res.data);
         } catch (error) {
-            withReactContent(Swal).fire({
-                title: "Error",
-                text: error.response?.data?.message || "Error al procesar la solicitud.",
-                icon: "error"
-            });
+            setErrors((prev) => [...prev, error]);
+        }
+    }, []);
 
-            if (error.response && error.response.data) {
-                setErrors(error.response.data);
-            }
-            return false;
+    const createPost = async (formData) => {
+        try {
+            const res = await handleRequest('post', '/createPost', formData, "La publicación ha sido guardada");
+            setPublicaciones((prev) => [...prev, res.data.post]);
+        } catch (error) {
+            setErrors((prev) => [...prev, error]);
         }
     };
 
-    const handleCommentsCrud = async (process, data = {}, id = null) => {
-        let timerInterval;
+    const updatePost = async (formData) => {
         try {
-            Swal.fire({
-                title: "Procesando la solicitud...",
-                html: "Por favor, espere.",
-                timerProgressBar: true,
-                didOpen: () => {
-                    Swal.showLoading();
-                    timerInterval = setInterval(() => { }, 200);
-                },
-                willClose: () => {
-                    clearInterval(timerInterval);
-                }
-            });
-
-            let res;
-            let message;
-
-            switch (process) {
-                case 'saveComment':
-                    message = "El comentario ha sido guardado con éxito"
-                    res = await axios.post(`${API}/save-comment`, data, {
-                        withCredentials: true,
-                    });
-                    break;
-                case 'getComments':
-                    res = await axios.get(`${API}/getComments?_id=${id}`);
-                    break;
-                case 'deleteComment':
-                    message = "El comentario ha sido eliminado"
-                    res = await axios.delete(`${API}/delete-comment?_id=${id}`, {
-                        withCredentials: true,
-                    });
-                    break;
-                case 'updateComment':
-                    message = "El comentario ha actualizado"
-                    res = await axios.put(`${API}/update-comment`, data, {
-                        withCredentials: true,
-                    });
-                    break;
-
-                default:
-                    throw new Error("Operación no válida");
-            }
-
-            if (res.status === 201 || res.status === 200) {
-                if (process === 'getComments') {
-                    Swal.close();
-                    if (res.data) {
-                        return res.data;
-                    }
-                } else {
-                    withReactContent(Swal).fire({
-                        title: message,
-                        text: "¡Operación realizada con éxito!",
-                        icon: "success"
-                    });
-                }
-                if (process === 'saveComment' || process === 'updateComment') {
-                    if (res.data) {
-                        return res.data;
-                    }
-                }
-            } else {
-                withReactContent(Swal).fire({
-                    title: "Advertencia",
-                    text: res.data?.message || "Hubo un problema. Por favor, intente de nuevo.",
-                    icon: "warning"
-                });
-                return false;
-            }
-
+            await handleRequest('put', '/update-post', formData, "La publicación ha sido actualizada");
         } catch (error) {
-            withReactContent(Swal).fire({
-                title: "Error",
-                text: error.response?.data?.message || "Error al procesar la solicitud.",
-                icon: "error"
-            });
-
-            if (error.response && error.response.data) {
-                setErrors(error.response.data);
-            }
-            return false;
+            setErrors((prev) => [...prev, error]);
         }
-    }
+    };
 
-    const handleAddviseCrud = async (process, data = {}, id = null) => {
-        let timerInterval;
+    const deletePost = async (id) => {
         try {
-            Swal.fire({
-                title: "Procesando la solicitud...",
-                html: "Por favor, espere.",
-                timerProgressBar: true,
-                didOpen: () => {
-                    Swal.showLoading();
-                    timerInterval = setInterval(() => { }, 200);
-                },
-                willClose: () => {
-                    clearInterval(timerInterval);
-                }
-            });
-
-            let res;
-            let message;
-
-            switch (process) {
-                case 'saveAdd':
-                    message = "El comentario ha sido guardado con éxito"
-                    res = await axios.post(`${API}/save-new`, data, {
-                        withCredentials: true,
-                        headers: {
-                            'Content-Type': 'multipart/form-data',
-                        }
-                    });
-                    break;
-                case 'getAdds':
-                    res = await axios.get(`${API}/getAdds`);
-                    break;
-                case 'deleteAdd':
-                    message = "El comentario ha sido eliminado"
-                    res = await axios.delete(`${API}/delete-add?_id=${id}`, {
-                        withCredentials: true,
-                    });
-                    break;
-                case 'updateAdd':
-                    message = "El comentario ha actualizado"
-                    res = await axios.put(`${API}/update-new`, data, {
-                        withCredentials: true,
-                        headers: {
-                            'Content-Type': 'multipart/form-data',
-                        }
-                    });
-                    break;
-
-                default:
-                    throw new Error("Operación no válida");
-            }
-
-            if (res.status === 201 || res.status === 200) {
-                if (process === "getAdds") {
-                    Swal.close();
-                    console.log(res.data);
-                    setNoticias(res.data);  
-                } else {
-                    withReactContent(Swal).fire({
-                        title: message,
-                        text: "¡Operación realizada con éxito!",
-                        icon: "success"
-                    });
-                }
-            } else {
-                withReactContent(Swal).fire({
-                    title: "Advertencia",
-                    text: res.data?.message || "Hubo un problema. Por favor, intente de nuevo.",
-                    icon: "warning"
-                });
-                return false;
-            }
-
+            await handleRequest('delete', `/remove-post?id=${id}`, {}, "La publicación ha sido eliminada");
+            setPublicaciones((prev) => prev.filter((post) => post.id !== id));
         } catch (error) {
-            withReactContent(Swal).fire({
-                title: "Error",
-                text: error.response?.data?.message || "Error al procesar la solicitud.",
-                icon: "error"
-            });
-
-            if (error.response && error.response.data) {
-                setErrors(error.response.data);
-            }
-            return false;
+            setErrors((prev) => [...prev, error]);
         }
-    }
+    };
 
-    const getAdds = useCallback(() => {
-        handleAddviseCrud('getAdds', {}, null);
+    // CRUD para Categorías
+    const fetchCategorias = useCallback(async () => {
+        try {
+            const res = await handleRequest('get', '/categorias');
+            setCategorias(res.data);
+        } catch (error) {
+            setErrors((prev) => [...prev, error]);
+        }
     }, []);
 
-    const getPost = useCallback((userId = null, userName = null, category = null) => {
-        handlePostCRUD('fetch', { id: userId, username: userName, category: category });
+    // CRUD para Noticias/Anuncios
+    const fetchAdds = useCallback(async () => {
+        try {
+            const res = await handleRequest('get', '/getAdds');
+            setNoticias(res.data);
+        } catch (error) {
+            setErrors((prev) => [...prev, error]);
+        }
     }, []);
 
+    const saveAdd = async (formData) => {
+        try {
+            await handleRequest('post', '/save-new', formData, "El anuncio ha sido guardado con éxito");
+        } catch (error) {
+            setErrors((prev) => [...prev, error]);
+        }
+    };
+
+    const updateAdd = async (formData) => {
+        try {
+            await handleRequest('put', '/update-new', formData, "El anuncio ha sido actualizado");
+        } catch (error) {
+            setErrors((prev) => [...prev, error]);
+        }
+    };
+
+    const deleteAdd = async (id) => {
+        try {
+            await handleRequest('delete', `/delete-add?_id=${id}`, {}, "El anuncio ha sido eliminado");
+        } catch (error) {
+            setErrors((prev) => [...prev, error]);
+        }
+    };
+
+    // CRUD para Comentarios
+    const saveComment = async (formData) => {
+        try {
+            const res = await handleRequest('post', '/save-comment', formData, "El comentario ha sido guardado con éxito");
+            return res.data;
+        } catch (error) {
+            setErrors((prev) => [...prev, error]);
+        }
+    };
+
+    const updateComment = async (formData) => {
+        try {
+            const res = await handleRequest('put', '/update-comment', formData, "El comentario ha sido actualizado");
+            return res.data;
+        } catch (error) {
+            setErrors((prev) => [...prev, error]);
+        }
+    };
+
+    const deleteComment = async (id) => {
+        try {
+            await handleRequest('delete', `/delete-comment?_id=${id}`, {}, "El comentario ha sido eliminado");
+        } catch (error) {
+            setErrors((prev) => [...prev, error]);
+        }
+    };
+
+    const fetchComments = async (id) => {
+        try {
+            const res = await handleRequest('get', `/getComments?_id=${id}`);
+            return res.data;
+        } catch (error) {
+            setErrors((prev) => [...prev, error]);
+        }
+    };
+
+    // Cargar Categorías al iniciar
     useEffect(() => {
-        handlePostCRUD('fetchCategorias');
-    }, []);
+        fetchCategorias();
+    }, [fetchCategorias]);
 
     return (
-        <PostContext.Provider value={{
-            categorias,
-            errors,
-            publicaciones,
-            setPublicaciones,
-            noticias,
-            setNoticias,
-            createPost: (formData) => handlePostCRUD('create', formData),
-            getPost,
-            putReaction: (reaction) => handlePostCRUD('reaction', reaction),
-            updatePost: (formData) => handlePostCRUD('update', formData),
-            deletePost: (id) => handlePostCRUD('delete', {}, id),
-            getComment: (id) => handleCommentsCrud('getComments', {}, id),
-            saveComment: (formData) => handleCommentsCrud('saveComment', formData),
-            deleteComment: (id) => handleCommentsCrud('deleteComment', {}, id),
-            updateComment: (formData) => handleCommentsCrud('updateComment', formData),
-            getAdds,
-            saveAdd: (formData) => handleAddviseCrud('saveAdd', formData, null),
-            updateAdd: (formData) => handleAddviseCrud('updateAdd', formData, null),
-            deleteAdd: (id) => handleAddviseCrud('deleteAdd', {}, id),
-        }}>
+        <PostContext.Provider
+            value={{
+                categorias,
+                publicaciones,
+                noticias,
+                errors,
+                fetchPosts,
+                createPost,
+                updatePost,
+                deletePost,
+                saveComment,
+                updateComment,
+                deleteComment,
+                fetchComments,
+                fetchAdds,
+                saveAdd,
+                updateAdd,
+                deleteAdd,
+            }}
+        >
             {children}
         </PostContext.Provider>
     );
-}
+};
 
 PostProvider.propTypes = {
     children: PropTypes.node.isRequired,

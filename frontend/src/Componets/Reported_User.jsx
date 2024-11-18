@@ -1,15 +1,14 @@
 import PropTypes from 'prop-types';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth, useReport } from '../context/context';
 import './report.css';
-import { useReport } from '../context/report_context';
 
 const ReportedUser = ({ report }) => {
     const { user } = useAuth();
     const [userLink, setUserLink] = useState('');
     const navigate = useNavigate();
-    const { UserReportCRUD } = useReport();
+    const { deleteUserReport, updateUserReport } = useReport();
     const { _id } = report
 
     useEffect(() => {
@@ -27,11 +26,11 @@ const ReportedUser = ({ report }) => {
     }
 
     const handleDelete = async () => {
-        await UserReportCRUD(3, _id);
+        await deleteUserReport(_id);
     }
 
     const handleVerificar = async () => {
-        await UserReportCRUD(2, _id);
+        await updateUserReport(2, _id);
     }
 
     return (

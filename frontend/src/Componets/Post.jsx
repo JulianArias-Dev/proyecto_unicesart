@@ -2,9 +2,7 @@ import { Link } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import PropTypes from 'prop-types';
 import './Post.css';
-import { useAuth } from '../context/AuthContext';
-import { usePost } from '../context/PostContext';
-import { useReport } from '../context/report_context';
+import { useAuth, usePost, useReport } from "../context/context";
 import Swal from 'sweetalert2';
 import { PostForm, ReportForm } from './components';
 
@@ -14,7 +12,7 @@ const Post = ({ post, onDelete }) => {
     const dialogReportRef = useRef(null);
     const { user, isAuthenticated } = useAuth();
     const { putReaction, deletePost, categorias, updatePost } = usePost();
-    const { PostReportCRUD } = useReport();
+    const { savePostReport } = useReport();
     const [liked, setLiked] = useState(false);
 
     useEffect(() => {
@@ -124,7 +122,7 @@ const Post = ({ post, onDelete }) => {
             }
         };
 
-        PostReportCRUD(1, data);
+        savePostReport(data);
         closeDialog(dialogReportRef);
     };
 

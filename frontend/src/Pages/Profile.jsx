@@ -2,16 +2,14 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { Post, ReportForm } from '../Componets/components.jsx';
 import './Profile.css';
-import { useAuth } from '../context/AuthContext.jsx';
-import { usePost } from '../context/PostContext.jsx';
-import { useReport } from '../context/report_context.jsx';
+import { useAuth, usePost, useReport } from '../context/context.jsx';
 
 const Profile = () => {
     const [isOpen, setIsOpen] = useState(false);
     const dialogReportRef = useRef(null);
     const { user: loggedInUser, getUserProfile, suspendUser } = useAuth();
     const { getPost, publicaciones, setPublicaciones } = usePost();
-    const { UserReportCRUD } = useReport();
+    const { saveUserReport } = useReport();
     const { username } = useParams();
     const [profileUser, setProfileUser] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -56,7 +54,7 @@ const Profile = () => {
                 username: profileUser.username,
             }
         };
-        UserReportCRUD(1, data);
+        saveUserReport(data);
         dialogReportRef.current.close();
     };
 

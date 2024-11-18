@@ -1,179 +1,119 @@
-import { createContext, useContext, useState } from "react";
+// ReportContext.js
+import { createContext, useState } from "react";
 import PropTypes from 'prop-types';
-import Swal from 'sweetalert2'
-import withReactContent from 'sweetalert2-react-content'
-import axios from "axios";
+import { handleRequest } from './helper_api';
 
-const ReportContext = createContext();
-
-export const useReport = () => {
-    const context = useContext(ReportContext);
-    if (!context) {
-        throw new Error('El usuario debe ser usado con authProvider');
-    }
-    return context;
-}
+export const ReportContext = createContext();
 
 export const ReportProvider = ({ children }) => {
-    const API = 'http://localhost:4000/api';
     const [errors, setErrors] = useState([]);
     const [usuariosReportados, setUsuariosReportados] = useState([]);
     const [publicacionesReportadas, setPublicacionesReportadas] = useState([]);
 
-    const UserReportCRUD = async (process, data) => {
-        let timerInterval;
+    // --- CRUD para Usuarios Reportados ---
+    const saveUserReport = async (data) => {
         try {
-            Swal.fire({
-                title: "Procesando la solicitud...",
-                html: "Por favor, espere.",
-                timerProgressBar: true,
-                didOpen: () => {
-                    Swal.showLoading();
-                    timerInterval = setInterval(() => { }, 200);
-                },
-                willClose: () => {
-                    clearInterval(timerInterval);
-                }
-            });
-
-            let res;
-            switch (process) {
-                case 1:
-                    res = await axios.post(`${API}/save-report-user`, data, { withCredentials: true });
-                    break;
-                case 2:
-                    res = await axios.put(`${API}/update-report-user`, { _id: data }, { withCredentials: true });
-                    break;
-                case 3:
-                    res = await axios.delete(`${API}/remove-report-user`, { params: { _id: data }, withCredentials: true });
-                    break;
-                case 4:
-                    res = await axios.get(`${API}/fetch-reports-user`, { params: data, withCredentials: true });
-                    break;
-                default:
-                    throw new Error("Proceso no definido");
-            }
-
-            if (res.status === 201 || res.status === 200) {
-                if (res.data.reports) {
-                    setUsuariosReportados(res.data.reports)
-                }
-
-                Swal.close();
-                if (process !== 4) {
-                    withReactContent(Swal).fire({
-                        title: res.status === 201 ? "Operación exitosa" : "Operación completada",
-                        text: "¡Operación realizada con éxito!",
-                        icon: "success"
-                    });
-                }
-                return res.data;  // Para obtener datos si es necesario
-            } else {
-                withReactContent(Swal).fire({
-                    title: "Operacion Fallida",
-                    text: res.data?.message || "¡Ha ocurrido un error inesperado!",
-                    icon: "error"
-                });
-            }
-
+            const res = await handleRequest('post', '/save-report-user', data, "Reporte de usuario guardado.");
+            return res.data;
         } catch (error) {
-            Swal.close();
-            withReactContent(Swal).fire({
-                title: "Error",
-                text: error.response?.data?.message || "Error al procesar la solicitud.",
-                icon: "error"
-            });
-
-            if (error.response && error.response.data) {
-                setErrors(error.response.data);
-            }
+            setErrors((prev) => [...prev, error]);
             return false;
         }
     };
 
-    const PostReportCRUD = async (process, data) => {
-        let timerInterval;
+    const updateUserReport = async (id) => {
         try {
-            Swal.fire({
-                title: "Procesando la solicitud...",
-                html: "Por favor, espere.",
-                timerProgressBar: true,
-                didOpen: () => {
-                    Swal.showLoading();
-                    timerInterval = setInterval(() => { }, 200);
-                },
-                willClose: () => {
-                    clearInterval(timerInterval);
-                }
-            });
-
-            let res;
-            switch (process) {
-                case 1:
-                    res = await axios.post(`${API}/save-report-post`, data, { withCredentials: true });
-                    break;
-                case 2:
-                    res = await axios.put(`${API}/update-report-post`, { _id: data }, { withCredentials: true });
-                    break;
-                case 3:
-                    res = await axios.delete(`${API}/remove-report-post`, { params: { _id: data }, withCredentials: true });
-                    break;
-                case 4:
-                    res = await axios.get(`${API}/fetch-reports-post`, { params: data, withCredentials: true });
-                    break;
-                default:
-                    throw new Error("Proceso no definido");
-            }
-
-            if (res.status === 201 || res.status === 200) {
-                if (res.data.reports) {
-                    setPublicacionesReportadas(res.data.reports);
-                }
-                Swal.close();
-                if (process !== 4) {
-                    withReactContent(Swal).fire({
-                        title: res.status === 201 ? "Operación exitosa" : "Operación completada",
-                        text: "¡Operación realizada con éxito!",
-                        icon: "success"
-                    });
-                }
-                return res.data;
-            } else {
-                withReactContent(Swal).fire({
-                    title: "Operación Fallida",
-                    text: res.data?.message || "¡Ha ocurrido un error inesperado!",
-                    icon: "error"
-                });
-            }
-
+            const res = await handleRequest('put', '/update-report-user', { _id: id }, "Reporte de usuario actualizado.");
+            return res.data;
         } catch (error) {
-            Swal.close();
-            withReactContent(Swal).fire({
-                title: "Error",
-                text: error.response?.data?.message || "Error al procesar la solicitud.",
-                icon: "error"
-            });
-
-            if (error.response && error.response.data) {
-                setErrors(error.response.data);
-            }
+            setErrors((prev) => [...prev, error]);
             return false;
         }
     };
 
+    const deleteUserReport = async (id) => {
+        try {
+            const res = await handleRequest('delete', '/remove-report-user', { params: { _id: id } }, "Reporte de usuario eliminado.");
+            return res.data;
+        } catch (error) {
+            setErrors((prev) => [...prev, error]);
+            return false;
+        }
+    };
+
+    const fetchUserReports = async (filters) => {
+        try {
+            const res = await handleRequest('get', '/fetch-reports-user', { params: filters });
+            if (res.data && res.data.reports) setUsuariosReportados(res.data.reports);
+            return res.data;
+        } catch (error) {
+            setErrors((prev) => [...prev, error]);
+            return false;
+        }
+    };
+
+    // --- CRUD para Publicaciones Reportadas ---
+    const savePostReport = async (data) => {
+        try {
+            const res = await handleRequest('post', '/save-report-post', data, "Reporte de publicación guardado.");
+            return res.data;
+        } catch (error) {
+            setErrors((prev) => [...prev, error]);
+            return false;
+        }
+    };
+
+    const updatePostReport = async (id) => {
+        try {
+            const res = await handleRequest('put', '/update-report-post', { _id: id }, "Reporte de publicación actualizado.");
+            return res.data;
+        } catch (error) {
+            setErrors((prev) => [...prev, error]);
+            return false;
+        }
+    };
+
+    const deletePostReport = async (id) => {
+        try {
+            const res = await handleRequest('delete', '/remove-report-post', { params: { _id: id } }, "Reporte de publicación eliminado.");
+            return res.data;
+        } catch (error) {
+            setErrors((prev) => [...prev, error]);
+            return false;
+        }
+    };
+
+    const fetchPostReports = async (filters) => {
+        try {
+            const res = await handleRequest('get', '/fetch-reports-post', { params: filters });
+            if (res.data && res.data.reports) setPublicacionesReportadas(res.data.reports);
+            return res.data;
+        } catch (error) {
+            setErrors((prev) => [...prev, error]);
+            return false;
+        }
+    };
 
     return (
-        <ReportContext.Provider value={{
-            errors,
-            usuariosReportados,
-            publicacionesReportadas,
-            PostReportCRUD,
-            UserReportCRUD,
-        }}>
+        <ReportContext.Provider
+            value={{
+                errors,
+                usuariosReportados,
+                publicacionesReportadas,
+                saveUserReport,
+                updateUserReport,
+                deleteUserReport,
+                fetchUserReports,
+                savePostReport,
+                updatePostReport,
+                deletePostReport,
+                fetchPostReports,
+            }}
+        >
             {children}
         </ReportContext.Provider>
     );
-}
+};
 
 ReportProvider.propTypes = {
     children: PropTypes.node.isRequired,

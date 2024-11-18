@@ -1,17 +1,17 @@
 import PropTypes from 'prop-types';
 import { Post } from './components';
-import { useReport } from '../context/report_context';
+import { useReport } from '../context/context';
 
 const ReportedPost = ({ report }) => {
-    const { PostReportCRUD } = useReport();
+    const { updatePostReport, deletePostReport, } = useReport();
     const { publicacionAsociada, motivo, _id } = report;
 
     const handleDelete = async () => {
-        await PostReportCRUD(3, _id);
+        await deletePostReport(_id);
     }
 
     const handleVerificar = async () => {
-        await PostReportCRUD(2, _id);
+        await updatePostReport(2, _id);
     }
 
     return (

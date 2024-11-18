@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/context';
 import Swal from 'sweetalert2';
 
 const CambioContrasena = () => {

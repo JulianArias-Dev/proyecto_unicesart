@@ -1,22 +1,21 @@
 import { NewPost, Advertising, Post, NewAdd } from '../Componets/components.jsx';
-import { useAuth } from "../context/AuthContext.jsx";
-import { usePost } from "../context/PostContext.jsx";
+import { useAuth, usePost } from "../context/context.jsx";
 import { useEffect, useState } from 'react';
 import './DashBoard.css';
 
 const DashBoard = () => {
-    const { publicaciones, setPublicaciones, getPost, categorias, noticias, getAdds } = usePost();
+    const { publicaciones, setPublicaciones, fetchPosts, categorias, noticias, fetchAdds } = usePost();
     const { isAuthenticated, user } = useAuth();
     const [selectedCategory, setSelectedCategory] = useState('');
 
     useEffect(() => {
-        getPost();
-        getAdds();
-    }, [getPost, getAdds]);
+        fetchPosts();
+        fetchAdds();
+    }, [fetchPosts, fetchAdds]);
 
     const handleCategoryChange = (category) => {
         setSelectedCategory(category);
-        getPost(null, null, category); // Pasa los parámetros como argumentos individuales
+        fetchPosts(null, null, category); // Pasa los parámetros como argumentos individuales
     };
 
     const handleDeletePost = (postId) => {

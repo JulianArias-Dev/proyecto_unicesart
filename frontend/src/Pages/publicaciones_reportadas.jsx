@@ -1,11 +1,11 @@
 import './DashBoard.css'
 import { useEffect, useState } from 'react';
-import { useReport } from '../context/report_context';
+import { useReport } from '../context/context';
 import { ReportedPost } from '../Componets/components' // Importa el componente ReportedPost para mostrar cada reporte
 
 const Publicaciones = () => {
-    const { PostReportCRUD, publicacionesReportadas } = useReport();
-    
+    const { fetchPostReports, publicacionesReportadas } = useReport();
+
     const categorias = ['Todas', 'Por Verificar', 'Verificado'];
     const [selectedCategory, setSelectedCategory] = useState('');
     const handleCategoryChange = (category) => {
@@ -16,7 +16,7 @@ const Publicaciones = () => {
         const data = {
             status: 'Por Verificar',
         }
-        PostReportCRUD(4, data);
+        fetchPostReports(data);
     }, []);
 
     return (

@@ -2,8 +2,7 @@ import './comments.css';
 import { Comment, Post } from '../Componets/components.jsx';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { usePost } from '../context/PostContext';
-import { useAuth } from '../context/AuthContext.jsx';
+import { usePost, useAuth } from '../context/context.jsx';
 import Swal from 'sweetalert2';
 
 const CommentPage = () => {
