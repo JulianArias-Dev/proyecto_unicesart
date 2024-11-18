@@ -363,7 +363,7 @@ export const dropAccount = async (req, res) => {
         await Post.deleteMany({ "user.id": userId });
 
         // 3. Eliminar los likes del usuario en publicaciones ajenas
-        const posts = await Post.updateMany(
+        await Post.updateMany(
             { "likes.user.id": userId }, // Condición para encontrar publicaciones con sus likes
             { $pull: { likes: { "user.id": userId } } } // Remover los likes de ese usuario
         );
