@@ -120,7 +120,6 @@ export const deleteReportPost = async (req, res) => {
 
 export const getReportsPost = async (req, res) => {
     try {
-        console.log(req.query);
         const { status } = req.query;
 
         const query = {};

@@ -1,25 +1,28 @@
 import PropTypes from 'prop-types';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import {format} from 'date-fns'
 
 const AdvertisingForm = ({ onSubmit,defaultValues = {}, actionLabel = 'Guardar', onCancel }) => {
     const [selectedFile, setSelectedFile] = useState(null);
     const [preview, setPreview] = useState(null);
     const { register, handleSubmit, formState: { errors }, reset } = useForm({
-        defaultValues
+        defaultValues: {
+            ...defaultValues,
+            fechaFin: defaultValues.fechaFin
+                ? format(new Date(defaultValues.fechaFin), 'yyyy-MM-dd') // Formato requerido para input de tipo date
+                : '',
+        },
     });
 
     useEffect(() => {
-        if (defaultValues.image) {
-            setPreview(defaultValues.image);
-        }
-    }, [defaultValues.image, defaultValues.category]);
+        setPreview(defaultValues.imageUrl || null);
+    }, [defaultValues]);
 
     const handleFileChange = (event) => {
         const file = event.target.files[0];
         if (!file) return;
         setSelectedFile(file);
-        console.log(selectedFile);
         
         const reader = new FileReader();
         reader.onloadend = () => setPreview(reader.result);
@@ -34,14 +37,14 @@ const AdvertisingForm = ({ onSubmit,defaultValues = {}, actionLabel = 'Guardar',
             ...data,
             image: selectedFile, // Solo pasar el archivo si fue seleccionado
         });
-        
         resetForm();
+        onCancel()
     };
 
     const resetForm = () => {
-        reset(); // Resetea los campos del formulario
-        setSelectedFile(null);
-        setPreview(null);
+        reset(defaultValues); // Resetea los campos del formulario con los valores por defecto
+        setSelectedFile(null); // Resetea el archivo seleccionado
+        setPreview(defaultValues.imageUrl || null); // Restaura la vista previa a su valor inicial
     };
 
     const handleCancel = () => {
@@ -103,10 +106,10 @@ const AdvertisingForm = ({ onSubmit,defaultValues = {}, actionLabel = 'Guardar',
 AdvertisingForm.propTypes = {
     onSubmit: PropTypes.func.isRequired,
     defaultValues: PropTypes.shape({
-        title: PropTypes.string,
-        description: PropTypes.string,
-        category: PropTypes.string,
-        image: PropTypes.string,
+        _id: PropTypes.string,
+        imageUrl: PropTypes.string,
+        fechaFin: PropTypes.string,
+        link: PropTypes.string,
     }),
     actionLabel: PropTypes.string,
     onCancel: PropTypes.func,

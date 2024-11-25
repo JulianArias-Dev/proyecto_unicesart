@@ -13,4 +13,5 @@ export { default as ReportedPost } from './reported_post.jsx';
 export { default as ReportedUser } from './reported_user.jsx';
 export { default as ReportForm } from './report_form.jsx';
 export { default as Comment } from './comment.jsx'
+export { default as SearchedUser } from './searched_user.jsx'
 

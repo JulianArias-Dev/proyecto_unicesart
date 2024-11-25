@@ -8,7 +8,7 @@ const Profile = () => {
     const [isOpen, setIsOpen] = useState(false);
     const dialogReportRef = useRef(null);
     const { user: loggedInUser, getUserProfile, suspendUser } = useAuth();
-    const { getPost, publicaciones, setPublicaciones } = usePost();
+    const { fetchPosts, publicaciones, setPublicaciones } = usePost();
     const { saveUserReport } = useReport();
     const { username } = useParams();
     const [profileUser, setProfileUser] = useState(null);
@@ -24,7 +24,11 @@ const Profile = () => {
                 if (userProfile) {
                     setProfileUser(userProfile);
                     if (userProfile.role === "usuario") {
-                        await getPost(userProfile.id, userProfile.username);
+                        const data = {
+                            id : userProfile.id,
+                            username :userProfile.username,
+                        }
+                        await fetchPosts(data);
                     }
                 }
             } catch (error) {
@@ -35,7 +39,7 @@ const Profile = () => {
         };
 
         fetchUserProfile();
-    }, [username, getUserProfile, getPost]);
+    }, [username, getUserProfile, fetchPosts]);
 
     const toggleMenu = () => {
         setIsOpen(!isOpen);

@@ -2,11 +2,16 @@ import './Home.css'
 import Aos from 'aos';
 import 'aos/dist/aos.css'
 import { useEffect } from 'react';
+import { usePost } from '../context/context'
+import { Post } from '../Componets/components'
 
 const Welcome = () => {
-    useEffect(()=>{
+    const { fetchPosts, publicaciones } = usePost();
+
+    useEffect(() => {
+        fetchPosts();
         Aos.init();
-    })
+    }, [fetchPosts])
 
     return (
         <div className='Father'>
@@ -19,10 +24,25 @@ const Welcome = () => {
                             <span data-aos="fade-up" data-aos-duration="2000">Un espacio creado para compartir el arte estudiantil en imágenes y videos.</span>
                             <hr />
                             <div className="imagenes">
-                                <img data-aos="flip-left" data-aos-duration="3000" src="src/assets/imagen1.jpeg" alt="img" />
-                                <img data-aos="flip-right" data-aos-duration="3000" src="src/assets/imagen2.jpg" alt="img" />
-                                <img data-aos="flip-left" data-aos-duration="3000" src="src/assets/imagen3.jpeg" alt="img" />
-                                <img data-aos="flip-right" data-aos-duration="3000" src="src/assets/imagen4.jpeg" alt="img" />
+                                {
+                                    publicaciones.length === 0 ? (
+                                        <h2>No hay publicaciones para mostrar</h2>
+                                    ) : (
+                                        (() => {
+                                            // Seleccionar dos elementos aleatorios
+                                            const shuffled = [...publicaciones].sort(() => 0.5 - Math.random());
+                                            const randomPosts = shuffled.slice(0, 2);
+
+                                            return randomPosts.map((post) => {
+                                                if (typeof post.user === "string") {
+                                                    post.user = { username: post.user, id: post._id };
+                                                }
+                                                return <Post key={post._id} post={post} />;
+                                            });
+                                        })()
+                                    )
+                                }
+
                             </div>
                         </div>
                     </div>

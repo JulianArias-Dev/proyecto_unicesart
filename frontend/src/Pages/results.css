@@ -1,0 +1,46 @@
+.results {
+    width: 90%;
+    margin: auto;
+    padding-top: 15px;
+}
+
+.results>h1 {
+    font-size: 25px;
+    color: rgb(111, 111, 111);
+}
+
+.searcheduser {
+    width: 95%;
+    height: auto;
+    margin: auto;
+    display: flex;
+    flex-direction: row;
+    border: 1px solid #000;
+    padding: 5px;
+    margin-top: 8px;
+    margin-bottom: 6px;
+}
+
+.searcheduser>div {
+    height: 60px;
+    margin-left: 10px;
+}
+
+.searcheduser i {
+    font-size: 40px;
+    line-height: 50px;
+}
+
+.searcheduser a {
+    color: #000;
+    text-decoration: none;
+}
+
+.searcheduser a:hover {
+    text-decoration: underline;
+}
+
+.userLink {
+    font-size: 20px;
+    font-weight: 900;
+}

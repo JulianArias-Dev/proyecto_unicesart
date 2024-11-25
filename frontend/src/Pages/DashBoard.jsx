@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import './DashBoard.css';
 
 const DashBoard = () => {
-    const { publicaciones, setPublicaciones, fetchPosts, categorias, noticias, fetchAdds } = usePost();
+    const { publicaciones, setPublicaciones, fetchPosts, categorias, noticias, setNoticias, fetchAdds } = usePost();
     const { isAuthenticated, user } = useAuth();
     const [selectedCategory, setSelectedCategory] = useState('');
 
@@ -15,12 +15,21 @@ const DashBoard = () => {
 
     const handleCategoryChange = (category) => {
         setSelectedCategory(category);
-        fetchPosts(null, null, category); // Pasa los parámetros como argumentos individuales
+        fetchPosts({category}); // Pasa los parámetros como argumentos individuales
     };
 
     const handleDeletePost = (postId) => {
         setPublicaciones((prevPosts) => prevPosts.filter((post) => post._id !== postId));
     };
+
+    const handleDeleteAdd = (addId) => {
+        setNoticias((prevAdds) => prevAdds.filter((add) => add._id !== addId));
+    }
+
+    const handleUpdateadd = () => {
+        console.log('updated add')
+    }
+
 
     return (
         <>
@@ -73,7 +82,7 @@ const DashBoard = () => {
                             <h2>No hay noticias para mostrar</h2>
                         ) : (
                             noticias.map((add) => {                                
-                                return <Advertising key={add._id} add={add} />;
+                                return <Advertising key={add._id} add={add} onDelete={handleDeleteAdd} onUpdate={handleUpdateadd}/>;
                             })
                         )}
                     </div>

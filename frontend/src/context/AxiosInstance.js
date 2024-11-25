@@ -16,7 +16,15 @@ export const sendRequest = async (method, endpoint, data = {}, config = {}) => {
         });
         return response;
     } catch (error) {
-        throw error.response?.data || error.message;
+        // Extraer información útil del error
+        const errorDetails = {
+            status: error.response?.status || 500, // Código de estado (500 por defecto)
+            message: error.response?.data?.message || "Error inesperado.", // Mensaje de error del servidor
+            data: error.response?.data || {}, // Cuerpo completo del error del servidor
+        };
+
+        // Lanzar error detallado
+        throw errorDetails;
     }
 };
 

@@ -7,7 +7,7 @@ import Swal from 'sweetalert2';
 
 const CommentPage = () => {
     const { postid } = useParams();
-    const { getComment, saveComment, setPublicaciones } = usePost();
+    const { fetchComments, saveComment, setPublicaciones } = usePost();
     const [currentPost, setCurrentPost] = useState(null);
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
@@ -21,7 +21,7 @@ const CommentPage = () => {
     useEffect(() => {
         const fetchComment = async () => {
             try {
-                const data = await getComment(postid);
+                const data = await fetchComments(postid);
                 setCurrentPost(data.post);
                 setComments(data.comments);
             } catch (error) {
@@ -29,7 +29,7 @@ const CommentPage = () => {
             }
         };
         fetchComment();
-    }, [postid, getComment]);
+    }, [postid, fetchComments]);
 
     const handleTextareaChange = (e) => {
         const value = e.target.value;

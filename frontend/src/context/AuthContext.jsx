@@ -2,7 +2,7 @@
 import { createContext, useState, useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { handleRequest } from './helper_api'; // Centraliza solicitudes HTTP
-import { showLoading, showSuccess, showError, closeAlert } from '../Componets/SweetAlertHelpers.jsx'; // Funciones de alertas
+import { showLoading, showError, closeAlert } from '../Componets/SweetAlertHelpers.jsx'; // Funciones de alertas
 
 export const AuthContext = createContext();
 
@@ -25,12 +25,11 @@ export const AuthProvider = ({ children }) => {
     const signUp = async (userData) => {
         showLoading(); // Mostrar el cargador antes de la solicitud
         try {
-            const res = await handleRequest('post', '/register', userData);
+            const res = await handleRequest('post', '/register', userData, "Usuario registrado con éxito");
             closeAlert(); // Cerrar el cargador al recibir respuesta
             setUser(res.data);
             setIsAuthenticated(true);
             sessionStorage.setItem('user', JSON.stringify(res.data));
-            showSuccess("Usuario registrado con éxito", "¡Bienvenido!");
         } catch (error) {
             closeAlert();
             showError("Error al registrarse", error.message || "Intenta nuevamente.");
@@ -41,12 +40,11 @@ export const AuthProvider = ({ children }) => {
     const signIn = async (credentials) => {
         showLoading();
         try {
-            const res = await handleRequest('post', '/login', credentials);
+            const res = await handleRequest('post', '/login', credentials, "¡Bienvenido de nuevo!");
             closeAlert();
             setUser(res.data);
             setIsAuthenticated(true);
             sessionStorage.setItem('user', JSON.stringify(res.data));
-            showSuccess("Inicio de sesión exitoso", "¡Bienvenido de nuevo!");
         } catch (error) {
             closeAlert();
             showError("Error al iniciar sesión", error.message || "Revisa tus credenciales.");
@@ -57,12 +55,11 @@ export const AuthProvider = ({ children }) => {
     const logOut = async () => {
         showLoading();
         try {
-            await handleRequest('post', '/logout');
+            await handleRequest('post', '/logout', null, "Sesión cerrada correctamente");
             closeAlert();
             sessionStorage.removeItem('user');
             setUser(null);
             setIsAuthenticated(false);
-            showSuccess("Sesión cerrada correctamente", "¡Hasta luego!");
         } catch (error) {
             closeAlert();
             showError("Error al cerrar sesión", error.message || "Intenta nuevamente.");
@@ -73,11 +70,10 @@ export const AuthProvider = ({ children }) => {
     const updateUser = async (userData) => {
         showLoading();
         try {
-            const res = await handleRequest('put', '/updateuser', userData);
+            const res = await handleRequest('post', '/updateuser', userData, "La información de tu cuenta ha sido actualizada.");
             closeAlert();
             setUser(res.data);
             sessionStorage.setItem('user', JSON.stringify(res.data));
-            showSuccess("Datos actualizados", "La información de tu cuenta ha sido actualizada.");
         } catch (error) {
             closeAlert();
             showError("Error al actualizar datos", error.message || "Intenta nuevamente.");
@@ -88,9 +84,7 @@ export const AuthProvider = ({ children }) => {
     const updatePassword = async (passwordData) => {
         showLoading();
         try {
-            await handleRequest('put', '/updatepassword', passwordData);
-            closeAlert();
-            showSuccess("Contraseña actualizada", "Tu contraseña se actualizó correctamente.");
+            await handleRequest('put', '/updatepassword', passwordData, "Tu contraseña se actualizó correctamente.");
         } catch (error) {
             closeAlert();
             showError("Error al actualizar contraseña", error.message || "Intenta nuevamente.");
@@ -101,18 +95,30 @@ export const AuthProvider = ({ children }) => {
     const deleteAccount = async (userId) => {
         showLoading();
         try {
-            await handleRequest('delete', `/removeAccount?userId=${userId}`);
+            await handleRequest('delete', `/removeAccount?userId=${userId}`, null, "Tu cuenta ha sido eliminada exitosamente.");
             closeAlert();
             sessionStorage.removeItem('user');
             setUser(null);
             setIsAuthenticated(false);
-            showSuccess("Cuenta eliminada", "Tu cuenta ha sido eliminada exitosamente.");
         } catch (error) {
             closeAlert();
             showError("Error al eliminar cuenta", error.message || "Intenta nuevamente.");
             setErrors((prev) => [...prev, error]);
         }
     };
+
+    const getUsers = async (query) => {
+        showLoading();
+        try {
+            const res = await handleRequest('get', `/users`, { params: {query} });
+            closeAlert();
+            return res;
+        } catch (error) {
+            closeAlert();
+            showError("Error en la busqueda de usuarios", error.message || "Intenta nuevamente.");
+            setErrors((prev) => [...prev, error]);
+        }
+    }
 
     const getUserProfile = useCallback(async (username) => {
         showLoading();
@@ -149,6 +155,7 @@ export const AuthProvider = ({ children }) => {
                 isAuthenticated,
                 errors,
                 ubicaciones,
+                getUsers,
                 getUbicaciones,
                 signUp,
                 signIn,

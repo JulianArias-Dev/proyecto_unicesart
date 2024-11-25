@@ -126,6 +126,22 @@ const Post = ({ post, onDelete }) => {
         closeDialog(dialogReportRef);
     };
 
+    const showOriginalSize = (event) => {
+        const imgElement = event.target;
+        const originalWidth = imgElement.naturalWidth;
+        const originalHeight = imgElement.naturalHeight;
+
+        const popup = window.open(
+            "",
+            "Image",
+            `width=${originalWidth},height=${originalHeight}`
+        );
+        popup.document.write(
+            `<img src="${imgElement.src}" style="width:100%; height:100%;">`
+        );
+    };
+
+
     return (
         <div className="post">
             <div className="post-top">
@@ -184,7 +200,14 @@ const Post = ({ post, onDelete }) => {
             </div>
 
             <div className="publicacion">
-                <img src={post.imageUrl} alt={post.title} />
+                {/* <img src={post.imageUrl} alt={post.title} /> */}
+                <img
+                    src={post.imageUrl}
+                    alt={post. title}
+                    onClick={showOriginalSize}
+                    style={{ maxWidth: "100%", cursor: "pointer" }}
+                />
+                
                 <div className="publicacion contenido">
                     <div className="descripcion">
                         <div className="reseña">

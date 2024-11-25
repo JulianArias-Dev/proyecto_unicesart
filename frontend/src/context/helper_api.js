@@ -1,12 +1,20 @@
 import { sendRequest } from './AxiosInstance';
-import { showLoading, showSuccess, closeAlert } from '../Componets/SweetAlertHelpers.jsx';
+import { showLoading, showSuccess, showError, closeAlert } from '../Componets/SweetAlertHelpers';
 
-export const handleRequest = async (method, endpoint, data = {}, successMessage = '') => {
-    showLoading(); 
-    const res = await sendRequest(method, endpoint, data); 
+export const handleRequest = async (method, endpoint, data = {}, successMessage = '', show = true) => {
+    if (show) showLoading(); 
 
-    closeAlert(); 
+    try {
+        const res = await sendRequest(method, endpoint, data); 
+        closeAlert(); 
 
-    if (successMessage) showSuccess(successMessage, "¡Operación realizada con éxito!");
-    return res; 
+        if (successMessage) showSuccess(successMessage, "¡Operación realizada con éxito!"); 
+        return res; 
+    } catch (error) {
+        closeAlert(); 
+
+        const { status, message } = error;
+
+        showError(`Error (${status})`, message); 
+    }
 };

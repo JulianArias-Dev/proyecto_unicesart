@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useReport } from '../context/context';
-import {ReportedUser} from '../Componets/components';  // Importamos el componente ReportedUser
+import { ReportedUser } from '../Componets/components';  // Importamos el componente ReportedUser
 
 const Usuarios = () => {
-    const { UserReportCRUD, usuariosReportados } = useReport();
+    const { fetchUserReports, usuariosReportados } = useReport();
 
     const categorias = ['Todas', 'Por Verificar', 'Verificado'];
     const [selectedCategory, setSelectedCategory] = useState('');
@@ -15,7 +15,7 @@ const Usuarios = () => {
         const data = {
             status: 'Por Verificar',
         }
-        UserReportCRUD(4, data);  // Llamamos a la función para obtener los reportes de usuarios
+        fetchUserReports(data);  // Llamamos a la función para obtener los reportes de usuarios
     }, []);
 
     return (

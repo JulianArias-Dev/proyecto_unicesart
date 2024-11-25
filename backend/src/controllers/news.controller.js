@@ -110,18 +110,18 @@ export const updateNew = async (req, res) => {
 
 export const deleteAdd = async (req, res) => {
     try {
-        const { id } = req.query;
-        if (!id) {
+        const { _id } = req.query;
+        if (!_id) {
             return res.status(400).json({ message: 'El ID del evento es requerido.' });
         }
 
-        const addToDelete = await Noticia.findById(id);
+        const addToDelete = await Noticia.findById(_id);
 
         if (!addToDelete) {
             return res.status(404).json({ message: 'Evento no encontrada' });
         }
 
-        await Noticia.findByIdAndDelete(id);
+        await Noticia.findByIdAndDelete(_id);
 
         return res.status(200).json({ message: 'El evento ha sido eliminado exitosamente' });
     } catch (error) {

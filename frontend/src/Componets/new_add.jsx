@@ -9,16 +9,24 @@ const NewAdd = () => {
     const { saveAdd } = usePost();
 
     const onSubmit = async (data) => {
+        const formData = new FormData();
+        formData.append('link', data.link);
+        formData.append('fechaFin', data.fechaFin);
+    
+        // Si hay una imagen seleccionada, agrégala al FormData
+        if (data.image) {
+            formData.append('image', data.image);
+        }
+    
         try {
-            const check = await saveAdd(data);
-            if (check) {
-                closeDialog();
-            }
+            closeDialog();
+            await saveAdd(formData);
         } catch (error) {
-            console.error("Error al crear la publicación:", error);
-            alert("Hubo un error al crear la publicación.");
+            console.error("Error al crear el anuncio:", error);
+            alert("Hubo un error al crear el anuncio.");
         }
     };
+    
 
     const showDialog = () => dialogRef.current?.showModal();
     const closeDialog = () => dialogRef.current?.close();

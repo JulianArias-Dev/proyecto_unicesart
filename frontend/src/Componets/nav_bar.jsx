@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../context/context';
 import '../App.css';
 
@@ -27,6 +27,14 @@ const NavBar = () => {
         navigate(`/profile/${userLink}`);
     }
 
+    const inputRef = useRef(null);
+
+    const handleSearch = () => {
+        if (inputRef.current.value !== '') { 
+            navigate(`/results/${inputRef.current.value}`);
+        }
+    };
+    
     return (
         <header>
             <div className="container">
@@ -60,8 +68,8 @@ const NavBar = () => {
 
                             </div>
                             <div className="search">
-                                <input type="text" placeholder="Buscar usuarios..." />
-                                <button onClick={() => navigate('/results')} className="fa-solid fa-magnifying-glass"></button>
+                                <input type="text" placeholder="Buscar usuarios..." ref={inputRef}  />
+                                <button onClick={handleSearch} className="fa-solid fa-magnifying-glass"></button>
                             </div>
                             <div className="enlaces-dash">
                                 <ul>

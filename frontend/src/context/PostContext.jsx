@@ -48,6 +48,16 @@ export const PostProvider = ({ children }) => {
         }
     };
 
+    const putReaction = async (reaction) => {
+        try {
+            await handleRequest('put', '/reaction', reaction, null, false);
+            
+        } catch (error) {
+            setErrors((prev) => [...prev, error]); // Manejo de errores local
+        }
+    };
+    
+
     // CRUD para Categorías
     const fetchCategorias = useCallback(async () => {
         try {
@@ -140,10 +150,13 @@ export const PostProvider = ({ children }) => {
                 publicaciones,
                 noticias,
                 errors,
+                setNoticias,
+                setPublicaciones,
                 fetchPosts,
                 createPost,
                 updatePost,
                 deletePost,
+                putReaction,
                 saveComment,
                 updateComment,
                 deleteComment,

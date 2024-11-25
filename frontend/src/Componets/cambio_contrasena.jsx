@@ -23,22 +23,7 @@ const CambioContrasena = () => {
                 confirmButtonText: "Sí, cambiar contraseña"
             }).then(async (result) => {
                 if (result.isConfirmed) {
-                    try {
-                        await updatePassword(userId, password, newPassword);
-
-                        Swal.fire({
-                            title: "Contraseña cambiada",
-                            text: "Tu contraseña ha sido actualizada correctamente.",
-                            icon: "success"
-                        });
-                    } catch (error) {
-                        console.error('Error al cambiar la contraseña:', error);
-                        Swal.fire({
-                            title: "Error",
-                            text: "Hubo un error al cambiar la contraseña. Inténtalo más tarde.",
-                            icon: "error"
-                        });
-                    }
+                    await updatePassword({userId, password, newPassword});
                 }
             });
         } catch (error) {

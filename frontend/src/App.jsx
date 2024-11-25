@@ -21,7 +21,7 @@ function App() {
                 <Route path="/profile/:username" element={<Profile />} />
                 <Route path='/home' element={<DashBoard />} />
                 <Route path='/comments/:postid' element={<CommentPage />} />
-                <Route path='/results' element={<UserResult />} />
+                <Route path='/results/:query' element={<UserResult />} />
                 <Route path='/configuration' element={<ProtectedRoute element={<Configuration />} />} />
               </Routes>
               <Footer />

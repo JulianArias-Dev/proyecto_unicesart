@@ -104,7 +104,7 @@ export const login = async (req, res) => {
             });
         }
 
-        if(userFound.status==="Suspendido"){
+        if (userFound.status === "Suspendido") {
             return res.status(400).json({
                 message: "El usuario se encuentra suspendido por infringir las politicas de la página. ",
             });
@@ -264,7 +264,6 @@ export const profile = async (req, res) => {
 export const updatePassword = async (req, res) => {
     const { userId, password, newPassword, email } = req.body;
     let user;
-
     try {
         if (email) {
             user = await User.findOne({ email });
@@ -387,7 +386,7 @@ export const suspendUser = async (req, res) => {
             return res.status(400).json({ message: 'Se requiere la id del usuario.' });
         }
 
-        const user = await User.findById({_id});
+        const user = await User.findById({ _id });
 
         if (!user) {
             return res.status(404).json({ message: 'Usuario no encontrado' });
@@ -396,15 +395,15 @@ export const suspendUser = async (req, res) => {
         user.status = user.status === "Suspendido" ? "Activo" : "Suspendido";
 
         await Post.updateMany(
-            { 
-                "user.id": _id, 
+            {
+                "user.id": _id,
                 status: { $in: ["Suspendido", "Normal"] }  // Filtra solo los estados que queremos alternar
             },
             [
                 {
-                    $set: { 
+                    $set: {
                         status: {
-                            $cond: { 
+                            $cond: {
                                 if: { $eq: ["$status", "Suspendido"] },
                                 then: "Normal",
                                 else: "Suspendido"
@@ -423,6 +422,40 @@ export const suspendUser = async (req, res) => {
         return res.status(500).json({ message: 'Error del servidor. Intenta nuevamente más tarde.' });
     }
 }
+
+export const searchUsers = async (req, res) => {
+    try {
+        const { query } = req.query;
+
+        if (!query) {
+            return res.status(400).json({ message: 'Se requiere un palabra clave para la búsqueda' });
+        }
+
+        const users = await User.find({
+            $or: [
+                { username: { $regex: query, $options: "i" } },
+                { fullName: { $regex: query, $options: "i" } }
+            ]
+        })
+            .select("username fullName birthDate _id") // Campos del usuario
+            .populate("lugarOrigen", "nombreMunicipio"); // Subcampo de la referencia
+
+        if (users.length <= 0) {
+            return res.status(404).json({ message: 'No se han encontrado similares' });
+        }
+
+        // Agregar el campo "edad" a cada usuario encontrado
+        const usersWithAge = users.map(user => {
+            const age = calcularEdad(user.birthDate);
+            return { ...user._doc, edad: age }; // Utilizar "_doc" para acceder al documento original
+        });
+
+        return res.status(200).json(usersWithAge);
+
+    } catch (error) {
+        return res.status(500).json({ message: 'Error del servidor. Intenta nuevamente más tarde.' });
+    }
+};
 
 function generarCodigoAleatorio(longitud = 8) {
     const caracteres = 'abcdefghijklmnopqrstuvwxyz0123456789@#$%&';

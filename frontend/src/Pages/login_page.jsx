@@ -27,10 +27,13 @@ const LoginPage = () => {
                         {registerErrors && registerErrors.length > 0 && (
                             <div className="error-container">
                                 {registerErrors.map((error, index) => (
-                                    <span key={index} className="error-message">{error}</span>
+                                    <span key={index} className="error-message">
+                                        {error.message || error.toString()}
+                                    </span>
                                 ))}
                             </div>
                         )}
+
                         <form className="formulario" onSubmit={handleSubmit(handleLogin)}>
                             <div className="field">
                                 <i className="fa-solid fa-user"></i>
@@ -53,11 +56,16 @@ const LoginPage = () => {
                                     type="password"
                                     {...register("password", {
                                         required: "Contraseña es requerida",
+                                        pattern: {
+                                            value: /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=?<>])[A-Za-z\d!@#$%^&*()_\-+=?<>]{8,}$/,
+                                            message: "La contraseña debe tener al menos 8 caracteres, incluir una letra mayúscula, un número y un carácter especial.",
+                                        },
                                     })}
                                     placeholder="Contraseña"
                                 />
                                 {errors.password && <span className="error-message">{errors.password.message}</span>}
                             </div>
+
                             <div className="field">
                                 <a style={{ margin: 'auto', color: '#000' }} href="/recover">¿Olvidó su Contraseña?</a>
                             </div>
