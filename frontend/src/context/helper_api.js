@@ -1,5 +1,5 @@
 import { sendRequest } from './AxiosInstance';
-import { showLoading, showSuccess, showError, closeAlert } from '../Componets/SweetAlertHelpers';
+import { showLoading, showSuccess, showError, closeAlert } from '../components/SweetAlertHelpers';
 
 export const handleRequest = async (method, endpoint, data = {}, successMessage = '', show = true) => {
     if (show) showLoading(); 

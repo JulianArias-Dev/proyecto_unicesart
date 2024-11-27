@@ -1,8 +1,7 @@
-// AuthContext.js
 import { createContext, useState, useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { handleRequest } from './helper_api'; // Centraliza solicitudes HTTP
-import { showLoading, showError, closeAlert } from '../Componets/SweetAlertHelpers.jsx'; // Funciones de alertas
+import { handleRequest } from './helper_api';
+import { showLoading, showError, closeAlert } from '../components/SweetAlertHelpers'; 
 
 export const AuthContext = createContext();
 

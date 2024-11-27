@@ -3,7 +3,7 @@ import Aos from 'aos';
 import 'aos/dist/aos.css'
 import { useEffect } from 'react';
 import { usePost } from '../context/context'
-import { Post } from '../Componets/components'
+import { Post } from '../components/components'
 
 const Welcome = () => {
     const { fetchPosts, publicaciones } = usePost();

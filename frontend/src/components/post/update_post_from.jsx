@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
-const PostForm = ({ onSubmit, categorias, defaultValues = {}, actionLabel = 'Guardar', onCancel }) => {
+const UpdatePostForm = ({ onSubmit, categorias, defaultValues = {}, onCancel }) => {
     const [selectedFile, setSelectedFile] = useState(null);
     const [preview, setPreview] = useState(null);
     const { register, handleSubmit, formState: { errors }, reset } = useForm({
@@ -24,7 +24,7 @@ const PostForm = ({ onSubmit, categorias, defaultValues = {}, actionLabel = 'Gua
         if (!file) return;
         setSelectedFile(file);
         console.log(selectedFile);
-        
+
         const reader = new FileReader();
         reader.onloadend = () => setPreview(reader.result);
         reader.onerror = () => console.error('Error al leer el archivo');
@@ -60,9 +60,9 @@ const PostForm = ({ onSubmit, categorias, defaultValues = {}, actionLabel = 'Gua
     return (
         <div className='containerpost'>
             <div className='botones botones2'>
-                    <button type="submit" style={{ background: '#1d8348' }}>{actionLabel}</button>
-                    <button type="button" onClick={handleCancel} style={{ background: '#DE2D18' }}>Cancelar</button>
-                </div>
+                <button type="submit" style={{ background: '#1d8348' }}>Actualizar</button>
+                <button type="button" onClick={handleCancel} style={{ background: '#DE2D18' }}>Cancelar</button>
+            </div>
             <div className="sub">
                 <div className='imageDiv'>
                     <label htmlFor="fileInput" className="file-link">
@@ -115,7 +115,7 @@ const PostForm = ({ onSubmit, categorias, defaultValues = {}, actionLabel = 'Gua
                 </div>
 
                 <div className='botones'>
-                    <button type="submit" style={{ background: '#1d8348' }}>{actionLabel}</button>
+                    <button type="submit" style={{ background: '#1d8348' }}>Actualizar</button>
                     <button type="button" onClick={handleCancel} style={{ background: '#DE2D18' }}>Cancelar</button>
                 </div>
             </form>
@@ -123,7 +123,7 @@ const PostForm = ({ onSubmit, categorias, defaultValues = {}, actionLabel = 'Gua
     );
 };
 
-PostForm.propTypes = {
+UpdatePostForm.propTypes = {
     onSubmit: PropTypes.func.isRequired,
     categorias: PropTypes.arrayOf(
         PropTypes.shape({
@@ -136,9 +136,9 @@ PostForm.propTypes = {
         description: PropTypes.string,
         category: PropTypes.string,
         image: PropTypes.string,
-    }),
+    }).isRequired,
     actionLabel: PropTypes.string,
     onCancel: PropTypes.func,
 };
 
-export default PostForm;
+export default UpdatePostForm;

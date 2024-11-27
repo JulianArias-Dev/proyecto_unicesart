@@ -1,36 +1,32 @@
 import { useRef, useState } from 'react';
-import { useAuth, usePost } from '../context/context';
-import PostForm from './post_form';
-import './NewPost.css';
+import AdvertisingForm from './create_add_form';
+import { usePost } from '../../context/context';
+import '../post/NewPost.css';
 
-const NewPost = () => {
+const NewAdd = () => {
     const dialogRef = useRef(null);
-    const { user } = useAuth();
-    const { categorias, createPost } = usePost();
     const [textButton, setTextButton] = useState('+');
+    const { saveAdd } = usePost();
 
     const onSubmit = async (data) => {
         const formData = new FormData();
-        formData.append('title', data.title);
-        formData.append('description', data.description);
-        formData.append('category', data.category);
-
+        formData.append('link', data.link);
+        formData.append('fechaFin', data.fechaFin);
+    
         // Si hay una imagen seleccionada, agrégala al FormData
         if (data.image) {
             formData.append('image', data.image);
         }
-
-        formData.append('userId', user.id);
-        formData.append('username', user.username);
-
+    
         try {
             closeDialog();
-            await createPost(formData);
+            await saveAdd(formData);
         } catch (error) {
-            console.error("Error al crear la publicación:", error);
-            alert("Hubo un error al crear la publicación.");
+            console.error("Error al crear el anuncio:", error);
+            alert("Hubo un error al crear el anuncio.");
         }
     };
+    
 
     const showDialog = () => dialogRef.current?.showModal();
     const closeDialog = () => dialogRef.current?.close();
@@ -50,9 +46,8 @@ const NewPost = () => {
 
             <dialog className='dialogPost' ref={dialogRef}>
                 <h3>Nueva Publicación</h3>
-                <PostForm
+                <AdvertisingForm
                     onSubmit={onSubmit}
-                    categorias={categorias}
                     actionLabel="Publicar"
                     onCancel={closeDialog}
                 />
@@ -61,4 +56,4 @@ const NewPost = () => {
     );
 };
 
-export default NewPost;
+export default NewAdd;

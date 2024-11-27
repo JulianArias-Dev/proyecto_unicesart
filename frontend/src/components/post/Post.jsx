@@ -1,12 +1,14 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
+import { useAuth, usePost, useReport } from "../../context/context";
+import UpdatePostForm from "./update_post_from";
+import ReportForm from '../reports/report_form';
 import PropTypes from 'prop-types';
-import './Post.css';
-import { useAuth, usePost, useReport } from "../context/context";
 import Swal from 'sweetalert2';
-import { PostForm, ReportForm } from './components';
+import './Post.css';
 
 const Post = ({ post, onDelete }) => {
+    const location = useLocation();
     const [isOpen, setIsOpen] = useState(false);
     const dialogEditRef = useRef(null);
     const dialogReportRef = useRef(null);
@@ -167,29 +169,31 @@ const Post = ({ post, onDelete }) => {
                                         <i className="fa-solid fa-trash"></i> Eliminar Publicación
                                     </button>
                                 </li>
-                                <li className="report-item">
-                                    <button onClick={handleEdit} className="report-button">
-                                        <i className="fa-solid fa-pen"></i> Editar Publicación
-                                    </button>
-                                </li>
+                                {/* Mostrar botón "Editar Publicación" solo si no está en la ruta "/home" */}
+                                {location.pathname !== '/home' && (
+                                    <li className="report-item">
+                                        <button onClick={handleEdit} className="report-button">
+                                            <i className="fa-solid fa-pen"></i> Editar Publicación
+                                        </button>
+                                    </li>
+                                )}
                             </>
-                        ) :
-                            (user.role !== "administrador" &&
+                        ) : (
+                            user.role !== "administrador" && (
                                 <li className="report-item">
                                     <button onClick={() => openDialog(dialogReportRef)} className="report-button">
                                         <i className="fa-solid fa-flag"></i> Contenido inapropiado
                                     </button>
                                 </li>
                             )
-                        }
-                        {
-                            user.role === "administrador" &&
+                        )}
+                        {user.role === "administrador" && (
                             <li className="report-item">
                                 <button onClick={handleDelete} className="report-button">
                                     <i className="fa-solid fa-trash"></i> Eliminar Publicación
                                 </button>
                             </li>
-                        }
+                        )}
                         <li className="report-item">
                             <button onClick={toggleMenu} className="report-button">
                                 <i className="fa-solid fa-x"></i> Cerrar
@@ -203,11 +207,11 @@ const Post = ({ post, onDelete }) => {
                 {/* <img src={post.imageUrl} alt={post.title} /> */}
                 <img
                     src={post.imageUrl}
-                    alt={post. title}
+                    alt={post.title}
                     onClick={showOriginalSize}
                     style={{ maxWidth: "100%", cursor: "pointer" }}
                 />
-                
+
                 <div className="publicacion contenido">
                     <div className="descripcion">
                         <div className="reseña">
@@ -240,7 +244,7 @@ const Post = ({ post, onDelete }) => {
             {/* Dialog para editar publicación */}
             <dialog ref={dialogEditRef} className="dialogPost newpost">
                 <h3>Editar Publicación</h3>
-                <PostForm
+                <UpdatePostForm
                     onSubmit={handleSubmitEdit}
                     categorias={categorias}
                     defaultValues={{

@@ -1,7 +1,7 @@
 import './App.css'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { Welcome, Login, Register, RecuperarContraseña, Profile, DashBoard, Configuration, CommentPage, UserResult } from './Pages/pages.jsx'
-import { Footer, NavBar } from './Componets/components.jsx'
+import { Footer, NavBar } from './components/components.jsx'
 import { AuthProvider, PostProvider, ReportProvider, ProtectedRoute } from './context/providers.jsx'
 
 

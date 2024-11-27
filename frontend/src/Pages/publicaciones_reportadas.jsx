@@ -1,7 +1,7 @@
 import './DashBoard.css'
 import { useEffect, useState } from 'react';
 import { useReport } from '../context/context';
-import { ReportedPost } from '../Componets/components' // Importa el componente ReportedPost para mostrar cada reporte
+import { ReportedPost } from '../components/components' // Importa el componente ReportedPost para mostrar cada reporte
 
 const Publicaciones = () => {
     const { fetchPostReports, publicacionesReportadas } = useReport();

@@ -31,6 +31,28 @@ export const register = async (req, res) => {
     try {
         const { email, username, fullName, gender, password, role } = req.body;
 
+        //Validar que los campos hayan sido enviados 
+        if (!email) {
+            return res.status(400).json({ message: 'El correo electrónico es requerido.' });
+        }
+
+        if (!password) {
+            return res.status(400).json({ message: 'La contraseña es requerida.' });
+        }
+
+        if (!username) {
+            return res.status(400).json({ message: 'El nombre de usuario es requerido.' });
+        }
+
+        if (!fullName) {
+            return res.status(400).json({ message: 'El nombre completo es requerido.' });
+        }
+
+        if (!gender) {
+            return res.status(400).json({ message: 'El genero es requerido.' });
+        }
+
+        //Validar que no existan usuarios con el mismo correo electrónico o nombre de usuario
         const userFoundByEmail = await User.findOne({ email }).lean().exec();
         const userFoundByUsername = await User.findOne({ username }).lean().exec();
 
@@ -44,8 +66,10 @@ export const register = async (req, res) => {
             });
         }
 
+        //Encriptar la contraseña
         const passwordHash = await bcrypt.hash(password, 10);
 
+        //Guardar usuario en la base de datos
         const newUser = new User({
             email,
             password: passwordHash,
@@ -57,26 +81,32 @@ export const register = async (req, res) => {
 
         const savedUser = await newUser.save();
 
-        if (savedUser) {
-            const token = await createAccesToken({ id: savedUser._id });
-            res.cookie('token', token, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'lax',
-                maxAge: 24 * 60 * 60 * 1000, // 1 día
-            });
-
-            return res.status(200).json({
-                id: savedUser._id,
-                email: savedUser.email,
-                username: savedUser.username,
-                fullName: savedUser.fullName,
-                gender: savedUser.gender,
-                status: savedUser.status,
-                createdAt: savedUser.createdAt,
-                updatedAt: savedUser.updatedAt,
-            });
+        //Validar que el usuario se haya guardado
+        if (!savedUser) {
+            return res.status(500).json({ message: 'Ha ocurrido un error al registrar el nuevo Usuario.' });
         }
+
+        //Generar token de validación
+        const token = await createAccesToken({ id: savedUser._id });
+
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 24 * 60 * 60 * 1000, // 1 día
+        });
+
+        //Enviar reespuesta
+        return res.status(200).json({
+            id: savedUser._id,
+            email: savedUser.email,
+            username: savedUser.username,
+            fullName: savedUser.fullName,
+            gender: savedUser.gender,
+            status: savedUser.status,
+            createdAt: savedUser.createdAt,
+            updatedAt: savedUser.updatedAt,
+        });
     } catch (error) {
         if (error instanceof z.ZodError) {
             return res.status(400).json({
@@ -95,7 +125,17 @@ export const register = async (req, res) => {
 export const login = async (req, res) => {
     try {
         const { email, password } = req.body;
+        
+        //Validar que los campos hayan sido enviados
+        if (!email) {
+            return res.status(400).json({ message: 'El correo electrónico es requerido.' });
+        }
 
+        if (!password) {
+            return res.status(400).json({ message: 'La contraseña es requerida.' });
+        }
+
+        //Buscar usuario en la base de datos
         const userFound = await User.findOne({ email }).lean().exec();
 
         if (!userFound) {
@@ -104,12 +144,14 @@ export const login = async (req, res) => {
             });
         }
 
+        //Validar estado del usuario
         if (userFound.status === "Suspendido") {
             return res.status(400).json({
                 message: "El usuario se encuentra suspendido por infringir las politicas de la página. ",
             });
         }
 
+        //Validar contraseña
         const isMatch = await bcrypt.compare(password, userFound.password);
         if (!isMatch) {
             return res.status(400).json({
@@ -117,8 +159,10 @@ export const login = async (req, res) => {
             });
         }
 
+        //Crear token de validación
         const token = await createAccesToken({ id: userFound._id });
 
+        //devolver respuesta y token de validación
         res.cookie('token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
@@ -148,6 +192,7 @@ export const login = async (req, res) => {
             edad: calcularEdad(userFound.birthDate),
             role: userFound.role,
         });
+        
     } catch (error) {
         if (error instanceof z.ZodError) {
             return res.status(400).json({

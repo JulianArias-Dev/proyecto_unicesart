@@ -1,8 +1,8 @@
 import './Configuration.css';
 import { useState } from 'react';
-import { CambioContrasena, PersonalInfo, EliminarCuenta} from '../Componets/components.jsx';
+import { CambioContrasena, PersonalInfo, EliminarCuenta } from '../components/components.jsx';
 import { useAuth } from '../context/context.jsx';
-import {Usuarios, Publicaciones} from './pages.jsx';
+import { Usuarios, Publicaciones } from './pages.jsx';
 
 const Configuration = () => {
     const [activeOption, setActiveOption] = useState(null);

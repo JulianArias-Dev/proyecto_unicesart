@@ -1,4 +1,4 @@
-import { NewPost, Advertising, Post, NewAdd } from '../Componets/components.jsx';
+import { NewPost, Advertising, Post, NewAdd } from '../components/components.jsx';
 import { useAuth, usePost } from "../context/context.jsx";
 import { useEffect, useState } from 'react';
 import './DashBoard.css';

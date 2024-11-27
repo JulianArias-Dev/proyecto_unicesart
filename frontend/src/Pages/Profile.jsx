@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { Post, ReportForm } from '../Componets/components.jsx';
+import { Post, ReportForm } from '../components/components.jsx';
 import './Profile.css';
 import { useAuth, usePost, useReport } from '../context/context.jsx';
 

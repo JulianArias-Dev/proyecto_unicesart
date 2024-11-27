@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { SearchedUser } from "../Componets/components";
+import { SearchedUser } from "../components/components";
 import { useAuth } from '../context/context'
 import './results.css'
 import { useEffect, useState } from "react";

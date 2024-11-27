@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useReport } from '../context/context';
-import { ReportedUser } from '../Componets/components';  // Importamos el componente ReportedUser
+import { ReportedUser } from '../components/components'; 
 
 const Usuarios = () => {
     const { fetchUserReports, usuariosReportados } = useReport();

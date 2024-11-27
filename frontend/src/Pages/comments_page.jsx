@@ -1,5 +1,5 @@
 import './comments.css';
-import { Comment, Post } from '../Componets/components.jsx';
+import { Comment, Post } from '../components/components.jsx';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { usePost, useAuth } from '../context/context.jsx';

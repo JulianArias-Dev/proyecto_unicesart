@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth, useReport } from '../context/context';
+import { useAuth, useReport } from '../../context/context';
 import './report.css';
 
 const ReportedUser = ({ report }) => {

@@ -1,50 +1,44 @@
 import PropTypes from 'prop-types';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import {format} from 'date-fns'
 
-const AdvertisingForm = ({ onSubmit,defaultValues = {}, actionLabel = 'Guardar', onCancel }) => {
+const PostForm = ({ onSubmit, categorias, onCancel }) => {
     const [selectedFile, setSelectedFile] = useState(null);
     const [preview, setPreview] = useState(null);
-    const { register, handleSubmit, formState: { errors }, reset } = useForm({
-        defaultValues: {
-            ...defaultValues,
-            fechaFin: defaultValues.fechaFin
-                ? format(new Date(defaultValues.fechaFin), 'yyyy-MM-dd') // Formato requerido para input de tipo date
-                : '',
-        },
-    });
-
-    useEffect(() => {
-        setPreview(defaultValues.imageUrl || null);
-    }, [defaultValues]);
+    const { register, handleSubmit, formState: { errors }, reset } = useForm({});
+    const [selectedCategory, setSelectedCategory] = useState('');
 
     const handleFileChange = (event) => {
         const file = event.target.files[0];
         if (!file) return;
         setSelectedFile(file);
-        
+        console.log(selectedFile);
+
         const reader = new FileReader();
         reader.onloadend = () => setPreview(reader.result);
         reader.onerror = () => console.error('Error al leer el archivo');
         reader.readAsDataURL(file);
     };
 
+    const handleCategoryChange = (e) => {
+        setSelectedCategory(e.target.value);
+    };
 
     const onSubmitForm = (data) => {
         // Pasa los datos y el archivo seleccionado al componente principal
         onSubmit({
             ...data,
+            category: selectedCategory,
             image: selectedFile, // Solo pasar el archivo si fue seleccionado
         });
         resetForm();
-        onCancel()
     };
 
     const resetForm = () => {
-        reset(defaultValues); // Resetea los campos del formulario con los valores por defecto
-        setSelectedFile(null); // Resetea el archivo seleccionado
-        setPreview(defaultValues.imageUrl || null); // Restaura la vista previa a su valor inicial
+        reset(); // Resetea los campos del formulario
+        setSelectedFile(null);
+        setPreview(null);
+        setSelectedCategory('');
     };
 
     const handleCancel = () => {
@@ -55,9 +49,9 @@ const AdvertisingForm = ({ onSubmit,defaultValues = {}, actionLabel = 'Guardar',
     return (
         <div className='containerpost'>
             <div className='botones botones2'>
-                    <button type="submit" style={{ background: '#1d8348' }}>{actionLabel}</button>
-                    <button type="button" onClick={handleCancel} style={{ background: '#DE2D18' }}>Cancelar</button>
-                </div>
+                <button type="submit" style={{ background: '#1d8348' }}>Publicar</button>
+                <button type="button" onClick={handleCancel} style={{ background: '#DE2D18' }}>Cancelar</button>
+            </div>
             <div className="sub">
                 <div className='imageDiv'>
                     <label htmlFor="fileInput" className="file-link">
@@ -74,28 +68,43 @@ const AdvertisingForm = ({ onSubmit,defaultValues = {}, actionLabel = 'Guardar',
             </div>
             <form className='formPost' onSubmit={handleSubmit(onSubmitForm)}>
                 <div>
-                    <p>Mostrar hasta:</p>
+                    <p>Título:</p>
                     <input
-                        type="date"
-                        {...register('fechaFin', {
+                        type="text"
+                        {...register('title', {
                             required: "El título es requerido",
                             maxLength: { value: 100, message: "Máximo 100 caracteres" }
                         })}
                     />
-                    {errors.fechaFin && <span>{errors.fechaFin.message}</span>}
+                    {errors.title && <span>{errors.title.message}</span>}
                 </div>
                 <div>
-                    <p>Enlace:</p>
-                    <input
-                        type='text'
-                        {...register('link', {
+                    <p>Descripción:</p>
+                    <textarea
+                        {...register('description', {
                             maxLength: { value: 500, message: "Máximo 500 caracteres" }
                         })}
                     />
-                    {errors.link && <span>{errors.link.message}</span>}
+                    {errors.description && <span>{errors.description.message}</span>}
                 </div>
+                <div>
+                    <p>Categoría:</p>
+                    <select
+                        className="postCategoria"
+                        value={selectedCategory}
+                        onChange={handleCategoryChange}
+                    >
+                        <option value="" disabled>Selecciona una categoría</option>
+                        {categorias?.map((categoria) => (
+                            <option key={categoria.nombre} value={categoria.nombre}>
+                                {categoria.nombre} - {categoria.description}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
                 <div className='botones'>
-                    <button type="submit" style={{ background: '#1d8348' }}>{actionLabel}</button>
+                    <button type="submit" style={{ background: '#1d8348' }}>Publicar</button>
                     <button type="button" onClick={handleCancel} style={{ background: '#DE2D18' }}>Cancelar</button>
                 </div>
             </form>
@@ -103,16 +112,16 @@ const AdvertisingForm = ({ onSubmit,defaultValues = {}, actionLabel = 'Guardar',
     );
 };
 
-AdvertisingForm.propTypes = {
+PostForm.propTypes = {
     onSubmit: PropTypes.func.isRequired,
-    defaultValues: PropTypes.shape({
-        _id: PropTypes.string,
-        imageUrl: PropTypes.string,
-        fechaFin: PropTypes.string,
-        link: PropTypes.string,
-    }),
+    categorias: PropTypes.arrayOf(
+        PropTypes.shape({
+            nombre: PropTypes.string.isRequired,
+            description: PropTypes.string,
+        })
+    ).isRequired,
     actionLabel: PropTypes.string,
     onCancel: PropTypes.func,
 };
 
-export default AdvertisingForm;
+export default PostForm;

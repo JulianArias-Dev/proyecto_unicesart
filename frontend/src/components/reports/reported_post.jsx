@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
-import { Post } from './components';
-import { useReport } from '../context/context';
+import { Post } from '../components';
+import { useReport } from '../../context/context';
 
 const ReportedPost = ({ report }) => {
     const { updatePostReport, deletePostReport, } = useReport();
