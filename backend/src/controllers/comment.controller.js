@@ -99,7 +99,7 @@ export const deleteComment = async (req, res) => {
             return res.status(404).json({ message: 'No se ha encontrado el comentario para eliminar.' });
         }
 
-        await Comment.deleteOne({ _id });
+        await Comment.deleteOne({ _id : commentToDelete._id });
 
         return res.status(201).json({
             message: 'El comentario ha sido rliminado exitosamente.',

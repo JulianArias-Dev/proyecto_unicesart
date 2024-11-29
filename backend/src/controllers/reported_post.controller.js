@@ -62,10 +62,10 @@ export const updateReportPost = async (req, res) => {
     try {
         const { _id } = req.body;
 
-        if (!_id) {
-            return res.status(400).json({ message: 'El ID del reporte es requerido.' });
+        if (!_id || !mongoose.Types.ObjectId.isValid(_id)) {
+            return res.status(400).json({ message: 'Se requiere una id de reporte valida' });
         }
-
+    
         const updatedReport = await ReportedPost.findOneAndUpdate(
             { _id },
             { status: 'Verificado' },
@@ -94,8 +94,8 @@ export const deleteReportPost = async (req, res) => {
     try {
         const { _id } = req.query;
 
-        if (!_id) {
-            return res.status(400).json({ message: 'El ID del reporte es requerido.' });
+        if (!_id || !mongoose.Types.ObjectId.isValid(_id)) {
+            return res.status(400).json({ message: 'Se requiere una id de reporte valida' });
         }
 
         const deletedReport = await ReportedPost.findOneAndDelete({ _id });
@@ -124,7 +124,7 @@ export const getReportsPost = async (req, res) => {
 
         const query = {};
         if (status) {
-            query.status = status;
+            query.status = validator.escape(status);
         }
 
         const reports = await ReportedPost.find(query);

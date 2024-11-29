@@ -2,6 +2,8 @@ import Post from '../models/post.models.js';
 import Comment from '../models/comment.models.js'
 import ReportedPost from '../models/reported_post.models.js'
 import cloudinary from 'cloudinary';
+import validator from 'validator';
+import mongoose from 'mongoose';
 import fs from 'fs';
 
 const formatFecha = (fechaISO) => {
@@ -30,8 +32,8 @@ export const createPost = async (req, res) => {
         if (!category) {
             return res.status(400).json({ message: 'La categoría es requerida.' });
         }
-        if (!userId || userId.length !== 24) {
-            return res.status(400).json({ message: 'ID de usuario debe tener 24 caracteres.' });
+        if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({ message: 'Se requiere una id de usuario valida' });
         }
         if (!username) {
             return res.status(400).json({ message: 'El nombre de usuario es requerido.' });
@@ -157,9 +159,9 @@ export const deletePost = async (req, res) => {
             await cloudinary.uploader.destroy(publicId);
         }
 
-        await Comment.deleteMany({ "postId": id });
-        await ReportedPost.deleteMany({ "publicacionReportada.id": id });
-        await Post.findByIdAndDelete(id);
+        await Comment.deleteMany({ "postId": postToDelete._id });
+        await ReportedPost.deleteMany({ "publicacionReportada.id": postToDelete._id });
+        await Post.findByIdAndDelete(postToDelete._id);
 
         return res.status(200).json({ message: 'La publicación ha sido eliminada exitosamente' });
     } catch (error) {
@@ -172,16 +174,22 @@ export const getPost = async (req, res) => {
     try {
         const { id, username, category } = req.query;
         let publicaciones = [];
-
+        
+        if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ message: 'Se requiere una id de usuario valida' });
+        }
+        
         if (id && username) {
+            const sanitizedUser = validator.escape(username);
             publicaciones = await Post.find({
                 'user.id': id,
-                'user.username': username,
+                'user.username': sanitizedUser,
                 status: { $ne: "Suspendido" }
             }).lean();
         } else if (category) {
+            const sanitizedCategory = validator.escape(category);
             publicaciones = await Post.find({
-                category,
+                category : sanitizedCategory,
                 status: { $ne: "Suspendido" }
             }).lean();
         } else {
@@ -206,6 +214,10 @@ export const getPost = async (req, res) => {
 export const reactions = async (req, res) => {
     try {
         const { _id, user } = req.body;
+
+        if (!_id || !mongoose.Types.ObjectId.isValid(_id)) {
+            return res.status(400).json({ message: 'Se requiere una id de usuario valida' });
+        }
 
         const post = await Post.findOne({ _id });
 

@@ -463,7 +463,7 @@ export const suspendUser = async (req, res) => {
 
         await Post.updateMany(
             {
-                "user.id": _id,
+                "user.id": user._id,
                 status: { $in: ["Suspendido", "Normal"] }  // Filtra solo los estados que queremos alternar
             },
             [
