@@ -141,8 +141,10 @@ export const login = async (req, res) => {
             return res.status(400).json({ message: 'La contraseña es requerida.' });
         }
 
+        const sanitizedEmail = validator.normalizeEmail(email);
+
         //Buscar usuario en la base de datos
-        const userFound = await User.findOne({ email }).lean().exec();
+        const userFound = await User.findOne({ email: sanitizedEmail }).lean().exec();
 
         if (!userFound) {
             return res.status(400).json({
@@ -224,60 +226,72 @@ export const logout = (req, res) => {
 };
 
 export const updateUser = async (req, res) => {
-    const { email, fullName, description, skills, profession, birthDate, city, phone, gender, } = req.body;
-    const imageUrl = '';
+    try {
+        const { email, fullName, description, skills, profession, birthDate, city, phone, gender, } = req.body;
+        const imageUrl = '';
 
-    //try {
-    const userFound = await User.findOne({ email });
+        const sanitizedEmail = email ? validator.normalizeEmail(email) : null;
+        const sanitizedFullName = fullName ? validator.escape(fullName) : null;
+        const sanitizedDescription = description ? validator.escape(description) : null;
+        const sanitizedSkills = skills ? validator.escape(skills) : null;
+        const sanitizedProfession = profession ? validator.escape(profession) : null;
+        const sanitizedPhone = phone ? validator.escape(phone) : null;
 
-    if (!userFound) {
-        return res.status(404).json({ message: 'Usuario no encontrado' });
+        const userFound = await User.findOne({ email:sanitizedEmail });
+
+        if (!userFound) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+        userFound.fullName = sanitizedFullName ?? userFound.fullName;
+        userFound.description = sanitizedDescription ?? userFound.description;
+        userFound.skills = sanitizedSkills ?? userFound.skills;
+        userFound.profession = sanitizedProfession ?? userFound.profession;
+        userFound.lugarOrigen = {
+            nombreDepartamento: city?.departamento ?? userFound.lugarOrigen.nombreDepartamento,
+            nombreMunicipio: city?.municipio ?? userFound.lugarOrigen.nombreMunicipio,
+        };
+        userFound.birthDate = birthDate ?? userFound.birthDate;
+        userFound.phone = sanitizedPhone ?? userFound.phone;
+        userFound.gender = gender ?? userFound.gender;
+        userFound.imageUrl = imageUrl ?? userFound.imageUrl;
+
+        const updatedUser = await userFound.save();
+
+        return res.json({
+            id: updatedUser._id,
+            email: updatedUser.email,
+            username: updatedUser.username,
+            fullName: updatedUser.fullName,
+            description: updatedUser.description,
+            skills: updatedUser.skills,
+            profession: updatedUser.profession,
+            lugarOrigen: {
+                nombreDepartamento: updatedUser.lugarOrigen.nombreDepartamento,
+                nombreMunicipio: updatedUser.lugarOrigen.nombreMunicipio,
+            },
+            birthDate: updatedUser.birthDate,
+            phone: updatedUser.phone,
+            gender: updatedUser.gender,
+            status: updatedUser.status,
+            createdAt: updatedUser.createdAt,
+            updatedAt: updatedUser.updatedAt,
+            imageUrl: updatedUser.imageUrl,
+            edad: calcularEdad(updatedUser.birthDate),
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
-
-    userFound.fullName = fullName ?? userFound.fullName;
-    userFound.description = description ?? userFound.description;
-    userFound.skills = skills ?? userFound.skills;
-    userFound.profession = profession ?? userFound.profession;
-    userFound.lugarOrigen = {
-        nombreDepartamento: city?.departamento ?? userFound.lugarOrigen.nombreDepartamento,
-        nombreMunicipio: city?.municipio ?? userFound.lugarOrigen.nombreMunicipio,
-    };
-    userFound.birthDate = birthDate ?? userFound.birthDate;
-    userFound.phone = phone ?? userFound.phone;
-    userFound.gender = gender ?? userFound.gender;
-    userFound.imageUrl = imageUrl ?? userFound.imageUrl;
-
-    const updatedUser = await userFound.save();
-
-    return res.json({
-        id: updatedUser._id,
-        email: updatedUser.email,
-        username: updatedUser.username,
-        fullName: updatedUser.fullName,
-        description: updatedUser.description,
-        skills: updatedUser.skills,
-        profession: updatedUser.profession,
-        lugarOrigen: {
-            nombreDepartamento: updatedUser.lugarOrigen.nombreDepartamento,
-            nombreMunicipio: updatedUser.lugarOrigen.nombreMunicipio,
-        },
-        birthDate: updatedUser.birthDate,
-        phone: updatedUser.phone,
-        gender: updatedUser.gender,
-        status: updatedUser.status,
-        createdAt: updatedUser.createdAt,
-        updatedAt: updatedUser.updatedAt,
-        imageUrl: updatedUser.imageUrl,
-        edad: calcularEdad(updatedUser.birthDate),
-    });
-    /*  } catch (error) {
-         res.status(500).json({ message: error.message });
-     } */
 };
 
 export const profile = async (req, res) => {
     try {
         const { id } = req.query;
+
+        // Validar que 'id' sea un ObjectId válido
+        if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ message: 'ID de usuario no válido.' });
+        }
 
         const userFound = await User.findById(id);
 
@@ -317,7 +331,8 @@ export const updatePassword = async (req, res) => {
     let user;
     try {
         if (email) {
-            user = await User.findOne({ email });
+            const sanitizedEmail = validator.normalizeEmail(email);
+            user = await User.findOne({ email:sanitizedEmail });
             if (!user) {
                 return res.status(404).json({ message: 'El email parece no estar registrado' });
             }
@@ -358,7 +373,8 @@ export const setCode = async (req, res) => {
     try {
         let user;
         if (email) {
-            user = await User.findOne({ email });
+            const sanitizedEmail = validator.normalizeEmail(email);
+            user = await User.findOne({ email:sanitizedEmail });
             if (!user) {
                 return res.status(404).json({ message: 'El email parece no estar registrado' });
             }
@@ -433,8 +449,8 @@ export const suspendUser = async (req, res) => {
     try {
         const { _id } = req.body;
 
-        if (!_id) {
-            return res.status(400).json({ message: 'Se requiere la id del usuario.' });
+        if (!_id || !mongoose.Types.ObjectId.isValid(_id)) {
+            return res.status(400).json({ message: 'Se requiere una id de usuario valida' });
         }
 
         const user = await User.findById({ _id });
@@ -482,10 +498,12 @@ export const searchUsers = async (req, res) => {
             return res.status(400).json({ message: 'Se requiere un palabra clave para la búsqueda' });
         }
 
+        sanitizedQuery = validator.escape(query);
+
         const users = await User.find({
             $or: [
-                { username: { $regex: query, $options: "i" } },
-                { fullName: { $regex: query, $options: "i" } }
+                { username: { $regex:sanitizedQuery, $options: "i" } },
+                { fullName: { $regex: sanitizedQuery, $options: "i" } }
             ]
         })
             .select("username fullName birthDate _id") // Campos del usuario
