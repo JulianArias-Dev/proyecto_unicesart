@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 
 const Register = () => {
     const { register, handleSubmit, formState: { errors } } = useForm();
-    const { singUp, isAuthenticated, errors: registerErrors } = useAuth();
+    const { signUp, isAuthenticated, errors: registerErrors } = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -14,7 +14,7 @@ const Register = () => {
     }, [isAuthenticated, navigate]);
 
     const handleRegister = async (data) => {
-        singUp(data);
+        await signUp(data);
     };
 
 

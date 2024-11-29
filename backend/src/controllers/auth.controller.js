@@ -1,9 +1,10 @@
 import User from '../models/user.model.js';
 import Post from '../models/post.models.js';
-import { z } from 'zod'
+import { createAccesToken } from '../libs/jwt.js';
+import validator from 'validator';
 import bcrypt from 'bcryptjs';
 import mongoose from 'mongoose';
-import { createAccesToken } from '../libs/jwt.js';
+import { z } from 'zod'
 
 const calcularEdad = (birthDate) => {
     const today = new Date();
@@ -51,10 +52,14 @@ export const register = async (req, res) => {
         if (!gender) {
             return res.status(400).json({ message: 'El genero es requerido.' });
         }
+        // Sanitizar los datos 
+        const sanitizedEmail = validator.normalizeEmail(email);
+        const sanitizedUsername = validator.escape(username);
+        const sanitizedFullName = validator.escape(fullName);
 
         //Validar que no existan usuarios con el mismo correo electrónico o nombre de usuario
-        const userFoundByEmail = await User.findOne({ email }).lean().exec();
-        const userFoundByUsername = await User.findOne({ username }).lean().exec();
+        const userFoundByEmail = await User.findOne({ email: sanitizedEmail }).lean().exec();
+        const userFoundByUsername = await User.findOne({ username: sanitizedUsername }).lean().exec();
 
         if (userFoundByEmail || userFoundByUsername) {
             return res.status(400).json({
@@ -71,10 +76,10 @@ export const register = async (req, res) => {
 
         //Guardar usuario en la base de datos
         const newUser = new User({
-            email,
+            email: sanitizedEmail,
             password: passwordHash,
-            username,
-            fullName,
+            username: sanitizedUsername,
+            fullName: sanitizedFullName,
             gender,
             role: role ?? 'usuario',
         });
@@ -106,6 +111,7 @@ export const register = async (req, res) => {
             status: savedUser.status,
             createdAt: savedUser.createdAt,
             updatedAt: savedUser.updatedAt,
+            role: savedUser.role,
         });
     } catch (error) {
         if (error instanceof z.ZodError) {
@@ -125,7 +131,7 @@ export const register = async (req, res) => {
 export const login = async (req, res) => {
     try {
         const { email, password } = req.body;
-        
+
         //Validar que los campos hayan sido enviados
         if (!email) {
             return res.status(400).json({ message: 'El correo electrónico es requerido.' });
@@ -192,7 +198,7 @@ export const login = async (req, res) => {
             edad: calcularEdad(userFound.birthDate),
             role: userFound.role,
         });
-        
+
     } catch (error) {
         if (error instanceof z.ZodError) {
             return res.status(400).json({
@@ -221,52 +227,52 @@ export const updateUser = async (req, res) => {
     const { email, fullName, description, skills, profession, birthDate, city, phone, gender, } = req.body;
     const imageUrl = '';
 
-    try {
-        const userFound = await User.findOne({ email });
+    //try {
+    const userFound = await User.findOne({ email });
 
-        if (!userFound) {
-            return res.status(404).json({ message: 'Usuario no encontrado' });
-        }
-
-        userFound.fullName = fullName ?? userFound.fullName;
-        userFound.description = description ?? userFound.description;
-        userFound.skills = skills ?? userFound.skills;
-        userFound.profession = profession ?? userFound.profession;
-        userFound.lugarOrigen = {
-            nombreDepartamento: city?.departamento ?? userFound.lugarOrigen.nombreDepartamento,
-            nombreMunicipio: city?.municipio ?? userFound.lugarOrigen.nombreMunicipio,
-        };
-        userFound.birthDate = birthDate ?? userFound.birthDate;
-        userFound.phone = phone ?? userFound.phone;
-        userFound.gender = gender ?? userFound.gender;
-        userFound.imageUrl = imageUrl ?? userFound.imageUrl;
-
-        const updatedUser = await userFound.save();
-
-        return res.json({
-            id: updatedUser._id,
-            email: updatedUser.email,
-            username: updatedUser.username,
-            fullName: updatedUser.fullName,
-            description: updatedUser.description,
-            skills: updatedUser.skills,
-            profession: updatedUser.profession,
-            lugarOrigen: {
-                nombreDepartamento: updatedUser.lugarOrigen.nombreDepartamento,
-                nombreMunicipio: updatedUser.lugarOrigen.nombreMunicipio,
-            },
-            birthDate: updatedUser.birthDate,
-            phone: updatedUser.phone,
-            gender: updatedUser.gender,
-            status: updatedUser.status,
-            createdAt: updatedUser.createdAt,
-            updatedAt: updatedUser.updatedAt,
-            imageUrl: updatedUser.imageUrl,
-            edad: calcularEdad(updatedUser.birthDate),
-        });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
+    if (!userFound) {
+        return res.status(404).json({ message: 'Usuario no encontrado' });
     }
+
+    userFound.fullName = fullName ?? userFound.fullName;
+    userFound.description = description ?? userFound.description;
+    userFound.skills = skills ?? userFound.skills;
+    userFound.profession = profession ?? userFound.profession;
+    userFound.lugarOrigen = {
+        nombreDepartamento: city?.departamento ?? userFound.lugarOrigen.nombreDepartamento,
+        nombreMunicipio: city?.municipio ?? userFound.lugarOrigen.nombreMunicipio,
+    };
+    userFound.birthDate = birthDate ?? userFound.birthDate;
+    userFound.phone = phone ?? userFound.phone;
+    userFound.gender = gender ?? userFound.gender;
+    userFound.imageUrl = imageUrl ?? userFound.imageUrl;
+
+    const updatedUser = await userFound.save();
+
+    return res.json({
+        id: updatedUser._id,
+        email: updatedUser.email,
+        username: updatedUser.username,
+        fullName: updatedUser.fullName,
+        description: updatedUser.description,
+        skills: updatedUser.skills,
+        profession: updatedUser.profession,
+        lugarOrigen: {
+            nombreDepartamento: updatedUser.lugarOrigen.nombreDepartamento,
+            nombreMunicipio: updatedUser.lugarOrigen.nombreMunicipio,
+        },
+        birthDate: updatedUser.birthDate,
+        phone: updatedUser.phone,
+        gender: updatedUser.gender,
+        status: updatedUser.status,
+        createdAt: updatedUser.createdAt,
+        updatedAt: updatedUser.updatedAt,
+        imageUrl: updatedUser.imageUrl,
+        edad: calcularEdad(updatedUser.birthDate),
+    });
+    /*  } catch (error) {
+         res.status(500).json({ message: error.message });
+     } */
 };
 
 export const profile = async (req, res) => {
