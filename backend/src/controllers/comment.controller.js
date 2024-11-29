@@ -1,12 +1,15 @@
+import validator from "validator";
 import Comment from "../models/comment.models.js";
 import Post from '../models/post.models.js'
+import mongoose from "mongoose";
 
 export const getComments = async (req, res) => {
     try {
         const { _id } = req.query;
 
-        if (!_id) {
-            return res.status(400).json({ message: 'El Id de la publicación es requerido.' });
+        
+        if (!_id || !mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({ message: 'Se requiere un id de publicación válido.' });
         }
 
         const post = await Post.findById(_id);
@@ -21,7 +24,7 @@ export const getComments = async (req, res) => {
         };
 
         const comentarios = await Comment.find({
-            postId: _id  // Convierte _id a ObjectId si es necesario
+            postId: post._id  // Convierte _id a ObjectId si es necesario
         }).lean();
 
         res.status(200).json({ post: responsePost, comments: comentarios });
@@ -40,8 +43,8 @@ export const saveComment = async (req, res) => {
             return res.status(400).json({ message: 'El contenido es requerido.' });
         }
 
-        if (!postId) {
-            return res.status(400).json({ message: 'El Id de la publicación es requerido.' });
+        if (!postId || !mongoose.Types.ObjectId.isValid(postId)) {
+            return res.status(400).json({ message: 'Se requiere un id de publicación válido.' });
         }
 
         const post = await Post.findById(postId);
@@ -50,19 +53,22 @@ export const saveComment = async (req, res) => {
             return res.status(404).json({ message: 'No se ha encontrado la publicación.' });
         }
 
-        if (!userid) {
-            return res.status(400).json({ message: 'El Id del usuario es requerido.' });
+        if (!userid || !mongoose.Types.ObjectId.isValid(userid)) {
+            return res.status(400).json({ message: 'Se requiere un id de usuario válido' });
         }
 
         if (!username) {
             return res.status(400).json({ message: 'El nombre de usuario es requerido.' });
         }
 
+        const sanitizedUsername = validator.escape(username);
+        const sanitizedContent = validator.escape(content);
+
         const newComment = new Comment({
-            content,
+            content:sanitizedContent,
             user: {
                 id: userid,
-                username
+                username : sanitizedUsername
             },
             postId
         });
@@ -83,8 +89,8 @@ export const deleteComment = async (req, res) => {
     try {
         const { _id } = req.query;
 
-        if (!_id) {
-            return res.status(400).json({ message: 'El Id del comentario es requerido.' });
+        if (!_id || !mongoose.Types.ObjectId.isValid(_id)) {
+            return res.status(400).json({ message: 'Se requiere un id de comentario válido.' });
         }
 
         const commentToDelete = await Comment.findById(_id);
@@ -108,8 +114,8 @@ export const updateComment = async (req, res) => {
     try {
         const { _id, content } = req.body;
 
-        if (!_id) {
-            return res.status(400).json({ message: 'El Id del comentario es requerido.' });
+        if (!_id || !mongoose.Types.ObjectId.isValid(_id)) {
+            return res.status(400).json({ message: 'Se requiere un id de comentario válido.' });
         }
 
         if (!content) {
@@ -122,10 +128,12 @@ export const updateComment = async (req, res) => {
             return res.status(404).json({ message: 'No se ha encontrado el comentario para actualizar.' });
         }
 
+        const sanitizedContent = validator.escape(content);
+
         const updatedComment = await Comment.findByIdAndUpdate(
             _id,
             {
-                content
+                content:sanitizedContent
             },
             { new: true }
         );

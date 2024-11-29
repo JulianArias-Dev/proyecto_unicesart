@@ -426,16 +426,16 @@ export const dropAccount = async (req, res) => {
         }
 
         // 2. Eliminar todas las publicaciones del usuario
-        await Post.deleteMany({ "user.id": userId });
+        await Post.deleteMany({ "user.id": user._id });
 
         // 3. Eliminar los likes del usuario en publicaciones ajenas
         await Post.updateMany(
-            { "likes.user.id": userId }, // Condición para encontrar publicaciones con sus likes
-            { $pull: { likes: { "user.id": userId } } } // Remover los likes de ese usuario
+            { "likes.user.id": user._id }, // Condición para encontrar publicaciones con sus likes
+            { $pull: { likes: { "user.id": user._id } } } // Remover los likes de ese usuario
         );
 
         // 4. Eliminar al usuario
-        await User.findByIdAndDelete(userId);
+        await User.findByIdAndDelete(user._id);
 
         return res.status(200).json({ message: 'Cuenta eliminada correctamente, publicaciones y likes eliminados.' });
 
