@@ -174,12 +174,11 @@ export const getPost = async (req, res) => {
     try {
         const { id, username, category } = req.query;
         let publicaciones = [];
-        
-        if (!id || !mongoose.Types.ObjectId.isValid(id)) {
-            return res.status(400).json({ message: 'Se requiere una id de usuario valida' });
-        }
-        
+
         if (id && username) {
+            if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+                return res.status(400).json({ message: 'Se requiere una id de usuario valida' });
+            }
             const sanitizedUser = validator.escape(username);
             const userid = validator.escape(id);
             publicaciones = await Post.find({
@@ -190,7 +189,7 @@ export const getPost = async (req, res) => {
         } else if (category) {
             const sanitizedCategory = validator.escape(category);
             publicaciones = await Post.find({
-                category : sanitizedCategory,
+                category: sanitizedCategory,
                 status: { $ne: "Suspendido" }
             }).lean();
         } else {
@@ -221,7 +220,7 @@ export const reactions = async (req, res) => {
         }
 
         const id = validator.escape(_id);
-        const post = await Post.findOne({ id });
+        const post = await Post.findOne({ _id: id });
 
         if (!post) {
             return res.status(404).json({ message: 'No se encontró la publicación' });

@@ -43,6 +43,12 @@
     margin-left: 4%;
 }
 
+.form-title{
+    color: #156436;
+    margin-left: 20px;
+    margin-bottom: 15px;
+}
+
 .camposRegister {
     padding: 2%;
     display: flex;
@@ -263,9 +269,8 @@
 @media screen and (max-width:1050px) {
     .formularioRegister {
         width: 98%;
-        margin-top: 5%;
+        margin-top: 5% auto 0 auto;
         height: auto;
-        margin: auto;
     }
 
     .camposRegister {

@@ -35,6 +35,7 @@ const LoginPage = () => {
                         )}
 
                         <form className="formulario" onSubmit={handleSubmit(handleLogin)}>
+                            <h3 className='form-title'>Inicio de Sesión</h3>
                             <div className="field">
                                 <i className="fa-solid fa-user"></i>
                                 <input

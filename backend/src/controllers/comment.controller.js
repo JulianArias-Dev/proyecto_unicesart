@@ -8,7 +8,7 @@ export const getComments = async (req, res) => {
         const { _id } = req.query;
 
         
-        if (!_id || !mongoose.Types.ObjectId.isValid(userId)) {
+        if (!_id || !mongoose.Types.ObjectId.isValid(_id)) {
             return res.status(400).json({ message: 'Se requiere un id de publicación válido.' });
         }
 

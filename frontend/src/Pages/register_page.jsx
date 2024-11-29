@@ -32,6 +32,7 @@ const Register = () => {
                             </div>
                         )}
                         <form className="formulario formularioRegister" onSubmit={handleSubmit(handleRegister)}>
+                            <h3 className='form-title'>Registro</h3>
                             <div className='camposRegister'>
                                 <div className="field campo">
                                     <i className="fa-solid fa-user"></i>

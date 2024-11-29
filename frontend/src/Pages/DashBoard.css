@@ -10,7 +10,7 @@
     justify-content: space-evenly;
     padding-top: 0.8%;
     padding-bottom: 0.5%;
-    height: 100hv;
+    height: auto;
     margin-bottom: 0.5%;
     overflow-y: hidden;
 }

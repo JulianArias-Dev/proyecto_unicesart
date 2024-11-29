@@ -77,7 +77,7 @@ const CommentPage = () => {
 
     return (
         <div className="commentpage">
-            <i onClick={goBack} className="fa-solid fa-arrow-left"></i>
+            <button onClick={goBack} style={{marginLeft:'25px'}} className="fa-solid fa-arrow-left"></button>
             <div className='currentpost'>
                 {/* Verificamos que post tenga la estructura esperada antes de renderizar */}
                 {currentPost && currentPost._id ? (
