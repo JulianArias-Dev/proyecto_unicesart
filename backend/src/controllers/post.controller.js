@@ -181,8 +181,9 @@ export const getPost = async (req, res) => {
         
         if (id && username) {
             const sanitizedUser = validator.escape(username);
+            const userid = validator.escape(id);
             publicaciones = await Post.find({
-                'user.id': id,
+                'user.id': userid,
                 'user.username': sanitizedUser,
                 status: { $ne: "Suspendido" }
             }).lean();
@@ -219,7 +220,8 @@ export const reactions = async (req, res) => {
             return res.status(400).json({ message: 'Se requiere una id de usuario valida' });
         }
 
-        const post = await Post.findOne({ _id });
+        const id = validator.escape(_id);
+        const post = await Post.findOne({ id });
 
         if (!post) {
             return res.status(404).json({ message: 'No se encontró la publicación' });

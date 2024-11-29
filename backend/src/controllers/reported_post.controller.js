@@ -15,7 +15,7 @@ export const saveReportPost = async (req, res) => {
         if (!motivo || motivo.length === 0) {
             return res.status(400).json({ message: 'Debe proporcionar al menos un motivo para el reporte.' });
         }
-        if (!publicacionReportada?.id) {    
+        if (!publicacionReportada?.id) {
             return res.status(400).json({ message: 'Los datos del usuario reportado son requeridos.' });
         }
 
@@ -65,9 +65,10 @@ export const updateReportPost = async (req, res) => {
         if (!_id || !mongoose.Types.ObjectId.isValid(_id)) {
             return res.status(400).json({ message: 'Se requiere una id de reporte valida' });
         }
-    
+
+        const id = validator.escape(_id);
         const updatedReport = await ReportedPost.findOneAndUpdate(
-            { _id },
+            { _id: id },
             { status: 'Verificado' },
             { new: true }
         );
@@ -98,7 +99,8 @@ export const deleteReportPost = async (req, res) => {
             return res.status(400).json({ message: 'Se requiere una id de reporte valida' });
         }
 
-        const deletedReport = await ReportedPost.findOneAndDelete({ _id });
+        const id = validator.escape(_id);
+        const deletedReport = await ReportedPost.findOneAndDelete({ _id: id });
 
         if (!deletedReport) {
             return res.status(404).json({ message: 'Reporte no encontrado.' });

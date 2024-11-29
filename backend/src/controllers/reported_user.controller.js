@@ -66,9 +66,9 @@ export const updateReport = async (req, res) => {
         if (!_id) {
             return res.status(400).json({ message: 'El ID del reporte es requerido.' });
         }
-
+        const id = validator.escape(_id);
         const updatedReport = await ReportedUser.findOneAndUpdate(
-            { _id },
+            { _id: id },
             { status: 'Verificado' },
             { new: true }
         );
@@ -99,7 +99,8 @@ export const deleteReport = async (req, res) => {
             return res.status(400).json({ message: 'El ID del reporte es requerido.' });
         }
 
-        const deletedReport = await ReportedUser.findOneAndDelete({ _id });
+        const id = validator.escape(_id);
+        const deletedReport = await ReportedUser.findOneAndDelete({ _id: id });
 
         if (!deletedReport) {
             return res.status(404).json({ message: 'Reporte no encontrado.' });
@@ -125,7 +126,8 @@ export const getReports = async (req, res) => {
 
         const query = {};
         if (status) {
-            query.status = status;
+            const sanitizedStatus = validator.escape(status);
+            query.status = sanitizedStatus;
         }
 
         const reports = await ReportedUser.find(query);
