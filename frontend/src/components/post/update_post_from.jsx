@@ -66,7 +66,7 @@ const UpdatePostForm = ({ onSubmit, categorias, defaultValues = {}, onCancel }) 
             <div className="sub">
                 <div className='imageDiv'>
                     <label htmlFor="fileInput" className="file-link">
-                        Seleccionar archivo
+                        Seleccionar archivo{' '}
                         <input
                             type="file"
                             id="fileInput"

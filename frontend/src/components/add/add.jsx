@@ -46,7 +46,19 @@ const Advertising = ({ add, onDelete }) => {
 
 
     return (
-        <div className="add" onMouseEnter={enableButtons} onMouseLeave={enableButtons}>
+        <div
+            className="add"
+            role="button" // Hace que el div se comporte como un botón
+            onMouseEnter={enableButtons}
+            onMouseLeave={enableButtons}
+            tabIndex={2} // Permite que sea accesible con Tab
+            onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    enableButtons(); // Permite activar con Enter o Espacio
+                }
+            }}
+            aria-label="Activar botones" // Proporciona descripción accesible
+        >
             <img src={add.imageUrl} alt="noticia" />
             <span>
                 <a href={add.link}>
