@@ -2,6 +2,7 @@ import validator from "validator";
 import Comment from "../models/comment.models.js";
 import Post from '../models/post.models.js'
 import mongoose from "mongoose";
+import { formatFecha } from "./shared_funtions.js";
 
 export const getComments = async (req, res) => {
     try {
@@ -20,7 +21,8 @@ export const getComments = async (req, res) => {
 
         const responsePost = {
             ...post.toObject(),
-            likesCount: post.likes ? post.likes.length : 0
+            likesCount: post.likes ? post.likes.length : 0,
+            date: formatFecha(post.date),
         };
 
         const comentarios = await Comment.find({

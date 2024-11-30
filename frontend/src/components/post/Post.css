@@ -7,7 +7,7 @@
     border-radius: 10px;
     padding: 8px 5px;
     margin: 0.6% 0.5%;
-    height: 310px;
+    min-height: 310px;
 }
 
 .post-top {
@@ -48,6 +48,7 @@
 
 .publicacion>img {
     height: 240px;
+    max-width: 240px;
     border: 1px solid#000;
 }
 
@@ -93,11 +94,16 @@
     flex-direction: row;
 }
 
-.reaccion>p {
-    margin-right: 5px;
-    line-height: 20px;
-    font-size: 18px;
-}
+.reaccion>button {
+    background-color: inherit;
+    color: #000;
+    font-size: 15px;
+    border: 1px solid #000;
+    margin-top: 0%;
+    margin-left: 5px;
+    height: auto;
+    padding: 10px 8px 8px 8px;
+}   
 
 .reaccion a {
     text-decoration: none;

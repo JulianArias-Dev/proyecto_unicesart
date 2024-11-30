@@ -232,17 +232,17 @@ const Post = ({ post, onDelete }) => {
                         </div>
                     </div>
                     <div className="reaccion">
-                        <p onClick={handleReaction} style={{ cursor: 'pointer' }}>
+                        <button onClick={handleReaction} style={{ cursor: 'pointer' }}>
                             {post.likesCount}
                             {liked ? <i className="fa-solid fa-heart"></i> : <i className="fa-regular fa-heart"></i>}
                             Me encanta
-                        </p>
-                        <p>
+                        </button>
+                        <button>
                             <Link to={`/comments/${post._id}`}>
-                                <i className="fa-regular fa-comment"></i>
+                                <i className="fa-regular fa-comment"></i>{' '}
                                 Comentarios
                             </Link>
-                        </p>
+                        </button>
                     </div>
                     <p style={{ marginLeft: '10px', marginBottom: '5px', fontSize: '12px' }}>{post.date}</p>
                 </div>

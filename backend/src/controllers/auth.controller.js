@@ -5,6 +5,7 @@ import validator from 'validator';
 import bcrypt from 'bcryptjs';
 import mongoose from 'mongoose';
 import { z } from 'zod'
+import { formatFecha } from './shared_funtions.js';
 
 const calcularEdad = (birthDate) => {
     const today = new Date();
@@ -17,15 +18,6 @@ const calcularEdad = (birthDate) => {
     }
 
     return age;
-};
-
-const formatFecha = (fechaISO) => {
-    const dateObj = new Date(fechaISO);
-    const day = String(dateObj.getDate()).padStart(2, '0');
-    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-    const year = dateObj.getFullYear();
-
-    return `${day}/${month}/${year}`;
 };
 
 export const register = async (req, res) => {
