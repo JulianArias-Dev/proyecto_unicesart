@@ -209,7 +209,7 @@ const Post = ({ post, onDelete }) => {
                     src={post.imageUrl}
                     alt={post.title}
                     onClick={showOriginalSize}
-                    role="button" 
+                    role="listitem" 
                     aria-label={`Ampliar imagen de ${post.title}`} 
                     style={{ maxWidth: "100%", cursor: "pointer" }}
                     tabIndex={0} 

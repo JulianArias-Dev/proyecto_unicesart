@@ -51,7 +51,7 @@ const Advertising = ({ add, onDelete }) => {
             role="button" // Hace que el div se comporte como un botón
             onMouseEnter={enableButtons}
             onMouseLeave={enableButtons}
-            tabIndex={2} // Permite que sea accesible con Tab
+            tabIndex={0} // Permite que sea accesible con Tab
             onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                     enableButtons(); // Permite activar con Enter o Espacio
