@@ -80,7 +80,7 @@ const CommentPage = () => {
             <button onClick={goBack} style={{marginLeft:'25px'}} className="fa-solid fa-arrow-left"></button>
             <div className='currentpost'>
                 {/* Verificamos que post tenga la estructura esperada antes de renderizar */}
-                {currentPost && currentPost._id ? (
+                {currentPost?._id ? (
                     <Post key={currentPost._id} post={currentPost} onDelete={handleDeletePost}/>
                 ) : (
                     <p>Cargando...</p>

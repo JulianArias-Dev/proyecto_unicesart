@@ -125,20 +125,20 @@ const Profile = () => {
         );
     };
 
-    {/* En tu JSX original, reemplaza el bloque con esta función */ }
-    {
-        isOpen && (
-            <ul className="report-menu2">
-                {renderUserOptions()}
-                <li>
-                    <button className="report-item" onClick={toggleMenu}>
-                        <i className="fa-solid fa-x"></i> Cerrar
-                    </button>
-                </li>
-            </ul>
-        )
-    }
-
+    const renderPublicaciones = () => {
+        if (profileUser.status === "Suspendido") {
+            return <p>El usuario ha sido suspendido debido a una infracción de las normas de la página.</p>;
+        }
+    
+        if (publicaciones?.length > 0 && profileUser.role === "usuario") {
+            return publicaciones.map((post) => (
+                <Post key={post._id} post={post} onDelete={handleDeletePost} />
+            ));
+        }
+    
+        return <p>No hay publicaciones disponibles.</p>;
+    };
+    
     return (
         <div className="main">
             <div className="profile">
@@ -164,7 +164,7 @@ const Profile = () => {
                             </li>
                         </ul>
                     )}
-                    
+
                     <dialog ref={dialogReportRef} className="dialogPost dialogReport">
                         <h3>Reportar Usuario</h3>
                         {/* Aquí integramos el ReportForm */}
@@ -215,16 +215,9 @@ const Profile = () => {
                     <div className="myPost">
                         <h2>Trabajos destacados</h2>
                         <div>
-                            {profileUser.status === "Suspendido" ?
-                                (<p>El usuario ha sido suspendido debido a una infracción de las normas de la página.</p>) :
-                                publicaciones?.length > 0 && profileUser.role === "usuario" ? (
-                                    publicaciones.map((post) => (
-                                        <Post key={post._id} post={post} onDelete={handleDeletePost} />
-                                    ))
-                                ) : (
-                                    <p>No hay publicaciones disponibles.</p>
-                                )}
+                            {renderPublicaciones()}
                         </div>
+
                     </div>
                 </section>
             </div>
