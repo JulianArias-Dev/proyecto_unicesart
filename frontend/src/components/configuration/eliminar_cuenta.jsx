@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 import { useAuth } from '../../context/context';
 import Swal from 'sweetalert2';
 import { useNavigate } from "react-router-dom";
@@ -13,9 +13,6 @@ const EliminarCuenta = () => {
     const [code, setCode] = useState('');
     const { user, deleteAccount } = useAuth();
     const navigate = useNavigate();
-    useEffect(() => {
-        user
-    }, [user]);
 
     const handleButtonClick = async () => {
         if (step === 1) {

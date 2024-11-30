@@ -209,8 +209,15 @@ const Post = ({ post, onDelete }) => {
                     src={post.imageUrl}
                     alt={post.title}
                     onClick={showOriginalSize}
+                    role="button" 
+                    aria-label={`Ampliar imagen de ${post.title}`} 
                     style={{ maxWidth: "100%", cursor: "pointer" }}
+                    tabIndex={0} 
+                    onKeyPress={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') showOriginalSize(); // Habilita Enter o espacio
+                    }}
                 />
+
 
                 <div className="publicacion contenido">
                     <div className="descripcion">
