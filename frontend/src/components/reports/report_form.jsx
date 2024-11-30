@@ -3,8 +3,20 @@ import PropTypes from 'prop-types';
 
 const ReportForm = ({ onSubmit, onCancel, opcion }) => {
 
-    const opcionesUsuario = ['Acoso o intimidación', 'Spam', 'Suplantación de identidad', 'Contenido inapropiado', 'Bullying o Ciberacoso'];
-    const opcionesPublicacion = ['Contenido Violento', 'Contenido Explícito', 'Autolesiones', 'Spam', 'Infracción de derechos de autor'];
+    const opcionesUsuario = [
+        { id: 'usuario-0', label: 'Acoso o intimidación' },
+        { id: 'usuario-1', label: 'Spam' },
+        { id: 'usuario-2', label: 'Suplantación de identidad' },
+        { id: 'usuario-3', label: 'Contenido inapropiado' },
+        { id: 'usuario-4', label: 'Bullying o Ciberacoso' }
+    ];
+    const opcionesPublicacion = [
+        { id: 'publicacion-0', label: 'Contenido Violento' },
+        { id: 'publicacion-1', label: 'Contenido Explícito' },
+        { id: 'publicacion-2', label: 'Autolesiones' },
+        { id: 'publicacion-3', label: 'Spam' },
+        { id: 'publicacion-4', label: 'Infracción de derechos de autor' }
+    ];
 
     const [formData, setFormData] = useState({
         motivo: [],
@@ -17,12 +29,12 @@ const ReportForm = ({ onSubmit, onCancel, opcion }) => {
         setFormData((prevData) => {
             const updatedMotivo = new Set(prevData.motivo);
             if (checked) {
-                updatedMotivo.add(value); 
+                updatedMotivo.add(value);
             } else {
-                updatedMotivo.delete(value); 
+                updatedMotivo.delete(value);
             }
 
-            return { ...prevData, motivo: [...updatedMotivo] }; 
+            return { ...prevData, motivo: [...updatedMotivo] };
         });
     };
 
@@ -50,15 +62,15 @@ const ReportForm = ({ onSubmit, onCancel, opcion }) => {
         <form method="dialog" className="formPost">
             <p>Selecciona un motivo:</p>
 
-            {opciones.map((opcion, index) => (
-                <p key={index}>
+            {opciones.map((opcion) => (
+                <p key={opcion.id}>
                     <input
                         type="checkbox"
                         name="motivo"
-                        value={opcion}
+                        value={opcion.label}
                         onChange={handleCheckboxChange}
                     />
-                    {opcion}
+                    {opcion.label}
                 </p>
             ))}
 

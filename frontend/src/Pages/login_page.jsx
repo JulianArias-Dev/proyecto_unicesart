@@ -26,8 +26,8 @@ const LoginPage = () => {
                         {/* Mostrar errores de autenticación */}
                         {registerErrors && registerErrors.length > 0 && (
                             <div className="error-container">
-                                {registerErrors.map((error, index) => (
-                                    <span key={index} className="error-message">
+                                {registerErrors.map((error) => (
+                                    <span key={error.id || error.message || error.toString()} className="error-message">
                                         {error.message || error.toString()}
                                     </span>
                                 ))}

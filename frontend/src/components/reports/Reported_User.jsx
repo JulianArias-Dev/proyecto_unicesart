@@ -21,7 +21,7 @@ const ReportedUser = ({ report }) => {
     }
 
     // Verificamos si el `report` está definido antes de intentar acceder a sus propiedades
-    if (!report || !report.usuarioReportado) {
+    if (!report?.usuarioReportado) {
         return <div>No se puede mostrar el reporte. Faltan datos.</div>;
     }
 

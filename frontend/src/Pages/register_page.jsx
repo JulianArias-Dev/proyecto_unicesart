@@ -24,13 +24,16 @@ const Register = () => {
                 <img src="src/assets/street-art-7888561_1920.jpg" alt="" />
                 <div className="dialogo">
                     <div className="container">
-                        {registerErrors.length > 0 && (
+                        {registerErrors && registerErrors.length > 0 && (
                             <div className="error-container">
-                                {registerErrors.map((error, index) => (
-                                    <span key={index}>{error}</span>
+                                {registerErrors.map((error) => (
+                                    <span key={error.id || error.message || error.toString()} className="error-message">
+                                        {error.message || error.toString()}
+                                    </span>
                                 ))}
                             </div>
                         )}
+
                         <form className="formulario formularioRegister" onSubmit={handleSubmit(handleRegister)}>
                             <h3 className='form-title'>Registro</h3>
                             <div className='camposRegister'>

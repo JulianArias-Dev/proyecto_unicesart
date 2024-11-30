@@ -81,7 +81,6 @@ Advertising.propTypes = {
         fechaFin: PropTypes.string.isRequired,
     }).isRequired,
     onDelete: PropTypes.func.isRequired,
-    onUpdate: PropTypes.func.isRequired,
 }
 
 export default Advertising;
