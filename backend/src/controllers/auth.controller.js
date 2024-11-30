@@ -6,6 +6,7 @@ import bcrypt from 'bcryptjs';
 import mongoose from 'mongoose';
 import { z } from 'zod'
 import { formatFecha } from './shared_funtions.js';
+import { validateRegisterInput, updateUserFields, sanitizeInputFields } from './validators.js';
 
 const calcularEdad = (birthDate) => {
     const today = new Date();
@@ -24,26 +25,12 @@ export const register = async (req, res) => {
     try {
         const { email, username, fullName, gender, password, role } = req.body;
 
-        //Validar que los campos hayan sido enviados 
-        if (!email) {
-            return res.status(400).json({ message: 'El correo electrónico es requerido.' });
+        // Validar los campos de entrada
+        const validationError = validateRegisterInput({ email, username, fullName, gender, password });
+        if (validationError) {
+            return res.status(400).json({ message: validationError });
         }
 
-        if (!password) {
-            return res.status(400).json({ message: 'La contraseña es requerida.' });
-        }
-
-        if (!username) {
-            return res.status(400).json({ message: 'El nombre de usuario es requerido.' });
-        }
-
-        if (!fullName) {
-            return res.status(400).json({ message: 'El nombre completo es requerido.' });
-        }
-
-        if (!gender) {
-            return res.status(400).json({ message: 'El genero es requerido.' });
-        }
         // Sanitizar los datos 
         const sanitizedEmail = validator.normalizeEmail(email);
         const sanitizedUsername = validator.escape(username);
@@ -219,34 +206,31 @@ export const logout = (req, res) => {
 
 export const updateUser = async (req, res) => {
     try {
-        const { email, fullName, description, skills, profession, birthDate, city, phone, gender, } = req.body;
-        const imageUrl = '';
+        const { email, fullName, description, skills, profession, birthDate, city, phone, gender } = req.body;
 
-        const sanitizedEmail = email ? validator.normalizeEmail(email) : null;
-        const sanitizedFullName = fullName ? validator.escape(fullName) : null;
-        const sanitizedDescription = description ? validator.escape(description) : null;
-        const sanitizedSkills = skills ? validator.escape(skills) : null;
-        const sanitizedProfession = profession ? validator.escape(profession) : null;
-        const sanitizedPhone = phone ? validator.escape(phone) : null;
+        // Sanitize input fields
+        const sanitizedData = sanitizeInputFields({
+            email,
+            fullName,
+            description,
+            skills,
+            profession,
+            phone,
+        });
 
-        const userFound = await User.findOne({ email:sanitizedEmail });
-
+        // Find user by sanitized email
+        const userFound = await User.findOne({ email: sanitizedData.email });
         if (!userFound) {
             return res.status(404).json({ message: 'Usuario no encontrado' });
         }
 
-        userFound.fullName = sanitizedFullName ?? userFound.fullName;
-        userFound.description = sanitizedDescription ?? userFound.description;
-        userFound.skills = sanitizedSkills ?? userFound.skills;
-        userFound.profession = sanitizedProfession ?? userFound.profession;
-        userFound.lugarOrigen = {
-            nombreDepartamento: city?.departamento ?? userFound.lugarOrigen.nombreDepartamento,
-            nombreMunicipio: city?.municipio ?? userFound.lugarOrigen.nombreMunicipio,
-        };
-        userFound.birthDate = birthDate ?? userFound.birthDate;
-        userFound.phone = sanitizedPhone ?? userFound.phone;
-        userFound.gender = gender ?? userFound.gender;
-        userFound.imageUrl = imageUrl ?? userFound.imageUrl;
+        // Update user fields
+        updateUserFields(userFound, {
+            ...sanitizedData,
+            birthDate,
+            city,
+            gender,
+        });
 
         const updatedUser = await userFound.save();
 
@@ -258,10 +242,7 @@ export const updateUser = async (req, res) => {
             description: updatedUser.description,
             skills: updatedUser.skills,
             profession: updatedUser.profession,
-            lugarOrigen: {
-                nombreDepartamento: updatedUser.lugarOrigen.nombreDepartamento,
-                nombreMunicipio: updatedUser.lugarOrigen.nombreMunicipio,
-            },
+            lugarOrigen: updatedUser.lugarOrigen,
             birthDate: updatedUser.birthDate,
             phone: updatedUser.phone,
             gender: updatedUser.gender,
@@ -272,7 +253,7 @@ export const updateUser = async (req, res) => {
             edad: calcularEdad(updatedUser.birthDate),
         });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        return res.status(500).json({ message: error.message });
     }
 };
 
@@ -490,7 +471,7 @@ export const searchUsers = async (req, res) => {
             return res.status(400).json({ message: 'Se requiere un palabra clave para la búsqueda' });
         }
 
-        sanitizedQuery = validator.escape(query);
+        const sanitizedQuery = validator.escape(query);
 
         const users = await User.find({
             $or: [

@@ -168,7 +168,7 @@ export const getPost = async (req, res) => {
         let publicaciones = [];
 
         if (id && username) {
-            if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+            if (!mongoose.Types.ObjectId.isValid(id)) {
                 return res.status(400).json({ message: 'Se requiere una id de usuario valida' });
             }
             const sanitizedUser = validator.escape(username);

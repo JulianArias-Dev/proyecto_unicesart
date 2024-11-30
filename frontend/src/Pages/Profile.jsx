@@ -25,8 +25,8 @@ const Profile = () => {
                     setProfileUser(userProfile);
                     if (userProfile.role === "usuario") {
                         const data = {
-                            id : userProfile.id,
-                            username :userProfile.username,
+                            id: userProfile.id,
+                            username: userProfile.username,
                         }
                         await fetchPosts(data);
                     }
@@ -95,6 +95,50 @@ const Profile = () => {
         }
     };
 
+    const renderUserOptions = () => {
+        if (loggedInUser?.role !== "administrador") {
+            return (
+                <li>
+                    <button className="report-item" onClick={showDialog}>
+                        <i className="fa-solid fa-flag"></i> Reportar Usuario
+                    </button>
+                </li>
+            );
+        }
+
+        if (profileUser.status === "Activo") {
+            return (
+                <li>
+                    <button className="report-item" onClick={handleUpdateStatus}>
+                        <i className="fa-solid fa-ban"></i> Suspender Usuario
+                    </button>
+                </li>
+            );
+        }
+
+        return (
+            <li>
+                <button className="report-item" onClick={handleUpdateStatus}>
+                    <i className="fa-regular fa-square-check"></i> Activar Usuario
+                </button>
+            </li>
+        );
+    };
+
+    {/* En tu JSX original, reemplaza el bloque con esta función */ }
+    {
+        isOpen && (
+            <ul className="report-menu2">
+                {renderUserOptions()}
+                <li>
+                    <button className="report-item" onClick={toggleMenu}>
+                        <i className="fa-solid fa-x"></i> Cerrar
+                    </button>
+                </li>
+            </ul>
+        )
+    }
+
     return (
         <div className="main">
             <div className="profile">
@@ -112,25 +156,7 @@ const Profile = () => {
                     )}
                     {isOpen && (
                         <ul className="report-menu2">
-                            {loggedInUser?.role !== "administrador" ? (
-                                <li>
-                                    <button className="report-item" onClick={showDialog}>
-                                        <i className="fa-solid fa-flag"></i>Reportar Usuario
-                                    </button>
-                                </li>
-                            ) : profileUser.status === "Activo" ? (
-                                <li>
-                                    <button className="report-item" onClick={handleUpdateStatus}>
-                                        <i className="fa-solid fa-ban"></i>Suspender Usuario
-                                    </button>
-                                </li>
-                            ) : (
-                                <li>
-                                    <button className="report-item" onClick={handleUpdateStatus}>
-                                        <i className="fa-regular fa-square-check"></i>Activar Usuario
-                                    </button>
-                                </li>
-                            )}
+                            {renderUserOptions()}
                             <li>
                                 <button className="report-item" onClick={toggleMenu}>
                                     <i className="fa-solid fa-x"></i> Cerrar
@@ -138,8 +164,7 @@ const Profile = () => {
                             </li>
                         </ul>
                     )}
-
-
+                    
                     <dialog ref={dialogReportRef} className="dialogPost dialogReport">
                         <h3>Reportar Usuario</h3>
                         {/* Aquí integramos el ReportForm */}
