@@ -73,7 +73,8 @@ const PostForm = ({ onSubmit, categorias, onCancel }) => {
                         type="text"
                         {...register('title', {
                             required: "El título es requerido",
-                            maxLength: { value: 100, message: "Máximo 100 caracteres" }
+                            maxLength: { value: 30, message: "Máximo 30 caracteres" },
+                            minLength: {value:10, message:"Se necesitan al menos 10 caracteres"},
                         })}
                     />
                     {errors.title && <span>{errors.title.message}</span>}
@@ -82,7 +83,7 @@ const PostForm = ({ onSubmit, categorias, onCancel }) => {
                     <p>Descripción:</p>
                     <textarea
                         {...register('description', {
-                            maxLength: { value: 500, message: "Máximo 500 caracteres" }
+                            maxLength: { value: 400, message: "Máximo 400 caracteres" }
                         })}
                     />
                     {errors.description && <span>{errors.description.message}</span>}

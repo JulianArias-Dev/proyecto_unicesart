@@ -11,7 +11,8 @@ const Register = () => {
 
     useEffect(() => {
         if (isAuthenticated) navigate('/home');
-    }, [isAuthenticated, navigate]);
+        setErrors([]);
+    }, [isAuthenticated, navigate, setErrors]);
 
     const handleRegister = async (data) => {
         clearErrors(); setErrors([]);
@@ -52,6 +53,10 @@ const Register = () => {
                                             minLength: {
                                                 value: 3,
                                                 message: "Debe tener al menos 3 caracteres"
+                                            },
+                                            maxLength : {
+                                                value : 50,
+                                                message : "El nombre no puede exceder los 50 caracteres"
                                             }
                                         })}
                                     />
@@ -65,8 +70,8 @@ const Register = () => {
                                         {...register("username", {
                                             required: "Nombre de usuario es requerido",
                                             minLength: {
-                                                value: 3,
-                                                message: "El nombre de usuario debe tener al menos 3 caracteres"
+                                                value: 5,
+                                                message: "El nombre de usuario debe tener al menos 5 caracteres"
                                             },
                                             maxLength: {
                                                 value: 15,
@@ -87,7 +92,8 @@ const Register = () => {
                                                 pattern: {
                                                     value: /^[a-zA-Z0-9._%+-]+@unicesar\.edu\.co$/,
                                                     message: "El correo debe ser del dominio @unicesar.edu.co"
-                                                }
+                                                },
+                                                maxLength: { value: 30, message: "El correo debe ser de máximo 30 caracteres" }
                                             })}
                                             placeholder="Correo Electrónico"
                                         />
@@ -98,14 +104,10 @@ const Register = () => {
                                             type="password"
                                             {...register("password", {
                                                 required: "Contraseña es requerida",
-                                                minLength: {
-                                                    value: 8,
-                                                    message: "La contraseña debe tener al menos 8 caracteres"
-                                                },
                                                 pattern: {
-                                                    value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-                                                    message: "La contraseña debe contener al menos una mayúscula, una minúscula, un número y un carácter especial"
-                                                }
+                                                    value: /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=?<>])[A-Za-z\d!@#$%^&*()_\-+=?<>]{8,16}$/,
+                                                    message: "La contraseña debe tener entre 8 y 16 caracteres, incluir una letra mayúscula, un número y un carácter especial.",
+                                                },
                                             })}
                                             placeholder="Contraseña"
                                         />

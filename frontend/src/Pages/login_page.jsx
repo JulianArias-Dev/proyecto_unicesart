@@ -11,7 +11,8 @@ const LoginPage = () => {
 
     useEffect(() => {
         if (isAuthenticated) navigate('/home');
-    }, [isAuthenticated, navigate]);
+        setErrors([]);
+    }, [isAuthenticated, navigate, setErrors]);
 
     const handleLogin = async (data) => {
         clearErrors(); setErrors([]);
@@ -46,7 +47,8 @@ const LoginPage = () => {
                                         pattern: {
                                             value: /^[a-zA-Z0-9._%+-]+@unicesar\.edu\.co$/,
                                             message: "El correo debe ser del dominio @unicesar.edu.co"
-                                        }
+                                        },
+                                        maxLength: { value: 30, message: "El correo debe ser de máximo 30 caracteres" }
                                     })}
                                     placeholder="Correo Electrónico"
                                 />
@@ -59,8 +61,8 @@ const LoginPage = () => {
                                     {...register("password", {
                                         required: "Contraseña es requerida",
                                         pattern: {
-                                            value: /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=?<>])[A-Za-z\d!@#$%^&*()_\-+=?<>]{8,}$/,
-                                            message: "La contraseña debe tener al menos 8 caracteres, incluir una letra mayúscula, un número y un carácter especial.",
+                                            value: /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=?<>])[A-Za-z\d!@#$%^&*()_\-+=?<>]{8,16}$/,
+                                            message: "La contraseña debe tener entre 8 y 16 caracteres, incluir una letra mayúscula, un número y un carácter especial.",
                                         },
                                     })}
                                     placeholder="Contraseña"
