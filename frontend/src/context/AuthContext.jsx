@@ -1,7 +1,7 @@
 import { createContext, useState, useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { handleRequest } from './helper_api';
-import { showLoading, showError, closeAlert } from '../components/SweetAlertHelpers'; 
+import { showLoading, showError, closeAlert } from '../components/SweetAlertHelpers';
 
 export const AuthContext = createContext();
 
@@ -26,9 +26,13 @@ export const AuthProvider = ({ children }) => {
         try {
             const res = await handleRequest('post', '/register', userData, "Usuario registrado con éxito");
             closeAlert(); // Cerrar el cargador al recibir respuesta
-            setUser(res.data);
-            setIsAuthenticated(true);
+            if (res.data) {
+                setUser(res.data);
+                setIsAuthenticated(true);
             sessionStorage.setItem('user', JSON.stringify(res.data));
+            }else{
+                showError("Error al registrarse", res.message)
+            }            
         } catch (error) {
             closeAlert();
             showError("Error al registrarse", error.message || "Intenta nuevamente.");
@@ -41,9 +45,13 @@ export const AuthProvider = ({ children }) => {
         try {
             const res = await handleRequest('post', '/login', credentials, "¡Bienvenido de nuevo!");
             closeAlert();
-            setUser(res.data);
-            setIsAuthenticated(true);
-            sessionStorage.setItem('user', JSON.stringify(res.data));
+            if (res.data) {
+                setUser(res.data);
+                setIsAuthenticated(true);
+                sessionStorage.setItem('user', JSON.stringify(res.data));
+            }else{
+                showError("Error al registrarse", res.message)
+            }
         } catch (error) {
             closeAlert();
             showError("Error al iniciar sesión", error.message || "Revisa tus credenciales.");
@@ -109,7 +117,7 @@ export const AuthProvider = ({ children }) => {
     const getUsers = async (query) => {
         showLoading();
         try {
-            const res = await handleRequest('get', `/users`, { params: {query} });
+            const res = await handleRequest('get', `/users`, { params: { query } });
             closeAlert();
             return res;
         } catch (error) {
@@ -154,6 +162,7 @@ export const AuthProvider = ({ children }) => {
                 isAuthenticated,
                 errors,
                 ubicaciones,
+                setErrors,
                 getUsers,
                 getUbicaciones,
                 signUp,

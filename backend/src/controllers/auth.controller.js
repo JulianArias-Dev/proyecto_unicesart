@@ -41,14 +41,16 @@ export const register = async (req, res) => {
         const userFoundByUsername = await User.findOne({ username: sanitizedUsername }).lean().exec();
 
         if (userFoundByEmail || userFoundByUsername) {
+            const errorMessages = [
+                userFoundByEmail ? 'La dirección de correo electrónico ya está en uso.' : null,
+                userFoundByUsername ? 'El nombre de usuario ya está en uso.' : null,
+            ].filter(Boolean).join(' '); // Concatena los mensajes con un espacio.
+        
             return res.status(400).json({
-                message: 'Errores en el registro',
-                errors: [
-                    userFoundByEmail ? 'La dirección de correo electrónico ya está en uso.' : null,
-                    userFoundByUsername ? 'El nombre de usuario ya está en uso.' : null,
-                ].filter(Boolean),
+                message: 'Errores en el registro: ' + errorMessages, // Mensaje concatenado.
             });
         }
+        
 
         //Encriptar la contraseña
         const passwordHash = await bcrypt.hash(password, 10);

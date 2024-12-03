@@ -16,15 +16,14 @@ export const sendRequest = async (method, endpoint, data = {}, config = {}) => {
         });
         return response;
     } catch (error) {
-        // Extraer información útil del error
-        const errorDetails = {
-            status: error.response?.status || 500, // Código de estado (500 por defecto)
-            message: error.response?.data?.message || "Error inesperado.", // Mensaje de error del servidor
-            data: error.response?.data || {}, // Cuerpo completo del error del servidor
-        };
+        // Extraer y asegurar propiedades
+        const status = error.response?.status || 500; // Código de estado
+        const message = error.response?.data?.message || error.message || "Error inesperado.";
+        const errors = error.response?.data?.errors || []; // Manejo de errores adicionales
 
-        // Lanzar error detallado
-        throw errorDetails;
+        const errorDetails = { status, message, errors };
+        console.error("Detalles del error:", errorDetails); // Depuración
+        throw errorDetails; // Lanzar error procesado
     }
 };
 

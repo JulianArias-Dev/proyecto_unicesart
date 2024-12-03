@@ -139,8 +139,10 @@
 }
 
 .error-message {
+    padding: 5px 2px 5px 2px;
     margin: auto;
-    color: #656464;
+    color: red;
+    font-size: 20px;
 }
 
 .campo {

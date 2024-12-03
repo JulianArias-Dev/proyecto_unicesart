@@ -5,8 +5,8 @@ import { useAuth } from '../context/context';
 import { useEffect } from 'react';
 
 const LoginPage = () => {
-    const { register, handleSubmit, formState: { errors } } = useForm();
-    const { isAuthenticated, errors: registerErrors, signIn } = useAuth();
+    const { register, handleSubmit, formState: { errors }, clearErrors } = useForm();
+    const { isAuthenticated, errors: registerErrors, signIn, setErrors } = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -14,6 +14,7 @@ const LoginPage = () => {
     }, [isAuthenticated, navigate]);
 
     const handleLogin = async (data) => {
+        clearErrors(); setErrors([]);
         signIn(data);
     };
 
